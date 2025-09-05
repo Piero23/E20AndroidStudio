@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             E20FrontendMobileTheme {
+
                 ShowEvent()
             }
         }

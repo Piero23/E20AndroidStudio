@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -24,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -63,7 +66,12 @@ fun ShowEvent(){
         Font(R.font.museomoderno_semibold, FontWeight.SemiBold),
     )
 
-    Column {
+    val scrollState = rememberScrollState()
+
+    Column (
+        modifier = Modifier
+            .verticalScroll(scrollState)
+    ){
         Image(
             /*bitmap = event.image?.asImageBitmap() ?: ,*/
             painter = painterResource(id = R.drawable.images) ,
@@ -71,54 +79,75 @@ fun ShowEvent(){
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxWidth(),
         )
-        Row (modifier = Modifier.fillMaxWidth()
-            .padding(10.dp,10.dp, 10.dp, 0.dp ),
-            horizontalArrangement = Arrangement.SpaceBetween
+        Column(
+            modifier = Modifier.padding(15.dp, 10.dp, 15.dp, 0.dp)
         ){
-            Column (
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+            Row (modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ){
-                Text(
-                    "Vieni a vedere le mucche",
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = museoModerno,
-                    fontSize = 30.sp
-                )
-                Box(
-                    Modifier.clip(RoundedCornerShape(15.dp))
-                        .background(
-                            brush = Brush.linearGradient(
-                                colors = listOf(Color(0xFFFF9D47), Color(0xFFC74F00)),
-                                start = Offset(0f, 500f),
-                                end = Offset(700f, 500f)
-                            )
-                        )
-                        .height(40.dp)
-                        .width(150.dp),
-                        Alignment.Center
+                Column (
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ){
-                    TextWithShadow(
-                        modifier = Modifier,
-                        text = "9-11-2001 11.00"
+                    Text(
+                        "Vieni a vedere le mucche",
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = museoModerno,
+                        fontSize = 32.sp
+                    )
+                    Box(
+                        Modifier.clip(RoundedCornerShape(15.dp))
+                            .background(
+                                brush = Brush.horizontalGradient(
+                                    colors = listOf(Color(255,157, 71, 255), Color(199, 79, 0, 255)),
+                                )
+                            )
+                            .height(40.dp)
+                            .width(150.dp),
+                        Alignment.Center
+                    ){
+                        TextWithShadow(
+                            modifier = Modifier,
+                            text = "9-11-2001 11.00"
+                        )
+                    }
+                }
+                Column (
+                    Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp)
+                ){
+                    Icon(
+                        Icons.Filled.Notifications,
+                        contentDescription = "Ricordamelo",
+                        modifier = Modifier
+                            .size(50.dp)
+                    )
+                    Icon(
+                        Icons.Filled.FavoriteBorder,
+                        contentDescription = "Salva",
+                        modifier = Modifier
+                            .size(50.dp)
                     )
                 }
             }
             Column (
-                Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp)
-            ){
-                Icon(
-                    Icons.Filled.Notifications,
-                    contentDescription = "Ricordamelo",
-                    modifier = Modifier
-                        .size(50.dp)
+                modifier = Modifier.padding(0.dp, 80.dp, 0.dp, 0.dp)
+            ) {
+                Text(
+                    "Descrizione",
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = museoModerno,
+                    fontSize = 28.sp
                 )
-                Icon(
-                    Icons.Filled.FavoriteBorder,
-                    contentDescription = "Salva",
-                    modifier = Modifier
-                        .size(50.dp)
+                Text(
+                    modifier = Modifier.padding(2.dp, 5.dp, 0.dp, 0.dp),
+                    text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec elementum, erat ut aliquam vehicula, dolor nisi elementum nulla, in sagittis odio odio non sem. Curabitur dolor dolor, faucibus eleifend enim ac, blandit condimentum elit. Donec placerat tortor quis orci vehicula rhoncus. Etiam eget ligula lobortis, tempor risus id, scelerisque enim. Cras aliquet sollicitudin est, sed vehicula leo vestibulum facilisis. Praesent turpis massa, ultrices vel orci at, congue gravida arcu.",
+                    fontWeight = FontWeight.Normal,
+                    fontFamily = museoModerno,
+                    fontSize = 16.sp
                 )
+            }
+            Row(){
+                //TODO: finire pagina (qui ci va il ticket)
             }
         }
     }

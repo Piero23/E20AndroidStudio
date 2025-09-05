@@ -1,6 +1,7 @@
 package com.example.e20frontendmobile
 
 import android.graphics.drawable.GradientDrawable
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Icon
@@ -34,20 +36,29 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.w3c.dom.Text
 import java.nio.file.WatchEvent
 
 
@@ -96,10 +107,14 @@ fun ShowEvent(){
                         fontSize = 32.sp
                     )
                     Box(
-                        Modifier.clip(RoundedCornerShape(15.dp))
+                        Modifier
+                            .clip(RoundedCornerShape(15.dp))
                             .background(
                                 brush = Brush.horizontalGradient(
-                                    colors = listOf(Color(255,157, 71, 255), Color(199, 79, 0, 255)),
+                                    colors = listOf(
+                                        Color(255, 157, 71, 255),
+                                        Color(199, 79, 0, 255)
+                                    ),
                                 )
                             )
                             .height(40.dp)
@@ -130,7 +145,7 @@ fun ShowEvent(){
                 }
             }
             Column (
-                modifier = Modifier.padding(0.dp, 80.dp, 0.dp, 0.dp)
+                modifier = Modifier.padding(0.dp, 80.dp, 0.dp, 80.dp)
             ) {
                 Text(
                     "Descrizione",
@@ -146,8 +161,141 @@ fun ShowEvent(){
                     fontSize = 16.sp
                 )
             }
-            Row(){
-                //TODO: finire pagina (qui ci va il ticket)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ){
+                Text(
+                    modifier = Modifier.alignBy(LastBaseline),
+                    text = "Posti disponibili: ",
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = museoModerno,
+                    fontSize = 20.sp
+                )
+                Text(
+                    modifier = Modifier.alignBy(LastBaseline),
+                    text = "2",
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = museoModerno,
+                    fontSize = 32.sp,
+                    color = Color(106, 51, 0, 255)
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ){
+                Box (
+                    modifier = Modifier.width(280.dp)
+                ){
+                    Image(
+                        modifier = Modifier.matchParentSize(),
+                        painter = painterResource(id = R.drawable.image) ,
+                        contentDescription = "Ticket",
+                        contentScale = ContentScale.FillWidth
+                    )
+                    Column(
+                        modifier = Modifier.padding(80.dp, 20.dp, 0.dp, 0.dp)
+                    ){
+                        Text(
+                            text = "1 Biglietto",
+                            color = Color.White,
+                            fontFamily = museoModerno,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Row(
+                            modifier = Modifier.offset(0.dp, (-8).dp)
+                        ){
+                            Text(
+                                modifier = Modifier.alignBy(LastBaseline),
+                                text = "200.00",
+                                fontFamily = museoModerno,
+                                fontSize = 40.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(106, 51, 0, 255)
+                            )
+                            Text(
+                                modifier = Modifier.alignBy(LastBaseline),
+                                text = "€",
+                                fontFamily = museoModerno,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(182, 97, 17, 255)
+                            )
+                        }
+                    }
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(0.dp, 15.dp, 22.dp, 80.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Text(
+                    text = "Compra Ora",
+                    fontFamily = museoModerno,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Icon(
+                    Icons.Filled.ArrowForward,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(30.dp)
+                    //TODO mettere il gradiente
+                )
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Location",
+                textAlign = TextAlign.Center,
+                fontFamily = museoModerno,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth()
+                .padding(start = 15.dp, end = 15.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ){
+            Column(
+                modifier = Modifier.weight(1f),
+            ){
+                Text(
+                    text = "Via di tua mamma",
+                    fontWeight = FontWeight.Normal,
+                    fontFamily = museoModerno,
+                    fontSize = 16.sp
+                )
+                Text(
+                    text = "118",
+                    fontWeight = FontWeight.Normal,
+                    fontFamily = museoModerno,
+                    fontSize = 16.sp
+                )
+            }
+            Column(
+                horizontalAlignment = Alignment.End
+            ){
+                Text(
+                    text = "Napoli (NA)",
+                    fontWeight = FontWeight.Normal,
+                    fontFamily = museoModerno,
+                    fontSize = 16.sp
+                )
+                Text(
+                    text = "88888",
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = museoModerno,
+                    fontSize = 16.sp
+                )
             }
         }
     }
@@ -173,4 +321,10 @@ fun TextWithShadow(
         color = Color.White,
         modifier = modifier
     )
+}
+
+@Composable
+@PreviewScreenSizes
+fun prev(){
+    ShowEvent()
 }

@@ -1,9 +1,13 @@
 package com.example.e20frontendmobile
 
 import android.graphics.drawable.GradientDrawable
+import android.view.ViewGroup
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,11 +28,18 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -37,6 +48,7 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposePath
@@ -58,6 +70,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import org.w3c.dom.Text
 import java.nio.file.WatchEvent
 
@@ -78,6 +91,8 @@ fun ShowEvent(){
     )
 
     val scrollState = rememberScrollState()
+    var toggledBell by rememberSaveable { mutableStateOf(false) }
+    var toggledHeart by rememberSaveable { mutableStateOf(false) }
 
     Column (
         modifier = Modifier
@@ -130,18 +145,28 @@ fun ShowEvent(){
                 Column (
                     Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp)
                 ){
-                    Icon(
-                        Icons.Filled.Notifications,
-                        contentDescription = "Ricordamelo",
-                        modifier = Modifier
-                            .size(50.dp)
-                    )
-                    Icon(
-                        Icons.Filled.FavoriteBorder,
-                        contentDescription = "Salva",
-                        modifier = Modifier
-                            .size(50.dp)
-                    )
+                    IconButton(
+                        onClick = { toggledBell = !toggledBell }
+                    ){
+                        Icon(
+                            Icons.Filled.Notifications,
+                            contentDescription = "Ricordamelo",
+                            modifier = Modifier
+                                .size(50.dp),
+                            tint = if (toggledBell) Color.Yellow else Color.Black
+                        )
+                    }
+                    IconButton(
+                        onClick = { toggledHeart = !toggledHeart }
+                    ) {
+                        Icon(
+                            Icons.Filled.FavoriteBorder,
+                            contentDescription = "Salva",
+                            modifier = Modifier
+                                .size(50.dp),
+                            tint = if (toggledHeart) Color.Red else Color.Black
+                        )
+                    }
                 }
             }
             Column (
@@ -233,19 +258,34 @@ fun ShowEvent(){
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ){
-                Text(
-                    text = "Compra Ora",
-                    fontFamily = museoModerno,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Icon(
-                    Icons.Filled.ArrowForward,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(30.dp)
-                    //TODO mettere il gradiente
-                )
+                TextButton(
+                    onClick = {},
+                    colors = ButtonColors(Color.Transparent, Color.Black, Color.Transparent, Color.Transparent)
+
+                ) {
+                    Text(
+                        text = "Compra Ora",
+                        fontFamily = museoModerno,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Icon(
+                        Icons.Filled.ArrowForward,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(30.dp)
+                            .graphicsLayer(alpha = 0.99f)
+                            .drawWithCache {
+                                val brush = Brush.horizontalGradient(listOf(
+                                    Color(255, 157, 71, 255),
+                                    Color(199, 79, 0, 255)))
+                                onDrawWithContent {
+                                    drawContent()
+                                    drawRect(brush, blendMode = BlendMode.SrcAtop)
+                                }
+                            }
+                    )
+                }
             }
         }
         Row(
@@ -298,6 +338,13 @@ fun ShowEvent(){
                 )
             }
         }
+        Box(
+            modifier = Modifier.fillMaxWidth()
+                .height(700.dp)
+                .padding(15.dp, 10.dp, 15.dp, 50.dp)
+        ){
+            WebViewScreen(45.0755969,7.638332)
+        }
     }
 }
 
@@ -322,6 +369,28 @@ fun TextWithShadow(
         modifier = modifier
     )
 }
+
+@Composable
+fun WebViewScreen(latitude: Double, longitude: Double) {
+    AndroidView(
+        factory = { ctx ->
+            WebView(ctx).apply {
+                this.layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+                settings.javaScriptEnabled = true
+                webViewClient = WebViewClient()
+            }
+        },
+        update = { web ->
+            web.loadUrl("https://maps.google.com/?q=${latitude},${longitude}")
+            //TODO scegliere che tipo di mappa usare
+        }
+    )
+}
+
+
 
 @Composable
 @PreviewScreenSizes

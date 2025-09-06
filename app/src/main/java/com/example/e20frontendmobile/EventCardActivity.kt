@@ -17,7 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,9 +27,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import com.example.e20frontendmobile.ui.theme.MuseoModerno
+import java.util.Date
 
 @Composable
-fun eventCard(name:String, info: String) {
+fun eventCard(str: String,str2: String) {
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -60,14 +63,14 @@ fun eventCard(name:String, info: String) {
 
             Column (modifier = Modifier.padding(vertical = 20.dp, horizontal = 20.dp)){
                 Text(
-                    text = name,
+                    text = str,
                     color = Color.White,
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.SemiBold,
                     style = MaterialTheme.typography.headlineMedium
                 )
                 Text(
-                    text = info,
+                    text = str,
                     color = Color.White,
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Light,
@@ -82,7 +85,8 @@ fun eventCard(name:String, info: String) {
 @Preview
 @Composable
 fun PreviewEventCard(){
+
     E20FrontendMobileTheme {
-        eventCard("Evento Bello","Via santa maria Napoli Ciah")
+        eventCard("c","c")
     }
 }

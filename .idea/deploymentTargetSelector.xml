@@ -16,7 +16,10 @@
       <SelectionState runConfigName="SimpleSearchBarExample">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="CustomizableSearchBarExample">
+      <SelectionState runConfigName="previewEventCarousel">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="wallpaperPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

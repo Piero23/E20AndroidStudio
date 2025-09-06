@@ -18,6 +18,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
@@ -25,10 +29,12 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,8 +51,32 @@ fun ShowDiscovery(){
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Eventi", "Profili") //nomi tabs
 
+    var query by rememberSaveable { mutableStateOf("") }
+    var items = listOf<String>() //TODO rimpiazzare con Evento
+    val filteredItems by remember {
+        derivedStateOf {
+            if (query.isEmpty()) {
+                items
+            } else {
+                items.filter { it.contains(query, ignoreCase = true) }
+            }
+        }
+    }
     Column(
     ){
+        CustomizableSearchBar(
+            query = query,
+            onQueryChange = { query = it },
+            onSearch = { /* Handle search submission */ },
+            searchResults = filteredItems,
+            onResultClick = { query = it },
+            // Customize appearance with optional parameters
+            placeholder = { Text("Cerca un evento...") },
+            trailingIcon = {Icon(Icons.Default.Search, contentDescription = "Search")  },
+            supportingContent = { Text("Android dessert") },
+            leadingContent = { Icon(Icons.Filled.Star, contentDescription = "Starred item")},
+            modifier = Modifier.padding(15.dp, 0.dp, 15.dp, 0.dp )
+        )
         TabRow(
             selectedTabIndex = selectedTabIndex,
             containerColor = Color.Transparent,

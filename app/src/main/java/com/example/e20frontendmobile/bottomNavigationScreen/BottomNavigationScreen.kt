@@ -32,6 +32,8 @@ import com.example.e20frontendmobile.bottomNavigationScreen.Sample.SampleScreen3
 import com.example.e20frontendmobile.bottomNavigationScreen.Sample.SampleScreen4
 import com.example.e20frontendmobile.bottomNavigationScreen.StandardScaffold
 import com.example.e20frontendmobile.bottomNavigationScreen.bottomNavItems
+import com.example.e20frontendmobile.mainFun
+import kotlinx.coroutines.MainScope
 import kotlin.text.contains
 
 @ExperimentalMaterial3Api
@@ -49,36 +51,10 @@ fun BottomNavigationScreen() {
 //            Navigation(navController = navController)
             NavHost(navController = navController, startDestination = "home") {
                 composable(route = "home") {
-                    ShowEvent()
+                    mainFun()
                 }
                 composable(route = "search") {
-                    Column(){
-                        var query by rememberSaveable { mutableStateOf("") }
-                        var items = listOf<String>() //TODO rimpiazzare con Evento
-                        val filteredItems by remember {
-                            derivedStateOf {
-                                if (query.isEmpty()) {
-                                    items
-                                } else {
-                                    items.filter { it.contains(query, ignoreCase = true) }
-                                }
-                            }
-                        }
-                        CustomizableSearchBar(
-                            query = query,
-                            onQueryChange = { query = it },
-                            onSearch = { /* Handle search submission */ },
-                            searchResults = filteredItems,
-                            onResultClick = { query = it },
-                            // Customize appearance with optional parameters
-                            placeholder = { Text("Cerca un evento...") },
-                            trailingIcon = {Icon(Icons.Default.Search, contentDescription = "Search")  },
-                            supportingContent = { Text("Android dessert") },
-                            leadingContent = { Icon(Icons.Filled.Star, contentDescription = "Starred item")},
-                            modifier = Modifier.padding(15.dp, 0.dp, 15.dp, 0.dp )
-                        )
-                        ShowDiscovery()
-                    }
+                    ShowDiscovery()
                 }
                 composable(route = "orders") {
                     SampleScreen3()

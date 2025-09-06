@@ -1,18 +1,14 @@
 package com.example.e20frontendmobile
 
-import android.graphics.drawable.GradientDrawable
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -20,19 +16,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -45,35 +38,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asComposePath
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.example.e20frontendmobile.ui.theme.museoModerno
-import org.w3c.dom.Text
-import java.nio.file.WatchEvent
 
 
 @Composable
@@ -107,8 +84,7 @@ fun ShowEvent(){
                     Text(
                         "Vieni a vedere le mucche",
                         fontWeight = FontWeight.Bold,
-                        fontFamily = museoModerno,
-                        fontSize = 32.sp
+                        style = MaterialTheme.typography.headlineLarge
                     )
                     Box(
                         Modifier
@@ -164,15 +140,13 @@ fun ShowEvent(){
                 Text(
                     "Descrizione",
                     fontWeight = FontWeight.Bold,
-                    fontFamily = museoModerno,
-                    fontSize = 28.sp
+                    style = MaterialTheme.typography.headlineMedium
                 )
                 Text(
                     modifier = Modifier.padding(2.dp, 5.dp, 0.dp, 0.dp),
                     text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec elementum, erat ut aliquam vehicula, dolor nisi elementum nulla, in sagittis odio odio non sem. Curabitur dolor dolor, faucibus eleifend enim ac, blandit condimentum elit. Donec placerat tortor quis orci vehicula rhoncus. Etiam eget ligula lobortis, tempor risus id, scelerisque enim. Cras aliquet sollicitudin est, sed vehicula leo vestibulum facilisis. Praesent turpis massa, ultrices vel orci at, congue gravida arcu.",
                     fontWeight = FontWeight.Normal,
-                    fontFamily = museoModerno,
-                    fontSize = 16.sp
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
             Row(
@@ -183,15 +157,13 @@ fun ShowEvent(){
                     modifier = Modifier.alignBy(LastBaseline),
                     text = "Posti disponibili: ",
                     fontWeight = FontWeight.Bold,
-                    fontFamily = museoModerno,
-                    fontSize = 20.sp
+                    style = MaterialTheme.typography.titleLarge
                 )
                 Text(
                     modifier = Modifier.alignBy(LastBaseline),
                     text = "2",
                     fontWeight = FontWeight.Bold,
-                    fontFamily = museoModerno,
-                    fontSize = 32.sp,
+                    style = MaterialTheme.typography.headlineLarge,
                     color = Color(106, 51, 0, 255)
                 )
             }
@@ -214,8 +186,7 @@ fun ShowEvent(){
                         Text(
                             text = "1 Biglietto",
                             color = Color.White,
-                            fontFamily = museoModerno,
-                            fontSize = 16.sp,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                         Row(
@@ -224,17 +195,15 @@ fun ShowEvent(){
                             Text(
                                 modifier = Modifier.alignBy(LastBaseline),
                                 text = "200.00",
-                                fontFamily = museoModerno,
+                                style = MaterialTheme.typography.headlineLarge,
                                 fontSize = 40.sp,
-                                fontWeight = FontWeight.Bold,
                                 color = Color(106, 51, 0, 255)
                             )
                             Text(
                                 modifier = Modifier.alignBy(LastBaseline),
                                 text = "€",
-                                fontFamily = museoModerno,
+                                style = MaterialTheme.typography.titleLarge,
                                 fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
                                 color = Color(182, 97, 17, 255)
                             )
                         }
@@ -254,7 +223,7 @@ fun ShowEvent(){
                 ) {
                     Text(
                         text = "Compra Ora",
-                        fontFamily = museoModerno,
+                        style = MaterialTheme.typography.titleMedium,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -284,8 +253,7 @@ fun ShowEvent(){
             Text(
                 text = "Location",
                 textAlign = TextAlign.Center,
-                fontFamily = museoModerno,
-                fontSize = 20.sp,
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -299,14 +267,12 @@ fun ShowEvent(){
             ){
                 Text(
                     text = "Via di tua mamma",
-                    fontWeight = FontWeight.Normal,
-                    fontFamily = museoModerno,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontSize = 16.sp
                 )
                 Text(
                     text = "118",
-                    fontWeight = FontWeight.Normal,
-                    fontFamily = museoModerno,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontSize = 16.sp
                 )
             }
@@ -315,14 +281,12 @@ fun ShowEvent(){
             ){
                 Text(
                     text = "Napoli (NA)",
-                    fontWeight = FontWeight.Normal,
-                    fontFamily = museoModerno,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontSize = 16.sp
                 )
                 Text(
                     text = "88888",
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = museoModerno,
+                    style = MaterialTheme.typography.titleMedium,
                     fontSize = 16.sp
                 )
             }

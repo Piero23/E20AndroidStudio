@@ -63,6 +63,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.composeuitemplates.presentation.bottomNavigationScreen.BottomNavigationScreen
 import com.example.e20frontendmobile.ui.theme.BungeeInline
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import com.example.e20frontendmobile.ui.theme.MuseoModerno
@@ -71,15 +72,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        //enableEdgeToEdge()
         setContent {
-            val list1  = listOf(R.drawable.ce21765b01256e5c454799156979c8ab,
-                R.drawable.color_festival_powder_partyevent_poster_template_de51e43782d312549d6a8021e848a257_screen,
-                R.drawable.d385c8ed5c1a2d71d7298f8693aabda2, R.drawable.download,)
             E20FrontendMobileTheme {
-                CarouselExample(true,list1)
+                BottomNavigationScreen()
             }
         }
     }
@@ -201,133 +200,6 @@ private fun SimpleSearchBarExample() {
         onSearch = { /* Handle search submission */ },
     )
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CustomizableSearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onSearch: (String) -> Unit,
-    searchResults: List<String>,
-    onResultClick: (String) -> Unit,
-    // Customization options
-    placeholder: @Composable () -> Unit = { Text("Search") },
-    leadingIcon: @Composable (() -> Unit)? = { null},
-    trailingIcon: @Composable (() -> Unit)? = null,
-    supportingContent: (@Composable (String) -> Unit)? = null,
-    leadingContent: (@Composable () -> Unit)? = null,
-    modifier: Modifier = Modifier
-) {
-    // Track expanded state of search bar
-    var expanded by rememberSaveable { mutableStateOf(false) }
-
-    Box(
-        modifier
-            .fillMaxSize()
-            .semantics { isTraversalGroup = true }
-    ) {
-        SearchBar(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .semantics { traversalIndex = 0f },
-            inputField = {
-                // Customizable input field implementation
-                SearchBarDefaults.InputField(
-                    query = query,
-                    onQueryChange = onQueryChange,
-                    onSearch = {
-                        onSearch(query)
-                        expanded = false
-                    },
-                    expanded = expanded,
-                    onExpandedChange = { expanded = it },
-                    placeholder = placeholder,
-                    leadingIcon = leadingIcon,
-                    trailingIcon = trailingIcon
-                )
-            },
-            expanded = false,
-            onExpandedChange = { expanded = it },
-        ) {
-            // Show search results in a lazy column for better performance
-            LazyColumn {
-                items(count = searchResults.size) { index ->
-                    val resultText = searchResults[index]
-                    ListItem(
-                        headlineContent = { Text(resultText) },
-                        supportingContent = supportingContent?.let { { it(resultText) } },
-                        leadingContent = leadingContent,
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                        modifier = Modifier
-                            .clickable {
-                                onResultClick(resultText)
-                                expanded = false
-                            }
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp)
-                    )
-                }
-            }
-        }
-    }
-}
-// [END android_compose_components_customizable_searchbar]
-
-@Preview(showBackground = true)
-@Composable
-fun CustomizableSearchBarExample() {
-    // Manage query state
-    var query by rememberSaveable { mutableStateOf("") }
-    val items = listOf(
-        "Cupcake", "Donut", "Eclair", "Froyo", "Gingerbread", "Honeycomb",
-        "Ice Cream Sandwich", "Jelly Bean", "KitKat", "Lollipop", "Marshmallow",
-        "Nougat", "Oreo", "Pie"
-    )
-
-    // Filter items based on query
-    val filteredItems by remember {
-        derivedStateOf {
-            if (query.isEmpty()) {
-                items
-            } else {
-                items.filter { it.contains(query, ignoreCase = true) }
-            }
-        }
-    }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        CustomizableSearchBar(
-            query = query,
-            onQueryChange = { query = it },
-            onSearch = { /* Handle search submission */ },
-            searchResults = filteredItems,
-            onResultClick = { query = it },
-            // Customize appearance with optional parameters
-            placeholder = { Text("Cerca un evento...") },
-            trailingIcon = {Icon(Icons.Default.Search, contentDescription = "Search")  },
-            supportingContent = { Text("Android dessert") },
-            leadingContent = { Icon(Icons.Filled.Star, contentDescription = "Starred item") }
-        )
-
-        // Display the filtered list below the search bar
-        LazyColumn(
-            contentPadding = PaddingValues(
-                start = 16.dp,
-                top = 72.dp, // Provides space for the search bar
-                end = 16.dp,
-                bottom = 16.dp
-            ),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.semantics {
-                traversalIndex = 1f
-            },
-        ) {
-            items(count = filteredItems.size) {
-                Text(text = filteredItems[it])
-            }
-        }
-    }
-}
 /////////////////////////////////////
 @Composable
 fun MultipleStylesInText() {
@@ -366,6 +238,78 @@ fun mainLogo(){
 @PreviewScreenSizes
 @Composable
 fun wallpaperPreview(){
+
+    val list1  = listOf(R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a,
+        R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a, R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a,
+        R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a, R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a,
+    )
+
+    val colorStops = arrayOf(
+        0.7f to Color(0, 0, 0, 158),
+        0.9f to Color.White
+    )
+
+    E20FrontendMobileTheme {
+        Column (
+            modifier = Modifier.verticalScroll(
+                enabled = true,
+                state = ScrollState(0),
+            ),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box {
+
+                //Carosello
+                Column {
+                    CarouselExample(false, list1)
+                    CarouselExample(true, list1)
+                }
+
+                //Overlay
+                Box(
+                    Modifier
+                        .matchParentSize()
+                        .background(Brush.verticalGradient(colorStops = colorStops))
+                )
+
+                //Testo Centrale
+                Box(modifier = Modifier
+                    .align(Alignment.Center)
+                ) {
+                    Column (
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ){
+                        MultipleStylesInText()
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Lorem ipsum dolor sic amet non so cosa scrivere",
+//                            color = Color.White,
+//                            fontSize = 15.sp,
+//                            fontFamily = MuseoModerno,
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.titleMedium.copy(color = Color.White, fontWeight = FontWeight.Light)
+                        )
+                        val textFieldState = rememberTextFieldState()
+                        Spacer(modifier = Modifier.height(44.dp))
+                        SimpleSearchBar(
+                            textFieldState = textFieldState,
+                            onSearch = { /* Handle search submission */ },
+                        )
+                    }
+                }
+
+                //Sotto
+
+            }
+            Spacer(modifier = Modifier.height(30.dp))
+            EventCarousel(28.sp,"Eventi più seguiti")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun mainFun(){
 
     val list1  = listOf(R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a,
         R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a, R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a,

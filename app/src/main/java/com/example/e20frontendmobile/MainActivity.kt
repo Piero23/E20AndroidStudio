@@ -296,7 +296,7 @@ fun mainFun(){
             }
             Spacer(modifier = Modifier.height(30.dp))
             Column {
-                EventCarousel(28.sp, "Eventi più seguiti")
+                EventCarousel(28.sp, "Partecipano i tuoi amici")
                 EventCarousel(28.sp, "Partecipano i tuoi amici")
                 EventCarousel(28.sp, "Preferiti")
             }

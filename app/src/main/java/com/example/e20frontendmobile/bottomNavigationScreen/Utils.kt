@@ -11,27 +11,27 @@ fun bottomNavItems(isAdmin: Boolean): List<BottomNavItem> {
     return if (isAdmin) {
         listOf(
             BottomNavItem(
-                route = "sample_screen-1",
+                route = "home",
                 contentDescription = "Home",
                 icon = Icons.Default.Home
             ),
             BottomNavItem(
-                route = "sample_screen-2",
+                route = "search",
                 contentDescription = "Search",
                 icon = Icons.Default.Search
             ),
             BottomNavItem(
-                route = "admin_action",
+                route = "add-event",
                 contentDescription = "Azione Admin",
                 icon = Icons.Default.Add
             ),
             BottomNavItem(
-                route = "sample_screen-3",
+                route = "orders",
                 contentDescription = "Notification",
                 icon = Icons.Default.ThumbUp
             ),
             BottomNavItem(
-                route = "sample_screen-4",
+                route = "profile",
                 contentDescription = "Profile",
                 icon = Icons.Default.Person
             )
@@ -39,22 +39,22 @@ fun bottomNavItems(isAdmin: Boolean): List<BottomNavItem> {
     } else {
         listOf(
             BottomNavItem(
-                route = "sample_screen-1",
+                route = "home",
                 contentDescription = "Home",
                 icon = Icons.Default.Home
             ),
             BottomNavItem(
-                route = "sample_screen-2",
+                route = "search",
                 contentDescription = "Search",
                 icon = Icons.Default.Search
             ),
             BottomNavItem(
-                route = "sample_screen-3",
+                route = "orders",
                 contentDescription = "Notification",
                 icon = Icons.Default.ThumbUp
             ),
             BottomNavItem(
-                route = "sample_screen-4",
+                route = "profile",
                 contentDescription = "Profile",
                 icon = Icons.Default.Person
             )

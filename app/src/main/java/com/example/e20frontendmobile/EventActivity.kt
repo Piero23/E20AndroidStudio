@@ -71,24 +71,13 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.e20frontendmobile.ui.theme.museoModerno
 import org.w3c.dom.Text
 import java.nio.file.WatchEvent
 
 
-@Preview
 @Composable
 fun ShowEvent(){
-    val museoModerno = FontFamily(
-        Font(R.font.museomoderno_bold, FontWeight.Bold),
-        Font(R.font.museomoderno_thin, FontWeight.Thin),
-        Font(R.font.museomoderno_black, FontWeight.Black),
-        Font(R.font.museomoderno_light, FontWeight.Light),
-        Font(R.font.museomoderno_medium, FontWeight.Medium),
-        Font(R.font.museomoderno_extrabold, FontWeight.ExtraBold),
-        Font(R.font.museomoderno_extralight, FontWeight.ExtraLight),
-        Font(R.font.museomoderno_regular, FontWeight.Normal),
-        Font(R.font.museomoderno_semibold, FontWeight.SemiBold),
-    )
 
     val scrollState = rememberScrollState()
     var toggledBell by rememberSaveable { mutableStateOf(false) }

@@ -18,13 +18,16 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.e20frontendmobile.ui.theme.museoModernoFontFamily
+import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
+import com.example.e20frontendmobile.ui.theme.MuseoModerno
 
 @Composable
-fun eventCard(name:String) {
+fun eventCard(name:String, info: String) {
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -35,7 +38,7 @@ fun eventCard(name:String) {
         Box(
             modifier = Modifier
                 .fillMaxSize(),
-            contentAlignment = Alignment.BottomCenter
+            contentAlignment = Alignment.BottomStart
         ){
 
             Image(
@@ -55,20 +58,31 @@ fun eventCard(name:String) {
                     ) )),
             )
 
-            Column (modifier = Modifier.padding(vertical = 20.dp)){
+            Column (modifier = Modifier.padding(vertical = 20.dp, horizontal = 20.dp)){
                 Text(
                     text = name,
                     color = Color.White,
-                    fontSize = 28.sp,
-                    fontFamily = museoModernoFontFamily,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.headlineMedium
                 )
-                Text(text = "Info dell'evento tipo luogo",
+                Text(
+                    text = info,
                     color = Color.White,
-                    fontSize = 20.sp,
-                    fontFamily = museoModernoFontFamily,
-                    textAlign = TextAlign.Center)
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Light,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun PreviewEventCard(){
+    E20FrontendMobileTheme {
+        eventCard("Evento Bello","Via santa maria Napoli Ciah")
     }
 }

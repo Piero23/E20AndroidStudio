@@ -32,6 +32,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
@@ -53,16 +54,19 @@ import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.e20frontendmobile.ui.theme.BungeeInline
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
-import com.example.e20frontendmobile.ui.theme.bungeeInLineFontFamily
-import com.example.e20frontendmobile.ui.theme.museoModernoFontFamily
+import com.example.e20frontendmobile.ui.theme.MuseoModerno
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -337,12 +341,12 @@ fun MultipleStylesInText() {
             withStyle(style = SpanStyle(
                 color = Color.White,
                 fontSize = 100.sp,
-                fontFamily = bungeeInLineFontFamily,)) {
+                fontFamily = BungeeInline,)) {
                 append("E")
             }
             withStyle(style = SpanStyle(
                 brush = brush , alpha = 1f,
-                fontFamily = bungeeInLineFontFamily,
+                fontFamily = BungeeInline,
                 fontSize = 100.sp
             )
             ) {
@@ -407,10 +411,11 @@ fun wallpaperPreview(){
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Lorem ipsum dolor sic amet non so cosa scrivere",
-                            color = Color.White,
-                            fontSize = 15.sp,
-                            fontFamily = museoModernoFontFamily,
-                            textAlign = TextAlign.Center
+//                            color = Color.White,
+//                            fontSize = 15.sp,
+//                            fontFamily = MuseoModerno,
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.titleMedium.copy(color = Color.White, fontWeight = FontWeight.Light)
                         )
                         val textFieldState = rememberTextFieldState()
                         Spacer(modifier = Modifier.height(44.dp))

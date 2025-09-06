@@ -23,12 +23,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.e20frontendmobile.ui.theme.museoModernoFontFamily
+import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
+import com.example.e20frontendmobile.ui.theme.MuseoModerno
 
 
 @Composable
@@ -37,12 +39,11 @@ fun EventCarousel(fontSize : TextUnit , carouselText : String){
         Text(
             text = carouselText,
             color = Color.Black,
-            fontSize = fontSize,
-            fontFamily = museoModernoFontFamily,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.headlineMedium
         )
         Spacer(modifier = Modifier.height(48.dp))
-        eventCard("Questo è un evento")
+        eventCard("Evento Bello","Via santa maria Napoli Ciah")
     }
 }
 
@@ -51,5 +52,7 @@ fun EventCarousel(fontSize : TextUnit , carouselText : String){
 @Composable
 @Preview
 fun previewEventCarousel(){
-    EventCarousel(28.sp,"Eventi più seguiti")
+    E20FrontendMobileTheme {
+        EventCarousel(28.sp, "Eventi più seguiti")
+    }
 }

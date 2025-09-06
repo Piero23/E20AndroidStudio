@@ -39,3 +39,7 @@ val Typography = Typography(
 val bungeeInLineFontFamily = FontFamily(
     Font(R.font.bungeeinline_regular)
 )
+
+val museoModernoFontFamily = FontFamily(
+    Font(R.font.museomoderno_regular)
+)

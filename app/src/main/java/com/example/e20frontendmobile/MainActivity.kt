@@ -60,7 +60,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.NotificationCompat
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import com.example.e20frontendmobile.ui.theme.bungeeInLineFontFamily
 import com.example.e20frontendmobile.ui.theme.museoModernoFontFamily
@@ -190,7 +189,6 @@ private fun SimpleSearchBarExample() {
 //            }
 //        }
 //    }
-
 
     val textFieldState = rememberTextFieldState()
 
@@ -370,13 +368,18 @@ fun wallpaperPreview(){
         R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a, R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a,
     )
 
+    val colorStops = arrayOf(
+        0.7f to Color(0, 0, 0, 158),
+        0.9f to Color.White
+    )
 
     E20FrontendMobileTheme {
         Column (
             modifier = Modifier.verticalScroll(
                 enabled = true,
                 state = ScrollState(0),
-            )
+            ),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box {
 
@@ -390,6 +393,7 @@ fun wallpaperPreview(){
                 Box(
                     Modifier
                         .matchParentSize()
+                        .background(Brush.verticalGradient(colorStops = colorStops))
                 )
 
                 //Testo Centrale
@@ -416,7 +420,12 @@ fun wallpaperPreview(){
                         )
                     }
                 }
+
+                //Sotto
+
             }
+            Spacer(modifier = Modifier.height(30.dp))
+            EventCarousel(28.sp,"Eventi più seguiti")
         }
     }
 }

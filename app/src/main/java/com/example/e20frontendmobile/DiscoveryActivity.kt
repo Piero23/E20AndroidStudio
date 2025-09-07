@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -45,30 +46,35 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+
+fun search(items : List<String>, query: String): List<String> {
+    return if (query.isEmpty()) {
+        listOf()
+    } else {
+        items.filter { it.contains(query, ignoreCase = true) }
+    }
+}
+
 
 @Composable
-fun ShowDiscovery(){
+fun ShowDiscovery(navController: NavHostController){
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Eventi", "Profili") //nomi tabs
 
     var query by rememberSaveable { mutableStateOf("") }
-    var items = listOf<String>() //TODO rimpiazzare con Evento
-    val filteredItems by remember {
-        derivedStateOf {
-            if (query.isEmpty()) {
-                items
-            } else {
-                items.filter { it.contains(query, ignoreCase = true) }
-            }
-        }
-    }
+    var items = listOf<String>("pinga", "pino", "sbingus", "sboxi") //TODO rimpiazzare con Evento
+    var filteredItems by remember { mutableStateOf<List<String>>(emptyList()) }
+
+
     Column(
     ){
         CustomizableSearchBar(
             query = query,
             onQueryChange = { query = it },
-            onSearch = { /* Handle search submission */ },
-            searchResults = filteredItems,
+            onSearch = { filteredItems = search(items, query) },
+            searchResults = listOf(),
             onResultClick = { query = it },
             // Customize appearance with optional parameters
             placeholder = { Text("Cerca un evento...") },
@@ -99,7 +105,21 @@ fun ShowDiscovery(){
                 )
             }
         }
-        LazyColumn() {  }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            items(count = filteredItems?.size ?: 0) { index ->
+                if (filteredItems?.size != null) {
+                    val resultText = filteredItems[index]
+                    Box(
+                        modifier = Modifier.padding(top = 25.dp)
+                    ){
+                        eventCard(resultText, "aaaaaaaaaaaaaaaaaaaaa", navController)
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -132,5 +152,6 @@ fun NoRippleTab(
 @Preview
 @Composable
 fun previ(){
-    ShowDiscovery()
+    val nav=rememberNavController()
+    ShowDiscovery(nav)
 }

@@ -36,7 +36,7 @@ fun eventCard(str: String, str2: String, navController: NavHostController) {
             modifier = Modifier
                 .size(width = 320.dp, height = 320.dp),
             onClick = {
-                navController.navigate("showEvent")
+                navController.navigate("card")
             }
         ) {
             Box(
@@ -93,6 +93,6 @@ fun PreviewEventCard(){
 
     E20FrontendMobileTheme {
         val navController = rememberNavController()
-        eventCard("Evento Bello","A puttana e mammata",navController)
+        eventCard("Evento Bello","A puttana e mammata", navController)
     }
 }

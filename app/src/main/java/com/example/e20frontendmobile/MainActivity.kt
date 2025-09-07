@@ -283,63 +283,62 @@ fun mainFun(navController: NavHostController){
         0.9f to MaterialTheme.colorScheme.background
     )
 
-E20FrontendMobileTheme {
-        Column (
-            modifier = Modifier.verticalScroll(
-                enabled = true,
-                state = ScrollState(0),
-            ),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Box {
+    Column (
+        modifier = Modifier.verticalScroll(
+            enabled = true,
+            state = ScrollState(0),
+        ),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box {
 
-                //Carosello
-                Column {
-                    CaroselloInfinito()
-                    CaroselloInfinito()
-                }
+            //Carosello
+            Column {
+                CaroselloInfinito()
+                CaroselloInfinito()
+            }
 
-                //Overlay
-                Box(
-                    Modifier
-                        .matchParentSize()
-                        .background(Brush.verticalGradient(colorStops = colorStops))
-                )
+            //Overlay
+            Box(
+                Modifier
+                    .matchParentSize()
+                    .background(Brush.verticalGradient(colorStops = colorStops))
+            )
 
-                //Testo Centrale
-                Box(modifier = Modifier
-                    .align(Alignment.Center)
-                ) {
-                    Column (
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ){
-                        MainLogo()
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Lorem ipsum dolor sic amet non so cosa scrivere",
+            //Testo Centrale
+            Box(modifier = Modifier
+                .align(Alignment.Center)
+            ) {
+                Column (
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
+                    MainLogo()
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Lorem ipsum dolor sic amet non so cosa scrivere",
 //                            color = Color.White,
 //                            fontSize = 15.sp,
 //                            fontFamily = MuseoModerno,
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.titleMedium.copy(color = Color.White, fontWeight = FontWeight.Light)
-                        )
-                        val textFieldState = rememberTextFieldState()
-                        Spacer(modifier = Modifier.height(44.dp))
-                        SimpleSearchBar(
-                            textFieldState = textFieldState,
-                            onSearch = { navController.navigate("search")},
-                        )
-                    }
-                }
-
-                //Sotto
-
-            }
-            Spacer(modifier = Modifier.height(30.dp))
-            Column {
-                    EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleMedium.copy(color = Color.White, fontWeight = FontWeight.Light)
+                    )
+                    val textFieldState = rememberTextFieldState()
+                    Spacer(modifier = Modifier.height(44.dp))
+                    SimpleSearchBar(
+                        textFieldState = textFieldState,
+                        onSearch = {},
+                    )
                 }
             }
+
+            //Sotto
 
         }
+        Spacer(modifier = Modifier.height(30.dp))
+        Column {
+                EventCarousel(28.sp, "Partecipano i tuoi amici", navController)
+            }
+        }
+
+
     }

@@ -64,7 +64,7 @@ fun EventCarousel(fontSize: TextUnit, carouselText: String, navController: NavHo
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                eventCard(listaEventi[page].first,listaEventi[page].second,navController)
+                eventCard(listaEventi[page].first,listaEventi[page].second, navController)
             }
         }
 
@@ -97,6 +97,6 @@ fun EventCarousel(fontSize: TextUnit, carouselText: String, navController: NavHo
 fun previewEventCarousel(){
     E20FrontendMobileTheme {
         val navController = rememberNavController()
-        EventCarousel(28.sp, "Eventi più seguiti" , navController)
+        EventCarousel(28.sp, "Eventi più seguiti", navController)
     }
 }

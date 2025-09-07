@@ -89,25 +89,25 @@ fun CustomizableSearchBar(
             expanded = false,
             onExpandedChange = { expanded = it },
         ) {
-            // Show search results in a lazy column for better performance
-            LazyColumn {
-                items(count = searchResults.size) { index ->
-                    val resultText = searchResults[index]
-                    ListItem(
-                        headlineContent = { Text(resultText) },
-                        supportingContent = supportingContent?.let { { it(resultText) } },
-                        leadingContent = leadingContent,
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                        modifier = Modifier
-                            .clickable {
-                                onResultClick(resultText)
-                                expanded = false
-                            }
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp)
-                    )
-                }
-            }
+//            // Show search results in a lazy column for better performance
+//            LazyColumn {
+//                items(count = searchResults.size) { index ->
+//                    val resultText = searchResults[index]
+//                    ListItem(
+//                        headlineContent = { Text(resultText) },
+//                        supportingContent = supportingContent?.let { { it(resultText) } },
+//                        leadingContent = leadingContent,
+//                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+//                        modifier = Modifier
+//                            .clickable {
+//                                onResultClick(resultText)
+//                                expanded = false
+//                            }
+//                            .fillMaxWidth()
+//                            .padding(horizontal = 16.dp, vertical = 4.dp)
+//                    )
+//                }
+//            }
         }
     }
 }

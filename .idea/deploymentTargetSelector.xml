@@ -4,22 +4,16 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-09-04T12:14:08.833655300Z">
+        <DropdownSelection timestamp="2025-09-07T13:34:16.005546700Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=RZCXB0F39SY" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=RFCT407BP1K" />
             </handle>
           </Target>
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="SimpleSearchBarExample">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="previewEventCarousel">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="wallpaperPreview">
+      <SelectionState runConfigName="previ">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

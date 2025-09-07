@@ -26,7 +26,6 @@ val BungeeInline = FontFamily(
 )
 
 
-
 // Set of Material typography styles to start with
 val Typography = Typography(
 
@@ -74,59 +73,59 @@ val Typography = Typography(
     titleLarge = TextStyle(
         fontFamily = MuseoModerno,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 22.sp,
-        lineHeight = 28.sp
+        fontSize = 36.sp,
+        lineHeight = 36.sp
     ),
     titleMedium = TextStyle(
         fontFamily = MuseoModerno,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 16.sp,
-        lineHeight = 24.sp
+        fontSize = 28.sp,
+        lineHeight = 28.sp
     ),
     titleSmall = TextStyle(
         fontFamily = MuseoModerno,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 14.sp,
-        lineHeight = 20.sp
+        fontSize = 24.sp,
+        lineHeight = 24.sp
     ),
 
     // Body (Main Text)
     bodyLarge = TextStyle(
         fontFamily = Poppins,
         fontWeight = FontWeight.Normal,
+        fontSize = 18.sp,
+        lineHeight = 28.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = Poppins,
+        fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp
     ),
-    bodyMedium = TextStyle(
+    bodySmall = TextStyle(
         fontFamily = Poppins,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 20.sp
     ),
-    bodySmall = TextStyle(
-        fontFamily = Poppins,
-        fontWeight = FontWeight.Normal,
-        fontSize = 12.sp,
-        lineHeight = 16.sp
-    ),
 
     // Label (Buttons, Forms, Badges)
     labelLarge = TextStyle(
         fontFamily = MuseoModerno,
-        fontWeight = FontWeight.Normal,
-        fontSize = 12.sp,
-        lineHeight = 16.sp
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 18.sp,
+        lineHeight = 28.sp
     ),
     labelMedium = TextStyle(
         fontFamily = MuseoModerno,
-        fontWeight = FontWeight.Light,
-        fontSize = 12.sp,
-        lineHeight = 16.sp
+        fontWeight = FontWeight.Normal,
+        fontSize = 18.sp,
+        lineHeight = 28.sp
     ),
     labelSmall = TextStyle(
         fontFamily = Poppins,
         fontWeight = FontWeight.Light,
-        fontSize = 12.sp,
-        lineHeight = 16.sp
+        fontSize = 18.sp,
+        lineHeight = 28.sp
     )
 )

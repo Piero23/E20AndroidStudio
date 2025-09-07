@@ -21,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -62,6 +63,9 @@ fun BottomNavigationScreen() {
                 composable(route = "profile") {
                     SampleScreen4()
                 }
+                composable("showEvent") {
+                    ShowEvent()
+                }
                 if (isAdmin) {
                     composable("add-event") {
 
@@ -70,4 +74,9 @@ fun BottomNavigationScreen() {
             }
         }
     }
+}
+
+@Composable
+fun rememberAppNavController(): NavController {
+    return rememberNavController()
 }

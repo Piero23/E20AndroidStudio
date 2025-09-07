@@ -4,16 +4,25 @@ package com.example.e20frontendmobile
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -27,6 +36,7 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -37,6 +47,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
@@ -55,7 +67,6 @@ import com.example.e20frontendmobile.home.EventCarousel
 import com.example.e20frontendmobile.ui.theme.BungeeInline
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -68,37 +79,6 @@ class MainActivity : ComponentActivity() {
                 BottomNavigationScreen()
             }
         }
-    }
-}
-
-fun timer(scrollState : ScrollState, scope: CoroutineScope){
-    scope.launch { scrollState.scrollTo(scrollState.maxValue) }
-}
-
-@Composable
-fun CarouselExample(farward: Boolean, list: List<Int>) {
-
-    val scrollState = rememberScrollState()
-    val scope = rememberCoroutineScope()
-
-    var value = if (farward) 1  else -1
-
-    if(!farward)
-        timer(scrollState,scope)
-
-    Row (
-        modifier = Modifier
-            .background(Color.LightGray)
-            .horizontalScroll(scrollState,false)
-    ){
-        for (i : Int in list) {
-            Image(
-                painter = painterResource(i),
-                contentDescription = "",
-
-            )
-        }
-
     }
 }
 
@@ -189,7 +169,7 @@ private fun SimpleSearchBarExample() {
 }
 /////////////////////////////////////
 @Composable
-fun MultipleStylesInText() {
+fun MainLogo() {
     val brush = Brush.linearGradient(colors = listOf(Color(248,185,50,255), Color(176,88,15,255)),
         start = Offset(900f,0f) ,
         end = Offset(900f,100f))
@@ -215,9 +195,64 @@ fun MultipleStylesInText() {
     )
 }
 
-@Composable
-fun mainLogo(){
 
+@Composable
+fun CaroselloInfinito() {
+    val listState = rememberLazyListState()
+
+    val infiniteTransition = rememberInfiniteTransition()
+    val offsetX by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f, // normalizziamo a 0..1
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 30000,
+                easing = LinearEasing
+            ),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+
+    val scope = rememberCoroutineScope()
+    val itemCount = 5
+    val itemWidthPx = with(LocalDensity.current) {300.dp.toPx()} // larghezza + padding
+
+    // Aggiorna lo scroll in base all'animazione
+    LaunchedEffect(offsetX) {
+        val scrollPosition = (offsetX * (itemWidthPx * (itemCount - 1))).toInt()
+        scope.launch {
+            listState.scrollToItem(0, scrollPosition) // scrollToItem(itemIndex, offset)
+        }
+    }
+
+    LazyRow(
+        state = listState,
+        userScrollEnabled = false
+    ) {
+        items(itemCount) { index ->
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(300.dp)
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.photomode_18072025_201346),
+                    contentDescription = "Contact profile picture",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+    }
+
+}
+
+
+
+@Composable
+@Preview
+fun cia(){
+    CaroselloInfinito()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -242,7 +277,7 @@ fun mainFun(){
         0.9f to MaterialTheme.colorScheme.background
     )
 
-    E20FrontendMobileTheme {
+E20FrontendMobileTheme {
         Column (
             modifier = Modifier.verticalScroll(
                 enabled = true,
@@ -254,8 +289,8 @@ fun mainFun(){
 
                 //Carosello
                 Column {
-                    CarouselExample(false, list1)
-                    CarouselExample(true, list1)
+                    CaroselloInfinito()
+                    CaroselloInfinito()
                 }
 
                 //Overlay
@@ -272,7 +307,7 @@ fun mainFun(){
                     Column (
                         horizontalAlignment = Alignment.CenterHorizontally
                     ){
-                        MultipleStylesInText()
+                        MainLogo()
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Lorem ipsum dolor sic amet non so cosa scrivere",

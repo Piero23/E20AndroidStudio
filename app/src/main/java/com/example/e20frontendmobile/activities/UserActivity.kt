@@ -42,16 +42,7 @@ import com.example.e20frontendmobile.ui.theme.spaceLarge
 import com.example.e20frontendmobile.ui.theme.spaceMedium
 import com.example.e20frontendmobile.ui.theme.white
 
-class UserActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            E20FrontendMobileTheme {}
-        }
-    }
-}
-
+//TODO redirectare logout a pagina login con navhostcontroller
 // Components --------------------------------------------------------------------------------------
 @Composable
 fun TitledBox(
@@ -206,7 +197,7 @@ fun LogOutBox() {
 
 
 @Composable
-fun MainScreen(
+fun MainProfileScreen(
     username: String
 ) {
     Column(
@@ -259,7 +250,7 @@ fun MainScreen(
 @Composable
 fun MainScreenPreview() {
     E20FrontendMobileTheme(darkTheme = false) {
-        MainScreen(
+        MainProfileScreen(
             username = "username"
         )
     }

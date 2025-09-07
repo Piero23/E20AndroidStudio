@@ -1,8 +1,7 @@
-package com.example.e20frontendmobile
+package com.example.e20frontendmobile.activities
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.e20frontendmobile.R
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 
 @Composable

@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.e20frontendmobile.eventCard
+import com.example.e20frontendmobile.activities.eventCard
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 
 

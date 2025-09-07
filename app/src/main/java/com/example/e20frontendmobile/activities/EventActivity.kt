@@ -1,4 +1,4 @@
-package com.example.e20frontendmobile
+package com.example.e20frontendmobile.activities
 
 import android.view.ViewGroup
 import android.webkit.WebView
@@ -51,6 +51,7 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.e20frontendmobile.R
 
 
 @Composable

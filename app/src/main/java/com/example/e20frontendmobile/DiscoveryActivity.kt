@@ -23,6 +23,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
@@ -74,14 +76,16 @@ fun ShowDiscovery(navController: NavHostController){
             query = query,
             onQueryChange = { query = it },
             onSearch = { filteredItems = search(items, query) },
-            searchResults = listOf(),
-            onResultClick = { query = it },
+            searchResults = listOf(), onResultClick = { query = it },
             // Customize appearance with optional parameters
             placeholder = { Text("Cerca un evento...") },
-            trailingIcon = {Icon(Icons.Default.Search, contentDescription = "Search")  },
+            trailingIcon = {Icon(Icons.Default.Search,
+                contentDescription = "Search") },
             supportingContent = { Text("Android dessert") },
-            leadingContent = { Icon(Icons.Filled.Star, contentDescription = "Starred item")},
-            modifier = Modifier.padding(15.dp, 0.dp, 15.dp, 0.dp )
+            leadingContent = { Icon(Icons.Filled.Star,
+                contentDescription = "Starred item")},
+            modifier = Modifier
+                .padding(15.dp, 0.dp, 15.dp, 0.dp )
         )
         TabRow(
             selectedTabIndex = selectedTabIndex,
@@ -109,14 +113,12 @@ fun ShowDiscovery(navController: NavHostController){
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(count = filteredItems?.size ?: 0) { index ->
-                if (filteredItems?.size != null) {
-                    val resultText = filteredItems[index]
-                    Box(
-                        modifier = Modifier.padding(top = 25.dp)
-                    ){
-                        eventCard(resultText, "aaaaaaaaaaaaaaaaaaaaa", navController)
-                    }
+            items(count = filteredItems.size) { index ->
+                val resultText = filteredItems[index]
+                Box(
+                    modifier = Modifier.padding(top = 25.dp)
+                ){
+                    eventCard(resultText, "aaaaaaaaaaaaaaaaaaaaa", navController)
                 }
             }
         }

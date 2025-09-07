@@ -38,8 +38,6 @@ import androidx.navigation.navArgument
 import com.example.e20frontendmobile.CustomizableSearchBar
 import com.example.e20frontendmobile.ShowDiscovery
 import com.example.e20frontendmobile.ShowEvent
-import com.example.e20frontendmobile.bottomNavigationScreen.Sample.SampleScreen3
-import com.example.e20frontendmobile.bottomNavigationScreen.Sample.SampleScreen4
 import com.example.e20frontendmobile.bottomNavigationScreen.StandardBottomNavigation
 import com.example.e20frontendmobile.bottomNavigationScreen.bottomNavItems
 import com.example.e20frontendmobile.mainFun

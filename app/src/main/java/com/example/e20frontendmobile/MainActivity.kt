@@ -15,7 +15,6 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -62,6 +61,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.composeuitemplates.presentation.bottomNavigationScreen.BottomNavigationScreen
 import com.example.e20frontendmobile.home.EventCarousel
 import com.example.e20frontendmobile.ui.theme.BungeeInline
@@ -81,6 +82,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+
 
 //////////////////////////////////////
 
@@ -164,7 +167,7 @@ private fun SimpleSearchBarExample() {
 
     SimpleSearchBar(
         textFieldState = textFieldState,
-        onSearch = { /* Handle search submission */ },
+        onSearch = {  },
     )
 }
 /////////////////////////////////////
@@ -260,12 +263,15 @@ fun cia(){
 @PreviewScreenSizes
 @Composable
 fun wallpaperPreview(){
-    mainFun()
+    val navController = rememberNavController()
+
+    mainFun(navController)
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun mainFun(){
+fun mainFun(navController: NavHostController){
 
     val list1  = listOf(R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a,
         R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a, R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a,
@@ -321,7 +327,7 @@ E20FrontendMobileTheme {
                         Spacer(modifier = Modifier.height(44.dp))
                         SimpleSearchBar(
                             textFieldState = textFieldState,
-                            onSearch = { /* Handle search submission */ },
+                            onSearch = { navController.navigate("search")},
                         )
                     }
                 }
@@ -331,11 +337,9 @@ E20FrontendMobileTheme {
             }
             Spacer(modifier = Modifier.height(30.dp))
             Column {
-                EventCarousel(28.sp, "Partecipano i tuoi amici")
-                EventCarousel(28.sp, "Partecipano i tuoi amici")
-                EventCarousel(28.sp, "Preferiti")
+                    EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
+                }
             }
 
         }
     }
-}

@@ -37,13 +37,14 @@ import com.example.e20frontendmobile.mainFun
 import kotlinx.coroutines.MainScope
 import kotlin.text.contains
 
+
 @ExperimentalMaterial3Api
 @Composable
 fun BottomNavigationScreen() {
     Surface(color = Color.LightGray) {
         val navController = rememberNavController()
         val navBackStackEntry by navController.currentBackStackEntryAsState()
-        var isAdmin: Boolean = false
+        var isAdmin: Boolean = true
         StandardScaffold(
             bottomNavItems = bottomNavItems(isAdmin),
             navController = navController,
@@ -52,7 +53,7 @@ fun BottomNavigationScreen() {
 //            Navigation(navController = navController)
             NavHost(navController = navController, startDestination = "home") {
                 composable(route = "home") {
-                    mainFun()
+                    mainFun(navController)
                 }
                 composable(route = "search") {
                     ShowDiscovery()
@@ -66,10 +67,8 @@ fun BottomNavigationScreen() {
                 composable("showEvent") {
                     ShowEvent()
                 }
-                if (isAdmin) {
-                    composable("add-event") {
+                composable("add-event") {
 
-                    }
                 }
             }
         }

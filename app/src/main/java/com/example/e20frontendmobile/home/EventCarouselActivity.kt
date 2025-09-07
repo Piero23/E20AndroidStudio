@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
@@ -28,12 +27,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.e20frontendmobile.eventCard
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 
 
 @Composable
-fun EventCarousel(fontSize : TextUnit , carouselText : String ){
+fun EventCarousel(fontSize: TextUnit, carouselText: String, navController: NavHostController){
+
+
     Column (horizontalAlignment =  Alignment.CenterHorizontally) {
 
         val listaEventi = listOf(
@@ -61,7 +64,7 @@ fun EventCarousel(fontSize : TextUnit , carouselText : String ){
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                eventCard(listaEventi[page].first,listaEventi[page].second)
+                eventCard(listaEventi[page].first,listaEventi[page].second,navController)
             }
         }
 
@@ -93,6 +96,7 @@ fun EventCarousel(fontSize : TextUnit , carouselText : String ){
 @Preview
 fun previewEventCarousel(){
     E20FrontendMobileTheme {
-        EventCarousel(28.sp, "Eventi più seguiti")
+        val navController = rememberNavController()
+        EventCarousel(28.sp, "Eventi più seguiti" , navController)
     }
 }

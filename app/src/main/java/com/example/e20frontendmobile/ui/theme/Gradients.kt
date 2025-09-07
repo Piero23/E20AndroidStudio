@@ -1,20 +1,67 @@
 package com.example.e20frontendmobile.ui.theme
 
+import android.graphics.BlurMaskFilter
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.*
-
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import kotlin.collections.List
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.dp
 
 
 // Helper Class to use Percentages
 data class Percent(val x: Float, val y: Float)
+
+
+// Custom Drop Shadow Modifier
+fun Modifier.blurredDropShadow(
+    shadowColor: Color = black.copy(0.2f),
+    blurRadius: Float = 20f,
+    offset: Offset = Offset.Zero,
+    shadowCornerRadius: Float = spaceMedium.value
+) : Modifier {
+    return this.then(
+        Modifier
+                .drawBehind {
+                    drawIntoCanvas { canvas ->
+
+                        // Paint Android classico
+                        val frameworkPaint = android.graphics.Paint().apply {
+                            color = shadowColor.toArgb()
+                            maskFilter = BlurMaskFilter(blurRadius.times(4f), BlurMaskFilter.Blur.NORMAL)
+                        }
+
+                        // Lo converto in Compose Paint
+                        val paint = Paint().apply {
+                            asFrameworkPaint().set(frameworkPaint)
+                        }
+
+                        canvas.drawRoundRect(
+                            left = offset.x, top = offset.y,
+                            right = size.width + offset.x, bottom = size.height + offset.y,
+
+                            radiusX = shadowCornerRadius.times(2f), radiusY = shadowCornerRadius.times(2f),
+
+                            paint = paint
+                        )
+                    }
+                }
+            )
+}
 
 // Internal Gradients
 @Composable
@@ -74,5 +121,3 @@ fun buttonGradientType1(): Brush = linearGradient(
     start = Percent(0f, 0.5f),
     end = Percent(1f, 0.5f)
 )
-
-

@@ -105,27 +105,27 @@ val Typography = Typography(
     bodySmall = TextStyle(
         fontFamily = Poppins,
         fontWeight = FontWeight.Normal,
-        fontSize = 12.sp,
-        lineHeight = 16.sp
+        fontSize = 14.sp,
+        lineHeight = 20.sp
     ),
 
     // Label (Buttons, Forms, Badges)
     labelLarge = TextStyle(
         fontFamily = MuseoModerno,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 20.sp,
-        lineHeight = 24.sp
+        fontSize = 18.sp,
+        lineHeight = 28.sp
     ),
     labelMedium = TextStyle(
         fontFamily = MuseoModerno,
         fontWeight = FontWeight.Normal,
-        fontSize = 20.sp,
-        lineHeight = 24.sp
+        fontSize = 18.sp,
+        lineHeight = 28.sp
     ),
     labelSmall = TextStyle(
         fontFamily = Poppins,
         fontWeight = FontWeight.Light,
-        fontSize = 20.sp,
-        lineHeight = 24.sp
+        fontSize = 18.sp,
+        lineHeight = 28.sp
     )
 )

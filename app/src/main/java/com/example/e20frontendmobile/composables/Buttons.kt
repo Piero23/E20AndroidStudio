@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.sp
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import com.example.e20frontendmobile.ui.theme.buttonGradientType1
 import com.example.e20frontendmobile.ui.theme.iconSizeSmall
+import com.example.e20frontendmobile.ui.theme.sizeExtraLarge
+import com.example.e20frontendmobile.ui.theme.sizeExtraSmall
 import com.example.e20frontendmobile.ui.theme.sizeLarge
 import com.example.e20frontendmobile.ui.theme.sizeMedium
 import com.example.e20frontendmobile.ui.theme.sizeSmall
@@ -49,7 +51,7 @@ fun IconTextButtonType1(
     onClick: () -> Unit,
     text: String,
     modifier: Modifier = Modifier,
-    textSize: TextUnit = 24.sp,
+    textSize: TextUnit = MaterialTheme.typography.labelLarge.fontSize,
     cornerSize: Dp = sizeMedium,
     withIcon: Boolean = false,
     icon: ImageVector = Icons.Filled.Star,
@@ -62,7 +64,6 @@ fun IconTextButtonType1(
                 brush = buttonGradientType1(),
                 shape = RoundedCornerShape(cornerSize)
             )
-            .padding(sizeSmall, 0.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -73,12 +74,12 @@ fun IconTextButtonType1(
                 color = MaterialTheme.colorScheme.onPrimary
             )
             if (withIcon) {
-                Spacer(Modifier.width(sizeSmall))
+                Spacer(Modifier.width(sizeExtraSmall))
                 
                 Icon(
                     imageVector = icon,
                     contentDescription = text,
-                    modifier = Modifier.size(sizeLarge),
+                    modifier = Modifier.size(textSize.value.dp.times(1.25f)),
                     tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
@@ -119,8 +120,7 @@ fun IconButtonType1(
 
 // Previews ----------------------------------------------------------------------------------------
 
-
-//@Preview
+@Preview
 @Composable
 fun ButtonPreview() {
     E20FrontendMobileTheme(darkTheme = false) {
@@ -135,6 +135,34 @@ fun ButtonPreview() {
 @Composable
 fun ButtonPreview2() {
     E20FrontendMobileTheme(darkTheme = false) {
+        IconTextButtonType1(
+            text = "Log Out",
+            onClick = { },
+            withIcon = true,
+            icon = Icons.AutoMirrored.Filled.ExitToApp
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ButtonPreview3() {
+    E20FrontendMobileTheme(darkTheme = false) {
+        IconTextButtonType1(
+            text = "Log Out",
+            onClick = { },
+            withIcon = true,
+            icon = Icons.AutoMirrored.Filled.ExitToApp,
+            modifier = Modifier.width(150.dp),
+            //cornerSize = 30.dp
+        )
+    }
+}
+
+//@Preview
+@Composable
+fun IconButtonPreview() {
+    E20FrontendMobileTheme(darkTheme = false) {
         IconButtonType1(
             onClick = { },
             icon = Icons.Default.Edit,
@@ -145,9 +173,9 @@ fun ButtonPreview2() {
     }
 }
 
-@Preview
+//@Preview
 @Composable
-fun ButtonPreview40() {
+fun IconButtonPreview40() {
     E20FrontendMobileTheme(darkTheme = false) {
         IconButtonType1(
             onClick = { },
@@ -159,9 +187,9 @@ fun ButtonPreview40() {
     }
 }
 
-@Preview
+//@Preview
 @Composable
-fun ButtonPreview30() {
+fun IconButtonPreview30() {
     E20FrontendMobileTheme(darkTheme = false) {
         IconButtonType1(
             onClick = { },
@@ -173,9 +201,9 @@ fun ButtonPreview30() {
     }
 }
 
-@Preview
+//@Preview
 @Composable
-fun ButtonPreview20() {
+fun IconButtonPreview20() {
     E20FrontendMobileTheme(darkTheme = false) {
         IconButtonType1(
             onClick = { },
@@ -187,19 +215,5 @@ fun ButtonPreview20() {
     }
 }
 
-//@Preview
-@Composable
-fun ButtonPreview3() {
-    E20FrontendMobileTheme(darkTheme = false) {
-        IconTextButtonType1(
-            text = "Log Out",
-            onClick = { },
-            withIcon = true,
-            icon = Icons.AutoMirrored.Filled.ExitToApp,
-            modifier = Modifier.width(300.dp).height(100.dp),
-            cornerSize = 30.dp
-        )
-    }
-}
 
 

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,18 +25,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.e20frontendmobile.composables.IconButtonType1
 import com.example.e20frontendmobile.composables.IconTextButtonType1
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
-import com.example.e20frontendmobile.ui.theme.MuseoModerno
 import com.example.e20frontendmobile.ui.theme.backgroundGradient
+import com.example.e20frontendmobile.ui.theme.blurredDropShadow
 import com.example.e20frontendmobile.ui.theme.spaceExtraSmall
 import com.example.e20frontendmobile.ui.theme.spaceLarge
 import com.example.e20frontendmobile.ui.theme.spaceMedium
+import com.example.e20frontendmobile.ui.theme.white
 
 class UserActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,20 +62,26 @@ fun TitledBox(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
+            .blurredDropShadow(
+                shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
+                offset = Offset(10f,10f),
+                blurRadius = 10f,
+            )
             .background(
-                color = MaterialTheme.colorScheme.tertiary,
+                color = MaterialTheme.colorScheme.surfaceDim,
                 shape = MaterialTheme.shapes.medium
             )
-            .padding(30.dp, 12.dp)
+            .padding(top = 14.dp, start = 20.dp, bottom = 4.dp, end = 20.dp)
+
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.bodySmall
         )
-        Spacer(Modifier.height(4.dp))
+
         Text(
             text = content,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleLarge.copy(fontSize = 44.sp),
             color = MaterialTheme.colorScheme.onTertiary
         )
     }
@@ -85,7 +96,7 @@ fun UserImage(
         modifier = Modifier
             .size(150.dp)
             .clip(RoundedCornerShape(100.dp))
-            .background(MaterialTheme.colorScheme.surfaceDim)
+            .background(MaterialTheme.colorScheme.tertiary)
     ) {
         Text(
             text = username[0].uppercase(),
@@ -104,12 +115,18 @@ fun UserInfo(
         contentAlignment = Alignment.TopEnd,
 
         modifier = modifier
+            .blurredDropShadow(
+                shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
+                offset = Offset(10f,10f),
+                blurRadius = 10f,
+            )
             .fillMaxWidth()
             .background(
-                color = MaterialTheme.colorScheme.tertiary,
+                color = MaterialTheme.colorScheme.surfaceDim,
                 shape = MaterialTheme.shapes.medium
             )
-            .padding(16.dp)
+            .padding(spaceMedium)
+
 
     ) {
         Column(
@@ -150,11 +167,48 @@ fun UserInfo(
     }
 }
 
+
+@Composable
+fun LogOutBox() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.Transparent)
+    ) {
+        Text(
+            text = "Cambia Password",
+            textAlign = TextAlign.Start,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .8f),
+
+            overflow = TextOverflow.Visible,
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 20.dp, 0.dp, 0.dp, 0.dp)
+        )
+
+        Spacer(Modifier.width(spaceLarge))
+
+        IconTextButtonType1(
+            onClick = {},
+            text = "Log Out",
+            withIcon = true,
+            icon = Icons.AutoMirrored.Filled.ExitToApp,
+            modifier = Modifier
+                .blurredDropShadow(
+                    shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
+                    offset = Offset(10f,10f),
+                    blurRadius = 10f,
+                )
+        )
+    }
+}
+
+
 @Composable
 fun MainScreen(
     username: String
 ) {
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -191,13 +245,17 @@ fun MainScreen(
         // User Info
         UserInfo("Mario", "Rossi", "mario.rossi@gmail.com", "2000-01-01")
 
+        Spacer(Modifier.height(spaceMedium))
+
+        // Log Out Button & Change Password
+        LogOutBox()
     }
 }
 
 
 // Previews ----------------------------------------------------------------------------------------
 
-@Preview()
+@Preview
 @Composable
 fun MainScreenPreview() {
     E20FrontendMobileTheme(darkTheme = false) {
@@ -219,7 +277,9 @@ fun UserImagePreview() {
 @Composable
 fun SeguaciPreview() {
     E20FrontendMobileTheme {
-        TitledBox(title = "Seguaci", content = "123")
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(200.dp).background(white)) {
+            TitledBox(title = "Seguaci", content = "123")
+        }
     }
 }
 
@@ -228,5 +288,15 @@ fun SeguaciPreview() {
 fun UserInfoPreview() {
     E20FrontendMobileTheme {
         UserInfo("Mario", "Rossi", "mario.rossi@gmail.com", "2000-01-01")
+    }
+}
+
+//@Preview
+@Composable
+fun LogOutBoxPreview() {
+    E20FrontendMobileTheme {
+        Box(Modifier.height(300.dp)) {
+            LogOutBox()
+        }
     }
 }

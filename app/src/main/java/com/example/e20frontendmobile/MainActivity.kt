@@ -338,6 +338,9 @@ E20FrontendMobileTheme {
             Spacer(modifier = Modifier.height(30.dp))
             Column {
                     EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
+                    EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
+                    EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
+                    EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
                 }
             }
 

@@ -60,7 +60,7 @@ fun imageOverlayGradient(
     start: Percent = Percent(0f, 0f),
     end: Percent = Percent(1f, 1f),
 ): Brush = linearGradient(
-    colors = listOf(overlayBlack10Light, overlayBlack40Light),
+    colors = listOf(overlayBlack10, overlayBlack40),
     start = start,
     end = end
 )

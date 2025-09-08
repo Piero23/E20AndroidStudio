@@ -177,7 +177,6 @@ fun MainLogo() {
         start = Offset(900f,0f) ,
         end = Offset(900f,100f))
 
-
     Text(
         text = buildAnnotatedString {
             withStyle(style = SpanStyle(
@@ -265,7 +264,9 @@ fun cia(){
 fun wallpaperPreview(){
     val navController = rememberNavController()
 
-    mainFun(navController)
+    E20FrontendMobileTheme {
+        mainFun(navController)
+    }
 }
 
 
@@ -290,8 +291,8 @@ fun mainFun(navController: NavHostController){
             ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+        E20FrontendMobileTheme {
             Box {
-
                 //Carosello
                 Column {
                     CaroselloInfinito()
@@ -306,12 +307,13 @@ fun mainFun(navController: NavHostController){
                 )
 
                 //Testo Centrale
-                Box(modifier = Modifier
-                    .align(Alignment.Center)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
                 ) {
-                    Column (
+                    Column(
                         horizontalAlignment = Alignment.CenterHorizontally
-                    ){
+                    ) {
                         MainLogo()
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
@@ -320,19 +322,22 @@ fun mainFun(navController: NavHostController){
 //                            fontSize = 15.sp,
 //                            fontFamily = MuseoModerno,
                             textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.titleMedium.copy(color = Color.White, fontWeight = FontWeight.Light)
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                color = Color.White,
+                                fontWeight = FontWeight.Light
+                            )
                         )
                         val textFieldState = rememberTextFieldState()
                         Spacer(modifier = Modifier.height(44.dp))
                         SimpleSearchBar(
                             textFieldState = textFieldState,
-                            onSearch = { navController.navigate("search")},
+                            onSearch = { navController.navigate("search") },
                         )
                     }
                 }
 
                 //Sotto
-
+            }
             Spacer(modifier = Modifier.height(30.dp))
             Column {
                     EventCarousel(28.sp, "Partecipano i tuoi amici",navController)

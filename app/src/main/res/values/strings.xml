@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">E20FrontendMobile</string>
+    <string name="title_activity_event_carousel">EventCarouselActivity</string>
 </resources>

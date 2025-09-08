@@ -40,6 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.e20frontendmobile.composables.CustomTextField
 import com.example.e20frontendmobile.composables.IconTextButtonType1
 import com.example.e20frontendmobile.ui.theme.buttonGradientType1
 
@@ -49,7 +50,7 @@ data class Ticket(
     var cognome: String = "",
     var email: String = "",
     var dataNascita: String = ""
-)
+) //TODO spostare nel model
 
 @Composable
 fun ShowCheckout(navController: NavHostController){
@@ -145,7 +146,7 @@ fun ShowCheckout(navController: NavHostController){
 }
 
 @Composable
-fun NameTicket(number: Int, ticket: Ticket, onTicketChange: (Ticket) -> Unit) { //TODO cambiare textfield
+fun NameTicket(number: Int, ticket: Ticket, onTicketChange: (Ticket) -> Unit) {
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -163,29 +164,29 @@ fun NameTicket(number: Int, ticket: Ticket, onTicketChange: (Ticket) -> Unit) { 
                 .padding(10.dp, 5.dp, 10.dp, 0.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ){
-            TextField(
+            CustomTextField(
                 value = ticket.nome,
                 onValueChange = { onTicketChange(ticket.copy(nome = it)) },
-                placeholder = { Text("Nome") },
+                placeholder = "Nome",
                 singleLine = true,
                 modifier = Modifier
                     .weight(0.5f)
                     .padding(end = 2.5.dp)
             )
-            TextField(
+            CustomTextField(
                 value = ticket.cognome,
                 onValueChange = { onTicketChange(ticket.copy(cognome = it)) },
-                placeholder = { Text("Cognome") },
+                placeholder = "Cognome",
                 singleLine = true,
                 modifier = Modifier
                     .weight(0.5f)
                     .padding(start = 2.5.dp)
             )
         }
-        TextField(
+        CustomTextField(
             value = ticket.email,
             onValueChange = { onTicketChange(ticket.copy(email = it)) },
-            placeholder = { Text("eMail") },
+            placeholder = "eMail",
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -198,10 +199,10 @@ fun NameTicket(number: Int, ticket: Ticket, onTicketChange: (Ticket) -> Unit) { 
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ){
-            TextField(
+            CustomTextField(
                 value = ticket.dataNascita,
                 onValueChange = { onTicketChange(ticket.copy(dataNascita = it)) },
-                placeholder = { Text("Data di nascita") },
+                placeholder = "Data di nascita",
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()

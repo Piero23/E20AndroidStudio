@@ -3,12 +3,9 @@ package com.example.e20frontendmobile.ui.theme
 import android.graphics.BlurMaskFilter
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -54,14 +51,36 @@ fun Modifier.blurredDropShadow(
             )
 }
 
+// Custom Background Linear Modifier
+@Composable
+fun Modifier.backgroundLinearGradient(
+    colors: List<Color>,
+    start: Offset = Offset(0f, 0f),
+    end: Offset = Offset(1f, 1f),
+) : Modifier {
+    return this.then(Modifier
+        .drawWithCache {
+            val brush = Brush.linearGradient(
+                colors = colors,
+                start = Offset(size.width * start.x, size.height * start.y),
+                end = Offset(size.width * end.x, size.height * end.y)
+            )
+            onDrawBehind {
+                drawRect(brush = brush)
+            }
+        }
+    )
+}
+
+
 // Internal Gradients
 @Composable
 fun linearGradient(
     colors: List<Color>,
     start: Offset = Offset(0f, 0f),
     end: Offset = Offset(1f, 1f),
+    size: Size = Size.Zero
 ): Brush {
-    var size by remember { mutableStateOf(Size.Zero) }
 
     return if (size != Size.Zero) {
         Brush.linearGradient(

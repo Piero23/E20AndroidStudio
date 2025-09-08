@@ -11,27 +11,27 @@ fun bottomNavItems(isAdmin: Boolean): List<BottomNavItem> {
     return if (isAdmin) {
         listOf(
             BottomNavItem(
-                route = "home",
+                index = 0,
                 contentDescription = "Home",
                 icon = Icons.Default.Home
             ),
             BottomNavItem(
-                route = "search",
+                index = 1,
                 contentDescription = "Search",
                 icon = Icons.Default.Search
             ),
             BottomNavItem(
-                route = "add-event",
+                index = 2,
                 contentDescription = "Azione Admin",
                 icon = Icons.Default.Add
             ),
             BottomNavItem(
-                route = "orders",
+                index = 3,
                 contentDescription = "Notification",
                 icon = Icons.Default.ThumbUp
             ),
             BottomNavItem(
-                route = "profile",
+                index = 4,
                 contentDescription = "Profile",
                 icon = Icons.Default.Person
             )
@@ -39,22 +39,22 @@ fun bottomNavItems(isAdmin: Boolean): List<BottomNavItem> {
     } else {
         listOf(
             BottomNavItem(
-                route = "home",
+                index = 0,
                 contentDescription = "Home",
                 icon = Icons.Default.Home
             ),
             BottomNavItem(
-                route = "search",
+                index = 1,
                 contentDescription = "Search",
                 icon = Icons.Default.Search
             ),
             BottomNavItem(
-                route = "orders",
+                index = 3,
                 contentDescription = "Notification",
                 icon = Icons.Default.ThumbUp
             ),
             BottomNavItem(
-                route = "profile",
+                index = 4,
                 contentDescription = "Profile",
                 icon = Icons.Default.Person
             )

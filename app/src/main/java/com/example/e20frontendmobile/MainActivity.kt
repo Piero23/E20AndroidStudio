@@ -283,8 +283,7 @@ fun mainFun(navController: NavHostController){
         0.9f to MaterialTheme.colorScheme.background
     )
 
-E20FrontendMobileTheme {
-        Column (
+    Column (
             modifier = Modifier.verticalScroll(
                 enabled = true,
                 state = ScrollState(0),
@@ -334,7 +333,6 @@ E20FrontendMobileTheme {
 
                 //Sotto
 
-            }
             Spacer(modifier = Modifier.height(30.dp))
             Column {
                     EventCarousel(28.sp, "Partecipano i tuoi amici",navController)

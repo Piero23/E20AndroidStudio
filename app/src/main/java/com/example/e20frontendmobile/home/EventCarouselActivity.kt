@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.e20frontendmobile.eventCard
+import com.example.e20frontendmobile.activities.eventCard
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 
 
@@ -66,7 +66,7 @@ fun EventCarousel(fontSize: TextUnit, carouselText: String, navController: NavHo
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                eventCard(listaEventi[page].first,listaEventi[page].second,navController)
+                eventCard(listaEventi[page].first,listaEventi[page].second, navController)
             }
         }
 
@@ -99,6 +99,6 @@ fun EventCarousel(fontSize: TextUnit, carouselText: String, navController: NavHo
 fun previewEventCarousel(){
     E20FrontendMobileTheme {
         val navController = rememberNavController()
-        EventCarousel(28.sp, "Eventi più seguiti" , navController)
+        EventCarousel(28.sp, "Eventi più seguiti", navController)
     }
 }

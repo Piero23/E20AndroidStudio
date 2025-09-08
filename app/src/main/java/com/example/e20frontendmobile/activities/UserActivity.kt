@@ -36,7 +36,9 @@ import com.example.e20frontendmobile.composables.IconButtonType1
 import com.example.e20frontendmobile.composables.IconTextButtonType1
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import com.example.e20frontendmobile.ui.theme.backgroundGradient
+import com.example.e20frontendmobile.ui.theme.backgroundLinearGradient
 import com.example.e20frontendmobile.ui.theme.blurredDropShadow
+import com.example.e20frontendmobile.ui.theme.linearGradient
 import com.example.e20frontendmobile.ui.theme.spaceExtraSmall
 import com.example.e20frontendmobile.ui.theme.spaceLarge
 import com.example.e20frontendmobile.ui.theme.spaceMedium
@@ -253,15 +255,38 @@ fun MainScreen(
 }
 
 
+@Composable
+fun LogInScreen() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+            .backgroundLinearGradient(
+                colors = listOf(
+                        MaterialTheme.colorScheme.tertiary,
+                        MaterialTheme.colorScheme.secondary)
+            )
+            .padding(top = 114.dp, start = 40.dp, bottom = 61.dp, end = 40.dp)
+    ) {}
+}
+
 // Previews ----------------------------------------------------------------------------------------
 
-@Preview
+//@Preview
 @Composable
 fun MainScreenPreview() {
     E20FrontendMobileTheme(darkTheme = false) {
         MainScreen(
             username = "username"
         )
+    }
+}
+
+@Preview
+@Composable
+fun LogInScreenPreview() {
+    E20FrontendMobileTheme(darkTheme = false) {
+        LogInScreen()
     }
 }
 

@@ -42,15 +42,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.e20frontendmobile.composables.CustomTextField
 import com.example.e20frontendmobile.composables.IconTextButtonType1
+import com.example.e20frontendmobile.model.Ticket
 import com.example.e20frontendmobile.ui.theme.buttonGradientType1
-
-
-data class Ticket(
-    var nome: String = "",
-    var cognome: String = "",
-    var email: String = "",
-    var dataNascita: String = ""
-) //TODO spostare nel model
 
 @Composable
 fun ShowCheckout(navController: NavHostController){

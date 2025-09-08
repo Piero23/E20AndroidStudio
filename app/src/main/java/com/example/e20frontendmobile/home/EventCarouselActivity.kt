@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
@@ -37,7 +38,8 @@ import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 fun EventCarousel(fontSize: TextUnit, carouselText: String, navController: NavHostController){
 
 
-    Column (horizontalAlignment =  Alignment.CenterHorizontally) {
+    Column (horizontalAlignment =  Alignment.CenterHorizontally ,
+        modifier = Modifier.padding(vertical = 20.dp)) {
 
         val listaEventi = listOf(
             Pair("Evento Bello","Via santa maria napoli ciahh"),
@@ -52,7 +54,7 @@ fun EventCarousel(fontSize: TextUnit, carouselText: String, navController: NavHo
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.headlineMedium
         )
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(28.dp))
         val pagerState = rememberPagerState(pageCount = {
             listaEventi.size
         })

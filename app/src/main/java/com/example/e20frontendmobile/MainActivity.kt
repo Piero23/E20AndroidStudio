@@ -267,7 +267,9 @@ fun cia(){
 fun wallpaperPreview(){
     val navController = rememberNavController()
 
-    mainFun(navController)
+    E20FrontendMobileTheme {
+        mainFun(navController)
+    }
 }
 
 

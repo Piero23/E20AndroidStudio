@@ -18,6 +18,7 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,14 +43,18 @@ fun search(items : List<String>, query: String): List<String> {
 
 
 @Composable
-fun ShowDiscovery(navController: NavHostController){
+fun ShowDiscovery(navController: NavHostController, inputQuery: String =""){
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Eventi", "Profili") //nomi tabs
 
-    var query by rememberSaveable { mutableStateOf("") }
+    var query by remember { mutableStateOf("") }
     var items = listOf<String>("pinga", "pino", "sbingus", "sboxi") //TODO rimpiazzare con Evento
     var filteredItems by remember { mutableStateOf<List<String>>(emptyList()) }
 
+    LaunchedEffect(Unit) {
+        query=inputQuery
+        filteredItems = search(items, query)
+    }
 
     Column(
     ){

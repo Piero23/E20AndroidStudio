@@ -15,10 +15,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.e20frontendmobile.activities.MainProfileScreen
+import com.example.e20frontendmobile.activities.ShowCheckout
 import com.example.e20frontendmobile.activities.ShowDiscovery
 import com.example.e20frontendmobile.activities.ShowEvent
 import com.example.e20frontendmobile.bottomNavigationScreen.StandardBottomNavigation
@@ -63,6 +66,13 @@ fun BottomNavigationScreen() {
                             composable("home") {
                                 mainFun(navControllers[0])
                             }
+                            composable(
+                                route = "discovery/{query}",
+                                arguments = listOf(navArgument("query") { type = NavType.StringType })
+                            ) { backStackEntry ->
+                                val query = backStackEntry.arguments?.getString("query") ?: ""
+                                ShowDiscovery(navControllers[0], query)
+                            }
                             composable("card"/*, arguments =
                                 listOf(navArgument("id") { type = NavType.StringType})*/) {
 //                                it.arguments?.getString("id")?.let {
@@ -71,7 +81,10 @@ fun BottomNavigationScreen() {
 //                                        SingleContact(contact = contact)
 //                                    }
 //                                }
-                                ShowEvent()
+                                ShowEvent(navControllers[0], isAdmin)
+                            }
+                            composable("checkout") {
+                                ShowCheckout(navControllers[0])
                             }
                         }
                     }
@@ -94,7 +107,10 @@ fun BottomNavigationScreen() {
 //                                        SingleContact(contact = contact)
 //                                    }
 //                                }
-                                ShowEvent()
+                                ShowEvent(navControllers[1], isAdmin)
+                            }
+                            composable("checkout") {
+                                ShowCheckout(navControllers[1])
                             }
                         }
                     }

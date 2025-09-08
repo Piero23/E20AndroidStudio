@@ -69,6 +69,8 @@ import com.example.e20frontendmobile.ui.theme.BungeeInline
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -326,7 +328,10 @@ fun mainFun(navController: NavHostController){
                     Spacer(modifier = Modifier.height(44.dp))
                     SimpleSearchBar(
                         textFieldState = textFieldState,
-                        onSearch = {},
+                        onSearch = {
+                            val queryEncoded = URLEncoder.encode(textFieldState.text.toString(), StandardCharsets.UTF_8.toString())
+                            navController.navigate("discovery/$queryEncoded")
+                        },
                     )
                 }
             }

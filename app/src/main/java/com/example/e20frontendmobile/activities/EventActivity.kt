@@ -148,7 +148,7 @@ fun ShowEvent(navController: NavHostController ,isAdmin: Boolean){
                             )
                         }
                         IconButton(
-                            onClick = {/* scanner qr*/}
+                            onClick = {navController.navigate("scanner")}
                         ) {
                             Icon(
                                 //TODO RIMPIAZZARE CON ICONA QR

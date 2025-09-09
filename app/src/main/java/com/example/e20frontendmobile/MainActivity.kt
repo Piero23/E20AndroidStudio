@@ -1,6 +1,7 @@
 package com.example.e20frontendmobile
 
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -28,6 +30,7 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +39,7 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -47,6 +51,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.isTraversalGroup
@@ -69,13 +74,12 @@ import com.example.e20frontendmobile.ui.theme.BungeeInline
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 
 import kotlinx.coroutines.launch
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         //enableEdgeToEdge()
         setContent {
             E20FrontendMobileTheme {
@@ -178,7 +182,6 @@ fun MainLogo() {
     val brush = Brush.linearGradient(colors = listOf(Color(248,185,50,255), Color(176,88,15,255)),
         start = Offset(900f,0f) ,
         end = Offset(900f,100f))
-
 
     Text(
         text = buildAnnotatedString {
@@ -287,16 +290,15 @@ fun mainFun(navController: NavHostController){
         0.9f to MaterialTheme.colorScheme.background
     )
 
-E20FrontendMobileTheme {
-        Column (
-            modifier = Modifier.verticalScroll(
-                enabled = true,
-                state = ScrollState(0),
-            ),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+    Column (
+        modifier = Modifier.verticalScroll(
+            enabled = true,
+            state = ScrollState(0),
+        ),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        E20FrontendMobileTheme {
             Box {
-
                 //Carosello
                 Column {
                     CaroselloInfinito()
@@ -311,12 +313,13 @@ E20FrontendMobileTheme {
                 )
 
                 //Testo Centrale
-                Box(modifier = Modifier
-                    .align(Alignment.Center)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
                 ) {
-                    Column (
+                    Column(
                         horizontalAlignment = Alignment.CenterHorizontally
-                    ){
+                    ) {
                         MainLogo()
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
@@ -325,28 +328,30 @@ E20FrontendMobileTheme {
 //                            fontSize = 15.sp,
 //                            fontFamily = MuseoModerno,
                             textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.titleMedium.copy(color = Color.White, fontWeight = FontWeight.Light)
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                color = Color.White,
+                                fontWeight = FontWeight.Light
+                            )
                         )
                         val textFieldState = rememberTextFieldState()
                         Spacer(modifier = Modifier.height(44.dp))
                         SimpleSearchBar(
                             textFieldState = textFieldState,
-                            onSearch = { navController.navigate("search")},
+                            onSearch = { navController.navigate("search") },
                         )
                     }
                 }
 
                 //Sotto
-
             }
             Spacer(modifier = Modifier.height(30.dp))
             Column {
-                    EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
-                    EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
-                    EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
-                    EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
-                }
+                EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
+                EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
+                EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
+                EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
             }
-
         }
+
     }
+}

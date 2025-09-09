@@ -27,6 +27,7 @@ import com.example.e20frontendmobile.activities.ShowEvent
 import com.example.e20frontendmobile.bottomNavigationScreen.StandardBottomNavigation
 import com.example.e20frontendmobile.bottomNavigationScreen.bottomNavItems
 import com.example.e20frontendmobile.mainFun
+import com.example.e20frontendmobile.qrScanner.QRCodeScannerWithBottomSheet
 
 
 @ExperimentalMaterial3Api
@@ -34,7 +35,7 @@ import com.example.e20frontendmobile.mainFun
 fun BottomNavigationScreen() {
     Surface(color = Color.LightGray) {
         val selectedIndex = remember { mutableIntStateOf(0) }
-        var isAdmin: Boolean = false
+        var isAdmin: Boolean = true
 
         val navControllers = listOf(
             rememberNavController(), // per tab 0
@@ -86,6 +87,9 @@ fun BottomNavigationScreen() {
                             composable("checkout") {
                                 ShowCheckout(navControllers[0])
                             }
+                            composable("scanner"){
+                                QRCodeScannerWithBottomSheet()
+                            }
                         }
                     }
                     1 -> {
@@ -111,6 +115,9 @@ fun BottomNavigationScreen() {
                             }
                             composable("checkout") {
                                 ShowCheckout(navControllers[1])
+                            }
+                            composable("scanner"){
+                                QRCodeScannerWithBottomSheet()
                             }
                         }
                     }

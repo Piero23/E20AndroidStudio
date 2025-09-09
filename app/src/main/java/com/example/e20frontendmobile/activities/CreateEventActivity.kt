@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -87,9 +88,6 @@ fun createEvent(){
                 style = MaterialTheme.typography.headlineLarge
             )
 
-            CustomTextField(
-                modifier = Modifier.fillMaxWidth()
-            )
 
 
 
@@ -108,9 +106,6 @@ fun createEvent(){
                         style = MaterialTheme.typography.headlineLarge
                     )
 
-                    CustomTextField(
-                        modifier = Modifier.width(140.dp)
-                    )
                 }
 
                 Column {
@@ -120,9 +115,6 @@ fun createEvent(){
                         style = MaterialTheme.typography.headlineLarge
                     )
 
-                    CustomTextField(
-                        modifier = Modifier.width(140.dp)
-                    )
                 }
 
 
@@ -350,6 +342,5 @@ fun createEvent(){
 @PreviewScreenSizes
 fun previewButton(){
     E20FrontendMobileTheme {
-        CustomTextField()
     }
 }

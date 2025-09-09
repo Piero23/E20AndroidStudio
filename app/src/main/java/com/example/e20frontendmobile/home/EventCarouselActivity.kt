@@ -61,7 +61,7 @@ fun EventCarousel(fontSize: TextUnit, carouselText: String, navController: NavHo
         HorizontalPager(
             state =  pagerState,
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            contentPadding = PaddingValues(horizontal = 25.dp)) { page ->
+            contentPadding = PaddingValues(horizontal = 10.dp)) { page ->
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center

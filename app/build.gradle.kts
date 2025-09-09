@@ -47,6 +47,8 @@ android {
 dependencies {
     implementation(libs.kotlinx.datetime)
 
+    implementation("net.openid:appauth:0.11.1")
+
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
 

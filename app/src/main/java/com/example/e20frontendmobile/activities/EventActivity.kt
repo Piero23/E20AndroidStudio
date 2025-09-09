@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
@@ -152,6 +153,7 @@ fun ShowEvent(navController: NavHostController ,isAdmin: Boolean){
                         if (restricted){
                             Spacer(modifier = Modifier.size(10.dp))
                             //TODO mettere icona restricted
+                            //https://www.flaticon.com/search?word=18
                         }
                     }
                 }
@@ -174,8 +176,7 @@ fun ShowEvent(navController: NavHostController ,isAdmin: Boolean){
                             onClick = {navController.navigate("scanner")}
                         ) {
                             Icon(
-                                //TODO RIMPIAZZARE CON ICONA QR
-                                Icons.Filled.Settings,
+                                Icons.Filled.QrCode,
                                 contentDescription = "Scansiona",
                                 modifier = Modifier
                                     .size(50.dp),

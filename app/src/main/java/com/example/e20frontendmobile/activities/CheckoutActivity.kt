@@ -50,6 +50,8 @@ fun ShowCheckout(navController: NavHostController){
     var tickets by rememberSaveable { mutableStateOf(listOf(Ticket())) }
     val scrollState = rememberScrollState()
 
+    val price = 100
+
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -122,7 +124,7 @@ fun ShowCheckout(navController: NavHostController){
                 horizontalArrangement = Arrangement.SpaceBetween
             ){
                 Text("Biglietti: ${tickets.size}")
-                Text("Totale: 100000€") //TODO da calcolare
+                Text("Totale: ${price*tickets.size}")
             }
             Button(
                 modifier = Modifier.fillMaxWidth(),

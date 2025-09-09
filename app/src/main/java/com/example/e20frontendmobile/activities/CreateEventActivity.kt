@@ -74,13 +74,8 @@ fun createEventPreview(){
 @Composable
 fun createEvent(){
     val scrollState = rememberScrollState()
-    var toggledBell by rememberSaveable { mutableStateOf(false) }
-    var toggledHeart by rememberSaveable { mutableStateOf(false) }
-
 
     var titolo by remember { mutableStateOf("") }
-    var data by remember { mutableStateOf("") }
-    var orario by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
     var posti by remember { mutableIntStateOf(0) }
     var prezzo by remember { mutableFloatStateOf(0f) }
@@ -173,8 +168,6 @@ fun createEvent(){
                     .fillMaxWidth()
             )
 
-            //TODO Fare si che i campi possano prendere sono numeri a posto e prezzo
-
             Spacer(modifier = Modifier.height(40.dp))
 
             Row (
@@ -192,11 +185,12 @@ fun createEvent(){
 
                     Row {
                         CustomTextField(
-                            value = selectedDate ?: "Nessuna data selezionata",
-                            onValueChange = { data = it },
+                            value = selectedDate ?: "",
+                            onValueChange = { selectedDate = it },
                             placeholder = "Data",
                             singleLine = true,
-                            modifier = Modifier.width(120.dp)
+                            modifier = Modifier.width(120.dp),
+                            readOnly = true
                         )
 
                         IconButtonType1(
@@ -218,11 +212,12 @@ fun createEvent(){
 
                     Row {
                         CustomTextField(
-                            value = selectedTime ?: "Nessun orario selezionato",
-                            onValueChange = { orario = it },
-                            placeholder = "Titolo",
+                            value = selectedTime ?: "",
+                            onValueChange = { selectedTime = it },
+                            placeholder = "Orario",
                             singleLine = true,
-                            modifier = Modifier.width(120.dp)
+                            modifier = Modifier.width(120.dp),
+                            readOnly = true
                         )
 
                         IconButtonType1(
@@ -283,9 +278,12 @@ fun createEvent(){
 
                     Row {
                         CustomTextField(
-                            value = location,
-                            onValueChange = { location = it },
-                            placeholder = "Location",
+                            value = posti.toString(),
+                            onValueChange = { newValue ->
+                                if (newValue.all { it.isDigit() }) {
+                                    posti = newValue.toInt()
+                                } },
+                            placeholder = "Posti",
                             singleLine = true,
                             modifier = Modifier.width(300.dp)
                         )
@@ -302,9 +300,13 @@ fun createEvent(){
 
                     Row {
                         CustomTextField(
-                            value = location,
-                            onValueChange = { location = it },
-                            placeholder = "Location",
+                            value = prezzo.toString(),
+                            onValueChange = { newValue->
+                                if (newValue.matches(Regex("^\\d*\\.?\\d*\$"))) {
+                                    prezzo = newValue.toFloat()
+                                }
+                            },
+                            placeholder = "Prezzo",
                             singleLine = true,
                             modifier = Modifier.width(300.dp)
                         )

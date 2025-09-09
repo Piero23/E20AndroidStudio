@@ -30,7 +30,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.e20frontendmobile.activities.CreateEvent
 import com.example.e20frontendmobile.activities.MainProfileScreen
 import com.example.e20frontendmobile.activities.ShowCheckout
 import com.example.e20frontendmobile.activities.Orders
@@ -137,33 +136,8 @@ fun BottomNavigationScreen() {
                             }
                         }
                     }
-                    2 -> CreateEvent()//admin
-                    3 -> {
-//                      Orders()
-
-
-//                        Column {
-//
-//
-//                            Button(onClick = {
-//                                val storage = AuthStateStorage(context)
-//                                val authState = storage.readAuthState()
-//                                token = authState?.accessToken
-//                            }) {
-//                                Text("Recupera Token")
-//                            }
-//
-//                            Spacer(Modifier.height(16.dp))
-//
-//                            Text(
-//                                text = token
-//                                    ?: "Nessun token",
-//                                style = MaterialTheme.typography.bodyLarge
-//                            )
-//                        }
-
-                        DebugTokenScreen()
-                    } //ticket
+                    2 -> createEvent()//admin
+                    3 -> {} //ticket
                     4 -> MainProfileScreen("mario") //navControllers[4]
                 }
             }

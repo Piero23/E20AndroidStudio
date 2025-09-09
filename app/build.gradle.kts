@@ -45,6 +45,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.compose.material.icons.extended)
+
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
@@ -53,7 +55,7 @@ dependencies {
 
     implementation(libs.kotlinx.datetime)
 
-    implementation("net.openid:appauth:0.11.1")
+    implementation(libs.appauth)
 
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)

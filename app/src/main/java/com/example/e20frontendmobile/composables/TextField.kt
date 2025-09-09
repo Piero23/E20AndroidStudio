@@ -36,7 +36,8 @@ fun CustomTextField(
     placeholder: String? = null,
     singleLine: Boolean = false,
     onValueChange: (String) -> Unit,
-    value: String
+    value: String,
+    readOnly: Boolean = false
 ) {
     var height by remember { mutableStateOf(10.dp) }
     var width by remember { mutableStateOf(10.dp) }
@@ -50,6 +51,7 @@ fun CustomTextField(
         contentAlignment = Alignment.TopEnd
     ) {
         BasicTextField(
+            enabled = !readOnly,
             value = value,
             onValueChange = onValueChange,
             cursorBrush = linearGradient(listOf(buttonGradientType1FirstLight, buttonGradientType1LastLight)),

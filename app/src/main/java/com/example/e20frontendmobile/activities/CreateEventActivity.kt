@@ -82,7 +82,8 @@ fun createEvent(){
                 modifier = Modifier.padding(10.dp)
             )
         }
-        Column(
+        Column (
+            horizontalAlignment = Alignment.Start,
             modifier = Modifier.padding(15.dp, 10.dp, 15.dp, 0.dp)
         ){
             Text(
@@ -105,7 +106,7 @@ fun createEvent(){
 
             ) {
 
-                Column {
+                Column(horizontalAlignment = Alignment.Start) {
                     Text(
                         "Data",
                         fontWeight = FontWeight.SemiBold,

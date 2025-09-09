@@ -37,8 +37,13 @@ class AuthActivity : ComponentActivity() {
                 onSuccess = { tokenResponse: TokenResponse, state: AuthState ->
 
                     val token = tokenResponse.accessToken
-                    authState = state
                     println("Access Token completo: $token")
+                    authState = state
+
+                    // ✅ Salvataggio locale
+                    val storage = AuthStateStorage(this)
+                    storage.writeAuthState(state)
+
                     finish()
                 },
                 onError = { ex ->

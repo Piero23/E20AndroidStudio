@@ -291,12 +291,12 @@ fun mainFun(navController: NavHostController){
     )
 
     Column (
-            modifier = Modifier.verticalScroll(
-                enabled = true,
-                state = ScrollState(0),
-            ),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        modifier = Modifier.verticalScroll(
+            enabled = true,
+            state = ScrollState(0),
+        ),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         E20FrontendMobileTheme {
             Box {
                 //Carosello
@@ -346,12 +346,12 @@ fun mainFun(navController: NavHostController){
             }
             Spacer(modifier = Modifier.height(30.dp))
             Column {
-                    EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
-                    EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
-                    EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
-                    EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
-                }
+                EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
+                EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
+                EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
+                EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
             }
-
         }
+
     }
+}

@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.e20frontendmobile.canemartello
 import com.example.e20frontendmobile.getFun
 import kotlinx.coroutines.launch
 
@@ -33,8 +34,6 @@ fun StandardBottomNavigation(
     navControllers: List<NavHostController>
 ) {
 
-    val scope = rememberCoroutineScope()
-
     Row(
         modifier = Modifier.fillMaxWidth()
             .height(50.dp),
@@ -44,10 +43,6 @@ fun StandardBottomNavigation(
             NavigationBarItem(
                 selected = index.value == item.index,
                 onClick = {
-                    scope.launch {
-                        val evento = getFun()
-                        println("Evento ricevuto: $evento")
-                    }
                     if (index.value == item.index) {
                         val navController = navControllers[item.index]
                         navController.popBackStack(

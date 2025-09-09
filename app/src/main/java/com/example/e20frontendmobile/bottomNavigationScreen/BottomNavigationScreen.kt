@@ -31,16 +31,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.e20frontendmobile.activities.MainProfileScreen
+import com.example.e20frontendmobile.activities.ShowCheckout
 import com.example.e20frontendmobile.activities.Orders
 import com.example.e20frontendmobile.activities.ShowDiscovery
 import com.example.e20frontendmobile.activities.ShowEvent
 import com.example.e20frontendmobile.bottomNavigationScreen.StandardBottomNavigation
 import com.example.e20frontendmobile.bottomNavigationScreen.bottomNavItems
 import com.example.e20frontendmobile.mainFun
+import com.example.e20frontendmobile.qrScanner.QRCodeScannerWithBottomSheet
 import com.example.e20frontendmobile.auth.AuthActivity
 import com.example.e20frontendmobile.auth.AuthStateStorage
 
@@ -50,7 +54,7 @@ import com.example.e20frontendmobile.auth.AuthStateStorage
 fun BottomNavigationScreen() {
     Surface(color = Color.LightGray) {
         val selectedIndex = remember { mutableIntStateOf(0) }
-        var isAdmin: Boolean = false
+        var isAdmin: Boolean = true
 
         val navControllers = listOf(
             rememberNavController(), // per tab 0
@@ -82,6 +86,13 @@ fun BottomNavigationScreen() {
                             composable("home") {
                                 mainFun(navControllers[0])
                             }
+                            composable(
+                                route = "discovery/{query}",
+                                arguments = listOf(navArgument("query") { type = NavType.StringType })
+                            ) { backStackEntry ->
+                                val query = backStackEntry.arguments?.getString("query") ?: ""
+                                ShowDiscovery(navControllers[0], query)
+                            }
                             composable("card"/*, arguments =
                                 listOf(navArgument("id") { type = NavType.StringType})*/) {
 //                                it.arguments?.getString("id")?.let {
@@ -90,7 +101,13 @@ fun BottomNavigationScreen() {
 //                                        SingleContact(contact = contact)
 //                                    }
 //                                }
-                                ShowEvent()
+                                ShowEvent(navControllers[0], isAdmin)
+                            }
+                            composable("checkout") {
+                                ShowCheckout(navControllers[0])
+                            }
+                            composable("scanner"){
+                                QRCodeScannerWithBottomSheet()
                             }
                         }
                     }
@@ -113,7 +130,13 @@ fun BottomNavigationScreen() {
 //                                        SingleContact(contact = contact)
 //                                    }
 //                                }
-                                ShowEvent()
+                                ShowEvent(navControllers[1], isAdmin)
+                            }
+                            composable("checkout") {
+                                ShowCheckout(navControllers[1])
+                            }
+                            composable("scanner"){
+                                QRCodeScannerWithBottomSheet()
                             }
                         }
                     }

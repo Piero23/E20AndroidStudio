@@ -1,5 +1,6 @@
 package com.example.e20frontendmobile.activities
 
+import android.Manifest
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -37,8 +38,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,6 +53,7 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LastBaseline
@@ -66,7 +71,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.e20frontendmobile.R
+import com.example.e20frontendmobile.canemartello
 import com.example.e20frontendmobile.mainFun
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -78,18 +85,34 @@ fun ShowEvent(navController: NavHostController ,isAdmin: Boolean){
 
     val restricted = true
 
+    val scope = rememberCoroutineScope()
+
+    var image by remember { mutableStateOf<ImageBitmap?>(null) }
+
+    LaunchedEffect(Unit) {
+        image = canemartello()
+    }
+
 
     Column (
         modifier = Modifier
             .verticalScroll(scrollState)
     ){
-        Image(
-            /*bitmap = event.image?.asImageBitmap() ?: ,*/
-            painter = painterResource(id = R.drawable.images) ,
-            contentDescription = "Image of ${"event.id"}",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        if (image != null) {
+            Image(
+                bitmap = image!!,
+                contentDescription = "Image of event.id",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxWidth().height(250.dp)
+            )
+        } else {
+            Box(
+                modifier = Modifier.fillMaxWidth().height(250.dp),
+                contentAlignment = Alignment.Center
+            ){
+                Text("Caricamento in corso...")
+            }
+        }
         Column(
             modifier = Modifier.padding(15.dp, 10.dp, 15.dp, 0.dp)
         ){

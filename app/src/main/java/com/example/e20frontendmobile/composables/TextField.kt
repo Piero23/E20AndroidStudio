@@ -40,8 +40,7 @@ fun CustomTextField(
     val density = LocalDensity.current
 
     Box (
-        modifier = modifier.background(Color.White)
-            .width(300.dp),
+        modifier = modifier.background(Color.White),
         contentAlignment = Alignment.TopEnd) {
         var name by remember {
             mutableStateOf("")
@@ -50,8 +49,7 @@ fun CustomTextField(
             value = name,
             onValueChange = { name = it },
             cursorBrush = linearGradient(listOf(buttonGradientType1FirstLight,buttonGradientType1LastLight)),
-            modifier = Modifier
-                .fillMaxWidth(),
+
             textStyle = MaterialTheme.typography.bodyMedium,
             decorationBox = { innerTextField ->
                 Row(
@@ -107,7 +105,6 @@ fun CustomTextField(
             )
             .height(20.dp)
             .width(width.minus(3f.dp))) {
-
         }
 
     }

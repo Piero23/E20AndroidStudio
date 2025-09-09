@@ -41,6 +41,7 @@ import com.example.e20frontendmobile.activities.ShowCheckout
 import com.example.e20frontendmobile.activities.Orders
 import com.example.e20frontendmobile.activities.ShowDiscovery
 import com.example.e20frontendmobile.activities.ShowEvent
+import com.example.e20frontendmobile.activities.createEvent
 import com.example.e20frontendmobile.bottomNavigationScreen.StandardBottomNavigation
 import com.example.e20frontendmobile.bottomNavigationScreen.bottomNavItems
 import com.example.e20frontendmobile.mainFun
@@ -140,20 +141,13 @@ fun BottomNavigationScreen() {
                             }
                         }
                     }
-                    2 -> {} //admin
+                    2 -> createEvent()//admin
                     3 -> {
 //                      Orders()
-//                        val context = LocalContext.current
-//
-//                        var token by remember { mutableStateOf<String?>(null) }
-//
+
+
 //                        Column {
-//                            Button(onClick = {
-//                                val intent = Intent(context, AuthActivity::class.java)
-//                                context.startActivity(intent)
-//                            }) {
-//                                Text("Vai al Login")
-//                            }
+//
 //
 //                            Button(onClick = {
 //                                val storage = AuthStateStorage(context)
@@ -195,7 +189,14 @@ fun DebugTokenScreen() {
         verticalArrangement = Arrangement.Top
     ) {
         Button(onClick = {
-            userIN += userInfo?.sub +" EPPOI"
+            val intent = Intent(context, AuthActivity::class.java)
+            context.startActivity(intent)
+        }) {
+            Text("Vai al Login")
+        }
+
+        Button(onClick = {
+            userIN = userInfo?.sub +"\n"
             userIN += userInfo?.roles
 
         }) {

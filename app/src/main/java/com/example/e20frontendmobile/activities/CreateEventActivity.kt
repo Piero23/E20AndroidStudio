@@ -1,5 +1,6 @@
 package com.example.e20frontendmobile.activities
 
+import android.icu.util.Calendar
 import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -21,13 +22,24 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerState
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -45,6 +57,9 @@ import com.example.e20frontendmobile.composables.CustomTextField
 import com.example.e20frontendmobile.composables.IconButtonType1
 import com.example.e20frontendmobile.composables.IconTextButtonType1
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.ExperimentalTime
 
 @Preview
 @Composable
@@ -55,11 +70,68 @@ fun createEventPreview(){
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
 fun createEvent(){
     val scrollState = rememberScrollState()
     var toggledBell by rememberSaveable { mutableStateOf(false) }
     var toggledHeart by rememberSaveable { mutableStateOf(false) }
+
+
+    var titolo by remember { mutableStateOf("") }
+    var data by remember { mutableStateOf("") }
+    var orario by remember { mutableStateOf("") }
+    var location by remember { mutableStateOf("") }
+    var posti by remember { mutableIntStateOf(0) }
+    var prezzo by remember { mutableFloatStateOf(0f) }
+    var ageRestricted by remember { mutableStateOf(false) }
+    var nominativo by remember { mutableStateOf(false) }
+    var riutilizzabile by remember { mutableStateOf(false) }
+    var descrizione by remember { mutableStateOf("") }
+
+    var selectedDate by remember { mutableStateOf<String?>(null) }
+    var selectedTime by remember { mutableStateOf<String?>(null) }
+    var showDatePicker by rememberSaveable { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
+
+    val currentTime = Calendar.getInstance()
+    val timePickerState = rememberTimePickerState(
+        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
+        initialMinute = currentTime.get(Calendar.MINUTE),
+        is24Hour = true
+    )
+
+
+    if (showDatePicker) {
+        DatePickerModal(
+            onDateSelected = { millis ->
+                millis?.let {
+                    val localDate = kotlinx.datetime.Instant.fromEpochMilliseconds(it)
+                        .toLocalDateTime(TimeZone.currentSystemDefault())
+                        .date
+
+                    selectedDate = localDate.toString()
+                }
+            },
+            onDismiss = { showDatePicker = false }
+        )
+    }
+
+
+    if (showTimePicker) {
+        TimePickerDialog(
+            state = timePickerState,
+            onDismiss = { showTimePicker = false },
+            onConfirm = {
+                selectedTime = String.format(
+                    "%02d:%02d",
+                    timePickerState.hour,
+                    timePickerState.minute
+                )
+                showTimePicker = false
+            }
+        )
+    }
 
     Column (
         modifier = Modifier
@@ -93,10 +165,15 @@ fun createEvent(){
             )
 
             CustomTextField(
-                modifier = Modifier.fillMaxWidth()
+                value = titolo,
+                onValueChange = { titolo = it },
+                placeholder = "Titolo",
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
             )
 
-
+            //TODO Fare si che i campi possano prendere sono numeri a posto e prezzo
 
             Spacer(modifier = Modifier.height(40.dp))
 
@@ -115,11 +192,15 @@ fun createEvent(){
 
                     Row {
                         CustomTextField(
+                            value = selectedDate ?: "Nessuna data selezionata",
+                            onValueChange = { data = it },
+                            placeholder = "Data",
+                            singleLine = true,
                             modifier = Modifier.width(120.dp)
                         )
 
                         IconButtonType1(
-                            onClick = { },
+                            onClick = {showDatePicker = true},
                             icon = Icons.Default.DateRange,
                             iconDescription = "",
                             iconSize = 20.dp,
@@ -137,11 +218,15 @@ fun createEvent(){
 
                     Row {
                         CustomTextField(
+                            value = selectedTime ?: "Nessun orario selezionato",
+                            onValueChange = { orario = it },
+                            placeholder = "Titolo",
+                            singleLine = true,
                             modifier = Modifier.width(120.dp)
                         )
 
                         IconButtonType1(
-                            onClick = { },
+                            onClick = {showTimePicker = true},
                             icon = Icons.Default.ShoppingCart,
                             iconDescription = "",
                             iconSize = 20.dp,
@@ -149,8 +234,6 @@ fun createEvent(){
                         )
                     }
                 }
-
-
 
             }
 
@@ -162,7 +245,13 @@ fun createEvent(){
                 )
 
                 Row {
-                    CustomTextField(modifier = Modifier.width(300.dp))
+                    CustomTextField(
+                        value = location,
+                        onValueChange = { location = it },
+                        placeholder = "Location",
+                        singleLine = true,
+                        modifier = Modifier.width(300.dp)
+                    )
 
                     IconButtonType1(
                         onClick = { },
@@ -193,7 +282,13 @@ fun createEvent(){
                     )
 
                     Row {
-                        CustomTextField()
+                        CustomTextField(
+                            value = location,
+                            onValueChange = { location = it },
+                            placeholder = "Location",
+                            singleLine = true,
+                            modifier = Modifier.width(300.dp)
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.padding(horizontal = 5.dp))
@@ -206,7 +301,13 @@ fun createEvent(){
                     )
 
                     Row {
-                        CustomTextField()
+                        CustomTextField(
+                            value = location,
+                            onValueChange = { location = it },
+                            placeholder = "Location",
+                            singleLine = true,
+                            modifier = Modifier.width(300.dp)
+                        )
                     }
                 }
 
@@ -230,9 +331,9 @@ fun createEvent(){
                         .width(250.dp)
                 )
                 Switch(
-                    checked = checked,
+                    checked = ageRestricted,
                     onCheckedChange = {
-                        checked = it
+                        ageRestricted = it
                     },
                 )
             }
@@ -247,9 +348,9 @@ fun createEvent(){
                         .width(250.dp)
                 )
                 Switch(
-                    checked = checked,
+                    checked = nominativo,
                     onCheckedChange = {
-                        checked = it
+                        nominativo = it
                     }
                 )
             }
@@ -265,9 +366,9 @@ fun createEvent(){
                         .width(250.dp)
                 )
                 Switch(
-                    checked = checked,
+                    checked = riutilizzabile,
                     onCheckedChange = {
-                        checked = it
+                        riutilizzabile = it
                     }
                 )
             }
@@ -282,7 +383,13 @@ fun createEvent(){
                 )
 
                 Row {
-                    CustomTextField(modifier = Modifier.fillMaxWidth())
+                    CustomTextField(
+                        value = descrizione,
+                        onValueChange = { descrizione = it },
+                        placeholder = "Descrizione",
+                        singleLine = true,
+                        modifier = Modifier.width(300.dp)
+                    )
                 }
             }
 
@@ -293,10 +400,10 @@ fun createEvent(){
 
 
             Button(
-                onClick = { },
+                onClick = {},
                 modifier = Modifier.fillMaxWidth().height(80.dp),
                 shape = RoundedCornerShape(20)
-            ) {
+            ){
                 Row (verticalAlignment = Alignment.CenterVertically){
                     Icon(
                         Icons.Default.Add,
@@ -315,13 +422,79 @@ fun createEvent(){
 }
 
 
-
-
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@PreviewScreenSizes
-fun previewButton(){
-    E20FrontendMobileTheme {
-        CustomTextField()
+fun DatePickerModal(
+    onDateSelected: (Long?) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val datePickerState = rememberDatePickerState()
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                onDateSelected(datePickerState.selectedDateMillis)
+                onDismiss()
+            }) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    ) {
+        DatePicker(state = datePickerState)
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DialExample(
+    state: TimePickerState,   // <-- riceve lo stato da fuori
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Column {
+        TimePicker(state = state)
+        Button(onClick = onDismiss) {
+            Text("Dismiss picker")
+        }
+        Button(onClick = onConfirm) {
+            Text("Confirm selection")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimePickerDialog(
+    state: TimePickerState,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Seleziona un orario") },
+        text = { TimePicker(state = state) },
+        confirmButton = {
+            TextButton(onClick = onConfirm) { Text("OK") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
+}
+
+
+
+
+//@Composable
+//@PreviewScreenSizes
+//fun previewButton(){
+//    E20FrontendMobileTheme {
+//        CustomTextField()
+//    }
+//}

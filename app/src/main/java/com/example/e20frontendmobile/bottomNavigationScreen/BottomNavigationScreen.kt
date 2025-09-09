@@ -20,6 +20,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.e20frontendmobile.activities.CreateEvent
 import com.example.e20frontendmobile.activities.MainProfileScreen
 import com.example.e20frontendmobile.activities.ShowCheckout
 import com.example.e20frontendmobile.activities.ShowDiscovery
@@ -121,7 +122,9 @@ fun BottomNavigationScreen() {
                             }
                         }
                     }
-                    2 -> {} //admin
+                    2 -> {
+                        CreateEvent()
+                    } //admin
                     3 -> {} //ticket
                     4 -> MainProfileScreen("mario") //navControllers[4]
                 }

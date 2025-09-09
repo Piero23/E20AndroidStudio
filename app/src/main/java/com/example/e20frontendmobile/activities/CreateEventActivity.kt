@@ -454,24 +454,6 @@ fun DatePickerModal(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DialExample(
-    state: TimePickerState,   // <-- riceve lo stato da fuori
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    Column {
-        TimePicker(state = state)
-        Button(onClick = onDismiss) {
-            Text("Dismiss picker")
-        }
-        Button(onClick = onConfirm) {
-            Text("Confirm selection")
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
 fun TimePickerDialog(
     state: TimePickerState,
     onDismiss: () -> Unit,

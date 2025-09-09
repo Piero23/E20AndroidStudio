@@ -29,6 +29,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,7 +45,11 @@ import com.example.e20frontendmobile.composables.CustomTextField
 import com.example.e20frontendmobile.composables.IconTextButtonType1
 import com.example.e20frontendmobile.model.Ticket
 import com.example.e20frontendmobile.ui.theme.buttonGradientType1
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun ShowCheckout(navController: NavHostController){
     var tickets by rememberSaveable { mutableStateOf(listOf(Ticket())) }
@@ -98,9 +103,13 @@ fun ShowCheckout(navController: NavHostController){
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             tickets.forEachIndexed { index, ticket ->
-                NameTicket(ticket = ticket, onTicketChange = { updatedTicket ->
-                    tickets = tickets.toMutableList().also { it[index] = updatedTicket }
-                }, number = index + 1)
+                NameTicket(
+                    ticket = ticket,
+                    number = index + 1,
+                    onTicketChange = { updatedTicket ->
+                        tickets = tickets.toMutableList().also { it[index] = updatedTicket }
+                    }
+                )
                 HorizontalDivider(modifier = Modifier.padding(10.dp))
             }
             IconTextButtonType1(
@@ -124,7 +133,7 @@ fun ShowCheckout(navController: NavHostController){
                 horizontalArrangement = Arrangement.SpaceBetween
             ){
                 Text("Biglietti: ${tickets.size}")
-                Text("Totale: ${price*tickets.size}")
+                Text("Totale: ${tickets.size*price}€")
             }
             Button(
                 modifier = Modifier.fillMaxWidth(),
@@ -140,8 +149,16 @@ fun ShowCheckout(navController: NavHostController){
     }
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
-fun NameTicket(number: Int, ticket: Ticket, onTicketChange: (Ticket) -> Unit) {
+fun NameTicket(
+    number: Int,
+    ticket: Ticket,
+    onTicketChange: (Ticket) -> Unit
+) {
+    // stato locale del DatePicker per questo singolo ticket
+    var showDatePicker by rememberSaveable { mutableStateOf(false) }
+
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -153,12 +170,14 @@ fun NameTicket(number: Int, ticket: Ticket, onTicketChange: (Ticket) -> Unit) {
                 style = MaterialTheme.typography.titleMedium
             )
         }
+
+        // Nome + Cognome
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp, 5.dp, 10.dp, 0.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
-        ){
+        ) {
             CustomTextField(
                 value = ticket.nome,
                 onValueChange = { onTicketChange(ticket.copy(nome = it)) },
@@ -178,6 +197,8 @@ fun NameTicket(number: Int, ticket: Ticket, onTicketChange: (Ticket) -> Unit) {
                     .padding(start = 2.5.dp)
             )
         }
+
+        // Email
         CustomTextField(
             value = ticket.email,
             onValueChange = { onTicketChange(ticket.copy(email = it)) },
@@ -187,18 +208,20 @@ fun NameTicket(number: Int, ticket: Ticket, onTicketChange: (Ticket) -> Unit) {
                 .fillMaxWidth()
                 .padding(10.dp)
         )
+
         Row(
             modifier = Modifier
                 .padding(70.dp, 0.dp, 70.dp, 0.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
-        ){
+        ) {
             CustomTextField(
                 value = ticket.dataNascita,
                 onValueChange = { onTicketChange(ticket.copy(dataNascita = it)) },
                 placeholder = "Data di nascita",
                 singleLine = true,
+                readOnly = true,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 2.5.dp, end = 5.dp)
@@ -208,8 +231,8 @@ fun NameTicket(number: Int, ticket: Ticket, onTicketChange: (Ticket) -> Unit) {
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
                     .background(buttonGradientType1()),
-                onClick = {},
-            ){
+                onClick = { showDatePicker = true }
+            ) {
                 Icon(
                     Icons.Filled.DateRange,
                     contentDescription = "Scegli data",
@@ -218,8 +241,25 @@ fun NameTicket(number: Int, ticket: Ticket, onTicketChange: (Ticket) -> Unit) {
                 )
             }
         }
+
+        // Mostra il DatePicker solo per questo ticket
+        if (showDatePicker) {
+            DatePickerModal(
+                onDateSelected = { millis ->
+                    millis?.let {
+                        val localDate = kotlinx.datetime.Instant.fromEpochMilliseconds(it)
+                            .toLocalDateTime(TimeZone.currentSystemDefault())
+                            .date
+                        onTicketChange(ticket.copy(dataNascita = localDate.toString()))
+                    }
+                    showDatePicker = false
+                },
+                onDismiss = { showDatePicker = false }
+            )
+        }
     }
 }
+
 
 @Preview
 @Composable

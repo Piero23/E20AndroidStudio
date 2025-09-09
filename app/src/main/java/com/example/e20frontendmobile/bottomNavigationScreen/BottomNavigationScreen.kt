@@ -1,30 +1,32 @@
 package com.example.composeuitemplates.presentation.bottomNavigationScreen
 
 
+import android.content.Intent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,7 +34,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.e20frontendmobile.activities.MainProfileScreen
 import com.example.e20frontendmobile.activities.ShowCheckout
-import com.example.e20frontendmobile.activities.Orders
 import com.example.e20frontendmobile.activities.ShowDiscovery
 import com.example.e20frontendmobile.activities.ShowEvent
 import com.example.e20frontendmobile.activities.createEvent
@@ -137,7 +138,32 @@ fun BottomNavigationScreen() {
                         }
                     }
                     2 -> createEvent()//admin
-                    3 -> {} //ticket
+                    3 -> {
+//                      Orders()
+
+
+//                        Column {
+//
+//
+//                            Button(onClick = {
+//                                val storage = AuthStateStorage(context)
+//                                val authState = storage.readAuthState()
+//                                token = authState?.accessToken
+//                            }) {
+//                                Text("Recupera Token")
+//                            }
+//
+//                            Spacer(Modifier.height(16.dp))
+//
+//                            Text(
+//                                text = token
+//                                    ?: "Nessun token",
+//                                style = MaterialTheme.typography.bodyLarge
+//                            )
+//                        }
+
+                        DebugTokenScreen()
+                    } //ticket
                     4 -> MainProfileScreen("mario") //navControllers[4]
                 }
             }
@@ -145,8 +171,46 @@ fun BottomNavigationScreen() {
     }
 }
 
-
 @Composable
-fun rememberAppNavController(): NavController {
-    return rememberNavController()
+fun DebugTokenScreen() {
+    val context = LocalContext.current
+    val storage = remember { AuthStateStorage(context) }
+    val userInfo = storage.getUserInfo()
+
+    var userIN  by remember { mutableStateOf("Nulla") }
+
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp),
+        verticalArrangement = Arrangement.Top
+    ) {
+        Button(onClick = {
+            val intent = Intent(context, AuthActivity::class.java)
+            context.startActivity(intent)
+        }) {
+            Text("Vai al Login")
+        }
+
+        Button(onClick = {
+            userIN = userInfo?.sub +"\n"
+            userIN += userInfo?.roles
+
+        }) {
+            Text("Mostra JWT Claims")
+        }
+
+        Button(onClick = {
+            println("MAAAAAAAMMAAAAA"+getMe(context))
+        }) {
+            Text("Testa")
+        }
+        Spacer(Modifier.height(16.dp))
+
+        Text(
+            text = userIN
+        )
+
+
+
+    }
 }

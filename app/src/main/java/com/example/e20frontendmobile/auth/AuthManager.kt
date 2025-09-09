@@ -13,6 +13,8 @@ import net.openid.appauth.*
  */
 class AuthManager(private val context: Context) {
 
+
+    var ip : String = "192.168.1.212"
     private val authService: AuthorizationService by lazy {
         val appAuthConfiguration = AppAuthConfiguration.Builder()
             .setConnectionBuilder(ConnectionBuilderForTesting.INSTANCE) // <-- Use the new class here
@@ -27,8 +29,8 @@ class AuthManager(private val context: Context) {
 
     // Puoi anche usare la fetchFromIssuer se il server espone il discovery document
     private val serviceConfig = AuthorizationServiceConfiguration(
-        Uri.parse("http://10.0.2.2:9000/oauth2/authorize"), // authorization endpoint
-        Uri.parse("http://10.0.2.2:9000/oauth2/token")      // token endpoint
+        Uri.parse("http://"+ ip +":9000/oauth2/authorize"), // authorization endpoint
+        Uri.parse("http://"+ ip +":9000/oauth2/token")      // token endpoint
     )
 
     private val authRequest: AuthorizationRequest by lazy {
@@ -96,20 +98,26 @@ class AuthManager(private val context: Context) {
     }
 
 
-    /**
-     * Usa il refresh token per ottenere un nuovo access token.
-     */
-    fun refreshTokens(
-        authState: AuthState,
-        onSuccess: (TokenResponse) -> Unit,
-        onError: (AuthorizationException?) -> Unit
+    fun getValidAccessToken(
+        storage: AuthStateStorage,
+        onSuccess: (String) -> Unit,
+        onError: (Exception?) -> Unit
     ) {
-        authState.performActionWithFreshTokens(authService) { accessToken, idToken, ex ->
-            if (ex == null && accessToken != null) {
-                // authState viene aggiornato internamente con i nuovi token
-                onSuccess(authState.lastTokenResponse!!)
-            } else {
+        val state = storage.readAuthState()
+        if (state == null) {
+            onError(Exception("AuthState non trovato"))
+            return
+        }
+
+        state.performActionWithFreshTokens(authService) { accessToken, idToken, ex ->
+            if (ex != null) {
                 onError(ex)
+            } else if (accessToken != null) {
+                // aggiorna lo storage con l’AuthState aggiornato (dopo refresh)
+                storage.writeAuthState(state)
+                onSuccess(accessToken)
+            } else {
+                onError(Exception("Access token non disponibile"))
             }
         }
     }

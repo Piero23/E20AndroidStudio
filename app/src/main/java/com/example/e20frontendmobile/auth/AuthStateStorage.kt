@@ -84,4 +84,9 @@ class AuthStateStorage(private val context: Context) {
     fun clearAuthState() {
         prefs.edit { remove("auth_state") }
     }
+
+    fun getAccessToken(): String? {
+        val state = readAuthState() ?: return null
+        return state.accessToken
+    }
 }

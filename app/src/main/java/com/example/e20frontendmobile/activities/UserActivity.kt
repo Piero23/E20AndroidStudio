@@ -38,7 +38,6 @@ import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import com.example.e20frontendmobile.ui.theme.backgroundGradient
 import com.example.e20frontendmobile.ui.theme.backgroundLinearGradient
 import com.example.e20frontendmobile.ui.theme.blurredDropShadow
-import com.example.e20frontendmobile.ui.theme.linearGradient
 import com.example.e20frontendmobile.ui.theme.spaceExtraSmall
 import com.example.e20frontendmobile.ui.theme.spaceLarge
 import com.example.e20frontendmobile.ui.theme.spaceMedium
@@ -49,7 +48,9 @@ class UserActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            E20FrontendMobileTheme {}
+            E20FrontendMobileTheme {
+                MainScreen(username = "usernsme")
+            }
         }
     }
 }
@@ -171,6 +172,68 @@ fun UserInfo(
 
 
 @Composable
+fun UserRegistrationBox(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        contentAlignment = Alignment.TopEnd,
+
+        modifier = modifier
+            .blurredDropShadow(
+                shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
+                offset = Offset(10f,10f),
+                blurRadius = 10f,
+            )
+            .fillMaxWidth()
+            .background(
+                color = MaterialTheme.colorScheme.surfaceDim,
+                shape = MaterialTheme.shapes.medium
+            )
+            .padding(spaceMedium)
+
+
+    ) {
+        Column(
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp)
+        ) {
+            Text(
+                text = "firstName",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onTertiary
+            )
+            Text(
+                text = "lastName",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onTertiary
+            )
+            Spacer(Modifier.height(spaceMedium))
+            Text(
+                text = "email",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onTertiary
+            )
+            Text(
+                text = "birthDate",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onTertiary
+            )
+        }
+        IconButtonType1(
+            onClick = { },
+            icon = Icons.Default.Edit,
+            iconDescription = "",
+            iconSize = 20.dp,
+            //modifier = Modifier.size(60.dp),
+        )
+    }
+}
+
+
+
+@Composable
 fun LogOutBox() {
     Row(
         modifier = Modifier
@@ -256,7 +319,7 @@ fun MainScreen(
 
 
 @Composable
-fun LogInScreen() {
+fun RegisterScreen() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -284,9 +347,9 @@ fun MainScreenPreview() {
 
 @Preview
 @Composable
-fun LogInScreenPreview() {
+fun RegisterScreenPreview() {
     E20FrontendMobileTheme(darkTheme = false) {
-        LogInScreen()
+        RegisterScreen()
     }
 }
 

@@ -14,21 +14,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.E20FrontendMobile" >
-        <activity
-            android:name=".EventCarousel"
-            android:exported="false"
-            android:label="@string/title_activity_event_carousel"
-            android:theme="@style/Theme.E20FrontendMobile" />
-        <activity
-            android:name=".ui.theme.EventCarouselActivity"
-            android:exported="false"
-            android:label="@string/title_activity_event_carousel"
-            android:theme="@style/Theme.E20FrontendMobile" />
+<!--        <activity-->
+<!--            android:name=".EventCarousel"-->
+<!--            android:exported="false"-->
+<!--            android:label="@string/title_activity_event_carousel"-->
+<!--            android:theme="@style/Theme.E20FrontendMobile" />-->
+<!--        <activity-->
+<!--            android:name=".ui.theme.EventCarouselActivity"-->
+<!--            android:exported="false"-->
+<!--            android:label="@string/title_activity_event_carousel"-->
+<!--            android:theme="@style/Theme.E20FrontendMobile" />-->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.E20FrontendMobile" >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

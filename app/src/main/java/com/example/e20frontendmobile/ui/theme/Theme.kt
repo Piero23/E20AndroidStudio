@@ -32,8 +32,8 @@ private val LightColorScheme = lightColorScheme(
     onSecondary = onSecondaryLight,
     onTertiary = onTernaryLight,
     onError = onErrorLight,
-    onBackground = onBackgroudLight,
-    onSurface = onBackgroudLight
+    onBackground = onBackgroundLight,
+    onSurface = onBackgroundLight
 )
 
 private val DarkColorScheme = darkColorScheme(
@@ -52,8 +52,8 @@ private val DarkColorScheme = darkColorScheme(
     onSecondary = onSecondaryDark,
     onTertiary = onTernaryDark,
     onError = onErrorDark,
-    onBackground = onBackgroudDark,
-    onSurface = onBackgroudDark
+    onBackground = onBackgroundDark,
+    onSurface = onBackgroundDark
 )
 
 

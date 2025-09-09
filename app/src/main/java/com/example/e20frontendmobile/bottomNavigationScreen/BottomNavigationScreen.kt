@@ -48,6 +48,7 @@ import com.example.e20frontendmobile.mainFun
 import com.example.e20frontendmobile.qrScanner.QRCodeScannerWithBottomSheet
 import com.example.e20frontendmobile.auth.AuthActivity
 import com.example.e20frontendmobile.auth.AuthStateStorage
+import com.example.e20frontendmobile.getMe
 
 
 @ExperimentalMaterial3Api
@@ -202,11 +203,19 @@ fun DebugTokenScreen() {
         }) {
             Text("Mostra JWT Claims")
         }
+
+        Button(onClick = {
+            println("MAAAAAAAMMAAAAA"+getMe())
+        }) {
+            Text("Testa")
+        }
         Spacer(Modifier.height(16.dp))
 
         Text(
             text = userIN
         )
+
+
 
     }
 }

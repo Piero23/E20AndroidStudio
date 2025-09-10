@@ -92,7 +92,6 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
 
     //TODO mettere nel view Model
     LaunchedEffect(event.id) {
-        delay(5000L)
 
         val service = EventService(context)
         imageBitmap = service.getImage(event.id)
@@ -101,7 +100,6 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
 
     val dataReady = imageBitmap != null && spotsLeft != null
 
-    // Placeholder finché i dati non sono pronti
     if (!dataReady) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("Caricamento evento...", style = MaterialTheme.typography.headlineMedium)

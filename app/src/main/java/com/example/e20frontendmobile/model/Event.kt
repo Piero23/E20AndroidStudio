@@ -1,5 +1,6 @@
 package com.example.e20frontendmobile.model
 
+import android.graphics.Bitmap
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.datetime.LocalDateTime

@@ -71,6 +71,7 @@ fun BottomNavigationScreen() {
                     navControllers = navControllers
                 )
             }
+            //TODO evitare che scoppia se clicchi 2 volte la stessa tab
         ) { innerPadding ->
             Box(Modifier.padding(innerPadding)) {
                 when(selectedIndex.intValue) {
@@ -83,7 +84,7 @@ fun BottomNavigationScreen() {
                             exitTransition = { ExitTransition.None }
                             ) {
                             composable("home") {
-                                mainFun(navControllers[0])
+                                mainFun(navControllers[0] , eventViewModel )
                             }
                             composable(
                                 route = "discovery/{query}",
@@ -163,7 +164,6 @@ fun BottomNavigationScreen() {
 //                                style = MaterialTheme.typography.bodyLarge
 //                            )
 //                        }
-
                         DebugTokenScreen()
                     } //ticket
                     4 -> MainProfileScreen("mario") //navControllers[4]

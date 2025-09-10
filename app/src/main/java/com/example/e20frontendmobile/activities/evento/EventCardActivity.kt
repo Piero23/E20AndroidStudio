@@ -37,7 +37,9 @@ import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import com.example.e20frontendmobile.viewModels.EventViewModel
 
 @Composable
-fun eventCard(event: Event, navController: NavHostController, eventViewModel: EventViewModel) {
+fun eventCard(event: Event,
+              navController: NavHostController,
+              eventViewModel: EventViewModel) {
 
     val context: Context = LocalContext.current
 

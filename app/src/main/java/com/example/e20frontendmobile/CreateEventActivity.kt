@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
@@ -308,7 +309,10 @@ fun createEvent(){
 }
 
 @Composable
-fun CustomBorderBox() {
+fun CustomBorderBox(
+
+    verticalWrap: Boolean = true
+) {
     var height by remember { mutableStateOf(10.dp) }
     var width by remember { mutableStateOf(10.dp) }
     val density = LocalDensity.current
@@ -327,6 +331,7 @@ fun CustomBorderBox() {
             modifier = Modifier
                 .fillMaxWidth(),
             textStyle = MaterialTheme.typography.bodyMedium,
+            singleLine = !verticalWrap,
             decorationBox = { innerTextField ->
                 Row(
                     modifier = Modifier

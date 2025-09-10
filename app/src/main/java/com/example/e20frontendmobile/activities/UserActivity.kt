@@ -22,6 +22,9 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,13 +35,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.e20frontendmobile.CustomBorderBox
 import com.example.e20frontendmobile.composables.IconButtonType1
 import com.example.e20frontendmobile.composables.IconTextButtonType1
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import com.example.e20frontendmobile.ui.theme.backgroundGradient
 import com.example.e20frontendmobile.ui.theme.backgroundLinearGradient
 import com.example.e20frontendmobile.ui.theme.blurredDropShadow
+import com.example.e20frontendmobile.ui.theme.spaceExtraLarge
 import com.example.e20frontendmobile.ui.theme.spaceExtraSmall
+import com.example.e20frontendmobile.ui.theme.spaceSmall
 import com.example.e20frontendmobile.ui.theme.spaceLarge
 import com.example.e20frontendmobile.ui.theme.spaceMedium
 import com.example.e20frontendmobile.ui.theme.white
@@ -67,7 +73,7 @@ fun TitledBox(
         modifier = modifier
             .blurredDropShadow(
                 shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
-                offset = Offset(10f,10f),
+                offset = Offset(10f, 10f),
                 blurRadius = 10f,
             )
             .background(
@@ -120,7 +126,7 @@ fun UserInfo(
         modifier = modifier
             .blurredDropShadow(
                 shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
-                offset = Offset(10f,10f),
+                offset = Offset(10f, 10f),
                 blurRadius = 10f,
             )
             .fillMaxWidth()
@@ -170,68 +176,103 @@ fun UserInfo(
     }
 }
 
+@Composable
+fun RegistrationTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    isError: Boolean,
+    modifier: Modifier = Modifier,
+    errorMessage: String? = null
+) {
+    Column(
+        modifier = modifier
+            .height(100.dp)
+            .background(white)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onTertiary
+        )
+        CustomBorderBox(
+
+            verticalWrap = false
+        ) // To Pass Value and OnValueChange
+        if (isError && errorMessage != null) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(start = 16.dp, top = 2.dp)
+            )
+        }
+    }
+}
+
 
 @Composable
 fun UserRegistrationBox(
     modifier: Modifier = Modifier
 ) {
-    Box(
-        contentAlignment = Alignment.TopEnd,
-
+    Column(
+        horizontalAlignment = Alignment.Start,
         modifier = modifier
             .blurredDropShadow(
                 shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
-                offset = Offset(10f,10f),
+                offset = Offset(10f, 10f),
                 blurRadius = 10f,
             )
             .fillMaxWidth()
             .background(
-                color = MaterialTheme.colorScheme.surfaceDim,
+                color = MaterialTheme.colorScheme.background,
                 shape = MaterialTheme.shapes.medium
             )
-            .padding(spaceMedium)
-
+            .padding(spaceLarge)
 
     ) {
-        Column(
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp)
-        ) {
-            Text(
-                text = "firstName",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onTertiary
-            )
-            Text(
-                text = "lastName",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onTertiary
-            )
-            Spacer(Modifier.height(spaceMedium))
-            Text(
-                text = "email",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onTertiary
-            )
-            Text(
-                text = "birthDate",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onTertiary
-            )
-        }
-        IconButtonType1(
-            onClick = { },
-            icon = Icons.Default.Edit,
-            iconDescription = "",
-            iconSize = 20.dp,
-            //modifier = Modifier.size(60.dp),
+        val (provaEmail, setProvaEmail) = remember { mutableStateOf("") }
+        // User First Name
+        RegistrationTextField(
+            label = "First Name",
+            value = "first_name",
+            onValueChange = { firstName -> {} },
+            isError = false,
+        )
+
+        Spacer(Modifier.height(spaceSmall))
+
+        // User Last Name
+        RegistrationTextField(
+            label = "Last Name",
+            value = "last_name",
+            onValueChange = { lastName -> {} },
+            isError = true,
+            errorMessage = "Questa e' una prova"
+        )
+
+        Spacer(Modifier.height(spaceLarge))
+
+        // User Email
+        RegistrationTextField(
+            label = provaEmail,
+            value = provaEmail,
+            onValueChange = { setProvaEmail(it) },
+            isError = (provaEmail == "Miao"),
+            errorMessage = "Questa e' una prova"
+        )
+
+        Spacer(Modifier.height(spaceSmall))
+
+        // User Birth Date
+        RegistrationTextField(
+            label = "Data di Nascita",
+            value = "birth_date",
+            onValueChange = { birthDate -> {} },
+            isError = false,
         )
     }
 }
-
-
 
 @Composable
 fun LogOutBox() {
@@ -326,11 +367,15 @@ fun RegisterScreen() {
             .fillMaxSize()
             .backgroundLinearGradient(
                 colors = listOf(
-                        MaterialTheme.colorScheme.tertiary,
-                        MaterialTheme.colorScheme.secondary)
+                    MaterialTheme.colorScheme.tertiary,
+                    MaterialTheme.colorScheme.secondary
+                )
             )
             .padding(top = 114.dp, start = 40.dp, bottom = 61.dp, end = 40.dp)
-    ) {}
+    ) {
+        // User Registration Box
+        UserRegistrationBox()
+    }
 }
 
 // Previews ----------------------------------------------------------------------------------------
@@ -355,6 +400,34 @@ fun RegisterScreenPreview() {
 
 //@Preview
 @Composable
+fun RegistrationTextFieldPreview() {
+    E20FrontendMobileTheme {
+        RegistrationTextField(
+            value = "",
+            onValueChange = { value -> {} },
+            label = "Prova di lablel",
+            isError = false
+        )
+    }
+}
+
+//@Preview
+@Composable
+fun RegistrationTextFieldPreview2() {
+    E20FrontendMobileTheme {
+        RegistrationTextField(
+            value = "",
+            onValueChange = { value -> {} },
+            label = "Prova di lablel",
+            isError = true,
+            errorMessage = "Questo e' un errore"
+        )
+    }
+}
+
+
+//@Preview
+@Composable
 fun UserImagePreview() {
     E20FrontendMobileTheme {
         UserImage(username = "username")
@@ -365,7 +438,9 @@ fun UserImagePreview() {
 @Composable
 fun SeguaciPreview() {
     E20FrontendMobileTheme {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(200.dp).background(white)) {
+        Box(contentAlignment = Alignment.Center, modifier = Modifier
+            .size(200.dp)
+            .background(white)) {
             TitledBox(title = "Seguaci", content = "123")
         }
     }

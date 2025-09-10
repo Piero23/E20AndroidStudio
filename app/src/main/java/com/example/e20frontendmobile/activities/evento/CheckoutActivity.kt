@@ -1,5 +1,9 @@
 package com.example.e20frontendmobile.activities.evento
 
+import android.content.Intent
+import android.net.Uri
+import org.json.JSONObject
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -34,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,20 +47,35 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.e20frontendmobile.composables.CustomTextField
 import com.example.e20frontendmobile.composables.IconTextButtonType1
+import com.example.e20frontendmobile.data.apiService.PagamentoService
 import com.example.e20frontendmobile.model.Ticket
 import com.example.e20frontendmobile.ui.theme.buttonGradientType1
+import com.example.e20frontendmobile.viewModels.EventViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import java.util.UUID
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
 @Composable
-fun ShowCheckout(navController: NavHostController){
+fun ShowCheckout(navController: NavHostController, eventViewModel: EventViewModel){
     var tickets by rememberSaveable { mutableStateOf(listOf(Ticket())) }
     val scrollState = rememberScrollState()
 
-    val price = 100
+    val event = eventViewModel.selectedEvent
+
+    val context = LocalContext.current
+    if (event == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Seleziona un evento")
+        }
+        return
+    }
 
     Column(
         modifier = Modifier
@@ -107,7 +128,8 @@ fun ShowCheckout(navController: NavHostController){
                     number = index + 1,
                     onTicketChange = { updatedTicket ->
                         tickets = tickets.toMutableList().also { it[index] = updatedTicket }
-                    }
+                    },
+                    idEvento = event.id
                 )
                 HorizontalDivider(modifier = Modifier.padding(10.dp))
             }
@@ -132,7 +154,7 @@ fun ShowCheckout(navController: NavHostController){
                 horizontalArrangement = Arrangement.SpaceBetween
             ){
                 Text("Biglietti: ${tickets.size}")
-                Text("Totale: ${tickets.size*price}€")
+                Text("Totale: ${tickets.size*event.prezzo}€")
             }
             Button(
                 modifier = Modifier.fillMaxWidth(),
@@ -140,7 +162,33 @@ fun ShowCheckout(navController: NavHostController){
                     containerColor = Color(42, 42, 42, 255),
                     contentColor = Color.White
                 ),
-                onClick = {}
+                onClick = {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            val link = PagamentoService(context).checkout(
+                                UUID.fromString("5a49d976-5b8c-47ed-8d9b-1e0a553a0d9d"),
+                                "eur",
+                                tickets
+                            )
+
+                            link?.let {
+                                withContext(Dispatchers.Main) {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
+                                    context.startActivity(intent)
+                                }
+                            } ?: run {
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(context, "Errore: link non disponibile", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(context, "Errore: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                            println("Errore: ${e.message}")
+                        }
+                    }
+                }
             ){
                 Text("Paga")
             }
@@ -153,8 +201,10 @@ fun ShowCheckout(navController: NavHostController){
 fun NameTicket(
     number: Int,
     ticket: Ticket,
-    onTicketChange: (Ticket) -> Unit
+    onTicketChange: (Ticket) -> Unit,
+    idEvento: Long
 ) {
+    ticket.idEvento=idEvento
     // stato locale del DatePicker per questo singolo ticket
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
 
@@ -259,9 +309,3 @@ fun NameTicket(
     }
 }
 
-
-@Preview
-@Composable
-fun prev3(){
-    ShowCheckout(rememberNavController())
-}

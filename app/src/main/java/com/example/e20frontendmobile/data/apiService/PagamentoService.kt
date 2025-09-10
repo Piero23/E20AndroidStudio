@@ -11,8 +11,7 @@ import io.ktor.http.contentType
 import kotlinx.coroutines.runBlocking
 import java.util.UUID
 
-class PagamentoService(private val context: Context) {
-    var ip = ""
+class PagamentoService(private val context: Context): ApiParent() {
 
     /**
      * Esegue il checkout passando direttamente utenteId, valuta e lista di biglietti.
@@ -25,6 +24,17 @@ class PagamentoService(private val context: Context) {
     ): String? = runBlocking {
         val token = getToken(context)
         try {
+            val ticketsMap = biglietti.map { ticket ->
+                mapOf(
+                    "nome" to ticket.nome,
+                    "cognome" to ticket.cognome,
+                    "email" to ticket.email,
+                    "dataNascita" to ticket.dataNascita,
+                    "idEvento" to ticket.idEvento,
+                    "eValido" to ticket.eValido
+                )
+            }
+
             val response: HttpResponse = myHttpClient.post("http://$ip:8060/api/stripe/checkout") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
@@ -32,7 +42,7 @@ class PagamentoService(private val context: Context) {
                     mapOf(
                         "utenteId" to utenteId.toString(),
                         "valuta" to valuta,
-                        "biglietti" to biglietti
+                        "biglietti" to ticketsMap
                     )
                 )
             }

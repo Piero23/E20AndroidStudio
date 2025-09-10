@@ -71,13 +71,14 @@ import kotlinx.coroutines.delay
 @Composable
 fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel: EventViewModel) {
 
-    val scrollState = rememberScrollState()
     var toggledBell by rememberSaveable { mutableStateOf(false) }
     var toggledHeart by rememberSaveable { mutableStateOf(false) }
 
     val context = LocalContext.current
 
     val event = eventViewModel.selectedEvent
+    val imageBitmap = eventViewModel.selectedImage
+
 
     if (event == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -85,28 +86,11 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
         }
         return
     }
-
-    var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var spotsLeft: Int by remember { mutableStateOf(0) }
 
-
-    //TODO mettere nel view Model
     LaunchedEffect(event.id) {
-        delay(5000L)
-
         val service = EventService(context)
-        imageBitmap = service.getImage(event.id)
         spotsLeft = service.spotsLeft(event.id)
-    }
-
-    val dataReady = imageBitmap != null && spotsLeft != null
-
-    // Placeholder finché i dati non sono pronti
-    if (!dataReady) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Caricamento evento...", style = MaterialTheme.typography.headlineMedium)
-        }
-        return
     }
 
     Column(modifier = Modifier.verticalScroll(

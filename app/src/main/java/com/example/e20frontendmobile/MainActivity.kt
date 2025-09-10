@@ -332,7 +332,7 @@ fun mainFun(navController: NavHostController){
                         Spacer(modifier = Modifier.height(44.dp))
                         SimpleSearchBar(
                             textFieldState = textFieldState,
-                            onSearch = { navController.navigate("search") },
+                            onSearch = { navController.navigate("discovery/${textFieldState.text}") },
                         )
                     }
                 }

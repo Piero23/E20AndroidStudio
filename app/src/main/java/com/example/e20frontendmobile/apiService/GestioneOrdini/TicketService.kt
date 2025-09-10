@@ -12,9 +12,8 @@ import kotlinx.coroutines.runBlocking
 import java.util.UUID
 
 class TicketService(private val context: Context) {
-    var ip = "192.168.56.1"
+    var ip = "192.168.1.14"
 
-    // 🔹 GET all tickets
     fun getAllBiglietti(): List<Ticket>? = runBlocking {
         val token = getToken(context)
         try {
@@ -28,7 +27,6 @@ class TicketService(private val context: Context) {
         }
     }
 
-    // 🔹 GET QR code (ritorna Base64 string)
     fun getQrCode(id: UUID): String? = runBlocking {
         val token = getToken(context)
         try {
@@ -43,8 +41,7 @@ class TicketService(private val context: Context) {
         }
     }
 
-    // 🔹 POST validate ticket
-    fun validate(id: UUID): Boolean = runBlocking {
+    fun validate(id: String): Boolean = runBlocking {
         val token = getToken(context) ?: return@runBlocking false
 
         try {
@@ -59,8 +56,6 @@ class TicketService(private val context: Context) {
         }
     }
 
-
-    // 🔹 GET tickets by event
     fun getBigliettoEvento(eventoId: Long): List<Ticket>? = runBlocking {
         val token = getToken(context)
         try {

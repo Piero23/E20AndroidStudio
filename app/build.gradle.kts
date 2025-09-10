@@ -45,6 +45,9 @@ android {
 }
 
 dependencies {
+
+    implementation(libs.kotlinx.datetime.v060rc2)
+
     implementation(libs.androidx.compose.material.icons.extended)
 
     implementation(libs.androidx.camera.core)

@@ -1,5 +1,7 @@
 package com.example.e20frontendmobile.activities.evento
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -10,12 +12,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -48,9 +52,11 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LastBaseline
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -61,209 +67,207 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.e20frontendmobile.R
-import com.example.e20frontendmobile.apiService.canemartello
+import com.example.e20frontendmobile.apiService.EventoLocation.EventService
+import com.example.e20frontendmobile.model.Event
+import com.example.e20frontendmobile.viewModels.EventViewModel
+import kotlinx.coroutines.flow.StateFlow
+import androidx.compose.runtime.collectAsState
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.format
 
 
 @Composable
-fun ShowEvent(navController: NavHostController ,isAdmin: Boolean){
+fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel: EventViewModel) {
 
     val scrollState = rememberScrollState()
     var toggledBell by rememberSaveable { mutableStateOf(false) }
     var toggledHeart by rememberSaveable { mutableStateOf(false) }
 
-    val restricted = true
+    val context = LocalContext.current
 
-    val scope = rememberCoroutineScope()
+    val event = eventViewModel.selectedEvent
 
-    var image by remember { mutableStateOf<ImageBitmap?>(null) }
-
-    LaunchedEffect(Unit) {
-        image = canemartello()
+    if (event == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Seleziona un evento")
+        }
+        return
     }
 
+    var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var spotsLeft: Int by remember { mutableStateOf(0) }
 
-    Column (
-        modifier = Modifier
-            .verticalScroll(scrollState)
-    ){
-        if (image != null) {
+    LaunchedEffect(event.id) {
+        val service = EventService(context)
+        imageBitmap = service.getImage(event.id)
+        spotsLeft = service.spotsLeft(event.id)
+    }
+
+    Column(modifier = Modifier.verticalScroll(scrollState)) {
+        // Immagine
+        if (imageBitmap != null) {
             Image(
-                bitmap = image!!,
-                contentDescription = "Image of event.id",
+                bitmap = imageBitmap!!.asImageBitmap(),
+                contentDescription = "Event Image",
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxWidth().height(250.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp)
             )
         } else {
             Box(
-                modifier = Modifier.fillMaxWidth().height(250.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp),
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 Text("Caricamento in corso...")
             }
         }
-        Column(
-            modifier = Modifier.padding(15.dp, 10.dp, 15.dp, 0.dp)
-        ){
-            Row (modifier = Modifier.fillMaxWidth(),
+
+        Column(modifier = Modifier.padding(15.dp, 10.dp, 15.dp, 0.dp)) {
+            // Titolo e info evento
+            Row(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
-            ){
-                Column (
+            ) {
+                Column(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
-                ){
+                ) {
                     Text(
-                        "Vieni a vedere le mucche",
+                        event.title,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.headlineLarge
                     )
-                    Row{
+
+                    Row {
                         Box(
                             Modifier
                                 .clip(RoundedCornerShape(15.dp))
                                 .background(
-                                    brush = Brush.horizontalGradient(
+                                    Brush.horizontalGradient(
                                         colors = listOf(
                                             Color(255, 157, 71, 255),
                                             Color(199, 79, 0, 255)
-                                        ),
+                                        )
                                     )
                                 )
                                 .height(40.dp)
-                                .width(150.dp),
-                            Alignment.Center
-                        ){
+                                .wrapContentWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
                             TextWithShadow(
-                                modifier = Modifier,
-                                text = "Sep 11, 2001 - 11.00"
+                                modifier = Modifier.padding(horizontal=10.dp),
+                                text = "${event.date.month.name.take(3).capitalize()} ${event.date.dayOfMonth}, ${event.date.year} - ${event.date.hour}.${event.date.minute}"
                             )
                         }
-                        if (restricted){
+
+                        if (event.restricted) {
                             Spacer(modifier = Modifier.size(10.dp))
-                            //TODO mettere icona restricted
-                            //https://www.flaticon.com/search?word=18
+                            // TODO icona restricted
                         }
                     }
                 }
-                Column (
-                    Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp)
-                ){
-                    if (isAdmin){
-                        IconButton(
-                            onClick = { /* edit */ }
-                        ) {
+
+                Column(Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp)) {
+                    if (isAdmin) {
+                        IconButton(onClick = { /* edit */ }) {
                             Icon(
                                 Icons.Filled.Create,
                                 contentDescription = "Modifica",
-                                modifier = Modifier
-                                    .size(50.dp),
-                                tint = if (toggledHeart) Color.Red else Color.Black
+                                modifier = Modifier.size(50.dp),
+                                tint = Color.Black
                             )
                         }
-                        IconButton(
-                            onClick = {navController.navigate("scanner")}
-                        ) {
+                        IconButton(onClick = { navController.navigate("scanner") }) {
                             Icon(
                                 Icons.Filled.QrCode,
                                 contentDescription = "Scansiona",
-                                modifier = Modifier
-                                    .size(50.dp),
-                                tint = if (toggledHeart) Color.Red else Color.Black
+                                modifier = Modifier.size(50.dp),
+                                tint = Color.Black
                             )
                         }
-                    } else{
-                        IconButton(
-                            onClick = { toggledBell = !toggledBell }
-                        ){
+                    } else {
+                        IconButton(onClick = { toggledBell = !toggledBell }) {
                             Icon(
                                 Icons.Filled.Notifications,
                                 contentDescription = "Ricordamelo",
-                                modifier = Modifier
-                                    .size(50.dp),
+                                modifier = Modifier.size(50.dp),
                                 tint = if (toggledBell) Color.Yellow else Color.Black
                             )
                         }
-                        IconButton(
-                            onClick = { toggledHeart = !toggledHeart }
-                        ) {
+                        IconButton(onClick = { toggledHeart = !toggledHeart }) {
                             Icon(
                                 Icons.Filled.FavoriteBorder,
                                 contentDescription = "Salva",
-                                modifier = Modifier
-                                    .size(50.dp),
+                                modifier = Modifier.size(50.dp),
                                 tint = if (toggledHeart) Color.Red else Color.Black
                             )
                         }
                     }
                 }
             }
-            Column (
-                modifier = Modifier.padding(0.dp, 80.dp, 0.dp, 80.dp)
-            ) {
+
+            // Descrizione
+            Column(modifier = Modifier.padding(0.dp, 80.dp, 0.dp, 80.dp)) {
                 Text(
                     "Descrizione",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.headlineMedium
                 )
                 Text(
+                    text = event.description,
                     modifier = Modifier.padding(2.dp, 5.dp, 0.dp, 0.dp),
-                    text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec elementum, erat ut aliquam vehicula, dolor nisi elementum nulla, in sagittis odio odio non sem. Curabitur dolor dolor, faucibus eleifend enim ac, blandit condimentum elit. Donec placerat tortor quis orci vehicula rhoncus. Etiam eget ligula lobortis, tempor risus id, scelerisque enim. Cras aliquet sollicitudin est, sed vehicula leo vestibulum facilisis. Praesent turpis massa, ultrices vel orci at, congue gravida arcu.",
-                    fontWeight = FontWeight.Normal,
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
+
+            // Posti disponibili
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
-            ){
+            ) {
                 Text(
                     modifier = Modifier.alignBy(LastBaseline),
                     text = "Posti disponibili: ",
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleMedium
                 )
                 Text(
+                    spotsLeft.toString(),
                     modifier = Modifier.alignBy(LastBaseline),
-                    text = "2",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.headlineLarge,
                     color = Color(106, 51, 0, 255)
                 )
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ){
-                Box (
-                    modifier = Modifier.width(280.dp)
-                ){
+
+            // Ticket box
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                Box(modifier = Modifier.width(280.dp)) {
                     Image(
-                        modifier = Modifier.matchParentSize(),
-                        painter = painterResource(id = R.drawable.image) ,
+                        painter = painterResource(id = R.drawable.image),
                         contentDescription = "Ticket",
+                        modifier = Modifier.matchParentSize(),
                         contentScale = ContentScale.FillWidth
                     )
-                    Column(
-                        modifier = Modifier.padding(80.dp, 20.dp, 0.dp, 0.dp)
-                    ){
+                    Column(modifier = Modifier.padding(80.dp, 20.dp, 0.dp, 0.dp)) {
                         Text(
-                            text = "1 Biglietto",
+                            "1 Biglietto",
                             color = Color.White,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
-                        Row(
-                            modifier = Modifier.offset(0.dp, (-8).dp)
-                        ){
+                        Row(modifier = Modifier.offset(0.dp, (-8).dp)) {
                             Text(
-                                modifier = Modifier.alignBy(LastBaseline),
-                                text = "200.00",
+                                event.prezzo.toString(),
                                 style = MaterialTheme.typography.headlineLarge,
                                 fontSize = 40.sp,
                                 color = Color(106, 51, 0, 255)
                             )
                             Text(
-                                modifier = Modifier.alignBy(LastBaseline),
-                                text = "€",
+                                "€",
                                 style = MaterialTheme.typography.titleLarge,
                                 fontSize = 20.sp,
                                 color = Color(182, 97, 17, 255)
@@ -272,19 +276,18 @@ fun ShowEvent(navController: NavHostController ,isAdmin: Boolean){
                     }
                 }
             }
+
+            // Compra ora
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(0.dp, 15.dp, 22.dp, 80.dp),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
-            ){
-                TextButton(
-                    onClick = {navController.navigate("checkout")},
-                    colors = ButtonColors(Color.Transparent, Color.Black, Color.Transparent, Color.Transparent)
-
-                ) {
+            ) {
+                TextButton(onClick = { navController.navigate("checkout") }) {
                     Text(
-                        text = "Compra Ora",
+                        "Compra Ora",
                         style = MaterialTheme.typography.titleMedium,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Medium
@@ -296,9 +299,9 @@ fun ShowEvent(navController: NavHostController ,isAdmin: Boolean){
                             .size(30.dp)
                             .graphicsLayer(alpha = 0.99f)
                             .drawWithCache {
-                                val brush = Brush.horizontalGradient(listOf(
-                                    Color(255, 157, 71, 255),
-                                    Color(199, 79, 0, 255)))
+                                val brush = Brush.horizontalGradient(
+                                    listOf(Color(255, 157, 71, 255), Color(199, 79, 0, 255))
+                                )
                                 onDrawWithContent {
                                     drawContent()
                                     drawRect(brush, blendMode = BlendMode.SrcAtop)
@@ -308,57 +311,38 @@ fun ShowEvent(navController: NavHostController ,isAdmin: Boolean){
                 }
             }
         }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
+
+        // Location
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             Text(
-                text = "Location",
+                "Location",
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
         }
+
         Row(
-            modifier = Modifier.fillMaxWidth()
-                .padding(start = 15.dp, end = 15.dp),
+            modifier = Modifier.fillMaxWidth().padding(start = 15.dp, end = 15.dp),
             horizontalArrangement = Arrangement.SpaceBetween
-        ){
-            Column(
-                modifier = Modifier.weight(1f),
-            ){
-                Text(
-                    text = "Via di tua mamma",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontSize = 16.sp
-                )
-                Text(
-                    text = "118",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontSize = 16.sp
-                )
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Via di tua mamma", fontSize = 16.sp)
+                Text("118", fontSize = 16.sp)
             }
-            Column(
-                horizontalAlignment = Alignment.End
-            ){
-                Text(
-                    text = "Napoli (NA)",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontSize = 16.sp
-                )
-                Text(
-                    text = "88888",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontSize = 16.sp
-                )
+            Column(horizontalAlignment = Alignment.End) {
+                Text("Napoli (NA)", fontSize = 16.sp)
+                Text("88888", fontSize = 16.sp)
             }
         }
+
         Box(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .height(700.dp)
                 .padding(15.dp, 10.dp, 15.dp, 50.dp)
-        ){
-            WebViewScreen(45.0755969,7.638332)
+        ) {
+            WebViewScreen(45.0755969, 7.638332)
         }
     }
 }
@@ -372,10 +356,7 @@ fun TextWithShadow(
         text = text,
         color = Color.DarkGray,
         modifier = modifier
-            .offset(
-                x = 1.dp,
-                y = 1.dp
-            )
+            .offset(x = 1.dp, y = 1.dp)
             .alpha(0.75f)
     )
     Text(
@@ -390,7 +371,7 @@ fun WebViewScreen(latitude: Double, longitude: Double) {
     AndroidView(
         factory = { ctx ->
             WebView(ctx).apply {
-                this.layoutParams = ViewGroup.LayoutParams(
+                layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
@@ -400,20 +381,18 @@ fun WebViewScreen(latitude: Double, longitude: Double) {
         },
         update = { web ->
             web.loadUrl("https://maps.google.com/?q=${latitude},${longitude}")
-            //TODO scegliere che tipo di mappa usare
         }
     )
 }
 
 @Composable
 @Preview
-fun prev(){
-    ShowEvent(rememberNavController(), true)
+fun prev() {
+    // ShowEvent(rememberNavController(), true, EventViewModel(LocalContext.current))
 }
-
 
 @Composable
 @Preview
-fun prev2(){
-    ShowEvent(rememberNavController(), false)
+fun prev2() {
+    // ShowEvent(rememberNavController(), false, EventViewModel(LocalContext.current))
 }

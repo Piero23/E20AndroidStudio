@@ -65,7 +65,7 @@ fun EventCarousel(fontSize: TextUnit, carouselText: String, navController: NavHo
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                eventCard(listaEventi[page].first,listaEventi[page].second, navController)
+                //eventCard(listaEventi[page].first,listaEventi[page].second, navController) //TODO
             }
         }
 

@@ -120,7 +120,7 @@ fun QRCodeScannerWithBottomSheet() {
                             QRCodeAnalyzer { qrCode ->
                                 if (!showSheet) {
                                     scannedCode = qrCode
-                                    isValid = checkTicket(context, qrCode)
+                                    isValid = checkTicket(context, qrCode) // Valida il biglietto
                                     showSheet = true
                                 }
                             }
@@ -150,13 +150,8 @@ fun QRCodeScannerWithBottomSheet() {
 }
 
 fun checkTicket(context: Context, qrCode: String): Boolean {
-    val ticketId = try {
-        UUID.fromString(qrCode)
-    } catch (e: Exception) {
-        return false
-    }
 
-    return TicketService(context).validate(ticketId)
+    return TicketService(context).validate(qrCode)
 }
 
 @Composable

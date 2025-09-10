@@ -13,7 +13,7 @@ import kotlinx.coroutines.runBlocking
 import java.util.UUID
 
 class PreferitiService(private val context: Context) {
-    var ip = ""
+    var ip = "192.168.1.14"
 
     /**
      * Recupera tutti gli eventi preferiti di un utente

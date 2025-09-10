@@ -13,7 +13,7 @@ import io.ktor.http.contentType
 import kotlinx.coroutines.runBlocking
 
 class LocationService(private val context: Context) {
-    var ip = ""
+    var ip = "192.168.1.14"
 
     // 🔹 GET all locations
     fun findAll(): List<Location>? = runBlocking {

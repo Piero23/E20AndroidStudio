@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -43,7 +44,7 @@ import com.example.e20frontendmobile.mainFun
 import com.example.e20frontendmobile.activities.qrScanner.QRCodeScannerWithBottomSheet
 import com.example.e20frontendmobile.auth.AuthActivity
 import com.example.e20frontendmobile.auth.AuthStateStorage
-import com.example.e20frontendmobile.apiService.getMe
+import com.example.e20frontendmobile.viewModels.EventViewModel
 
 
 @ExperimentalMaterial3Api
@@ -60,6 +61,7 @@ fun BottomNavigationScreen() {
             rememberNavController(), // per tab 3
             rememberNavController()  // per tab 4
         )
+        val eventViewModel: EventViewModel = viewModel()
 
         Scaffold(
             bottomBar = {
@@ -88,7 +90,7 @@ fun BottomNavigationScreen() {
                                 arguments = listOf(navArgument("query") { type = NavType.StringType })
                             ) { backStackEntry ->
                                 val query = backStackEntry.arguments?.getString("query") ?: ""
-                                ShowDiscovery(navControllers[0], query)
+                                ShowDiscovery(navControllers[0], query, eventViewModel)
                             }
                             composable("card"/*, arguments =
                                 listOf(navArgument("id") { type = NavType.StringType})*/) {
@@ -98,7 +100,7 @@ fun BottomNavigationScreen() {
 //                                        SingleContact(contact = contact)
 //                                    }
 //                                }
-                                ShowEvent(navControllers[0], isAdmin)
+                                ShowEvent(navControllers[0], isAdmin, eventViewModel)
                             }
                             composable("checkout") {
                                 ShowCheckout(navControllers[0])
@@ -117,7 +119,7 @@ fun BottomNavigationScreen() {
                             exitTransition = { ExitTransition.None }
                         ) {
                             composable("discovery") {
-                                ShowDiscovery(navControllers[1])
+                                ShowDiscovery(navControllers[1], eventViewModel = eventViewModel)
                             }
                             composable("card"/*, arguments =
                                 listOf(navArgument("id") { type = NavType.StringType})*/) {
@@ -127,7 +129,7 @@ fun BottomNavigationScreen() {
 //                                        SingleContact(contact = contact)
 //                                    }
 //                                }
-                                ShowEvent(navControllers[1], isAdmin)
+                                ShowEvent(navControllers[1], isAdmin, eventViewModel)
                             }
                             composable("checkout") {
                                 ShowCheckout(navControllers[1])
@@ -200,7 +202,7 @@ fun DebugTokenScreen() {
         }
 
         Button(onClick = {
-            println("MAAAAAAAMMAAAAA"+getMe(context))
+            //println("MAAAAAAAMMAAAAA"+getMe(context))
         }) {
             Text("Testa")
         }

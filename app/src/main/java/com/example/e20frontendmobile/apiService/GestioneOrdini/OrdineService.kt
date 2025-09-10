@@ -13,7 +13,7 @@ import kotlinx.coroutines.runBlocking
 import java.util.UUID
 
 class OrdineService(private val context: Context) {
-    var ip = ""
+    var ip = "192.168.1.14"
 
     // 🔹 GET all orders
     fun findAll(): List<Ordine>? = runBlocking {

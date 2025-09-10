@@ -159,7 +159,7 @@ fun ButtonPreview3() {
     }
 }
 
-//@Preview
+@Preview
 @Composable
 fun IconButtonPreview() {
     E20FrontendMobileTheme(darkTheme = false) {

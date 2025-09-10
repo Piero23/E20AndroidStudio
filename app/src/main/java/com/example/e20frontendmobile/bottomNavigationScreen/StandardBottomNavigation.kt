@@ -6,25 +6,33 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.e20frontendmobile.canemartello
+import com.example.e20frontendmobile.getFun
+import kotlinx.coroutines.launch
 
 @Composable
 fun StandardBottomNavigation(
-    navController: NavController,
-    items: List<BottomNavItem>
+    index: MutableState<Int>,
+    items: List<BottomNavItem>,
+    navControllers: List<NavHostController>
 ) {
-    val backStackEntry = navController.currentBackStackEntryAsState()
-    var admin: Boolean = true
 
     Row(
         modifier = Modifier.fillMaxWidth()
@@ -32,31 +40,28 @@ fun StandardBottomNavigation(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         items.forEach { item ->
-            val selected = item.route == backStackEntry.value?.destination?.route
-
             NavigationBarItem(
-                selected = selected,
+                selected = index.value == item.index,
                 onClick = {
-                    navController.navigate(item.route) {
-                        popUpTo(navController.graph.startDestinationId) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
+                    if (index.value == item.index) {
+                        val navController = navControllers[item.index]
+                        navController.popBackStack(
+                            route = navController.graph.startDestinationRoute!!,
+                            inclusive = false
+                        )
+                    } else {
+                        index.value = item.index
                     }
                 },
-                icon = {
-                    if (item.icon != null) {
-                        Icon(
-                            imageVector = item.icon,
-                            contentDescription = item.contentDescription
-                        )
+                icon = { item.icon?.let {
+                    Icon(it, contentDescription = item.contentDescription )
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = Color(0xFF2196F3),
                     unselectedIconColor = Color.Gray,
                     indicatorColor = Color.Transparent
-                ),
-                enabled = item.icon != null
+                )
             )
         }
 

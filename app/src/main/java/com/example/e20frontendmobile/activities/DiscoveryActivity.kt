@@ -1,37 +1,25 @@
-package com.example.e20frontendmobile
+package com.example.e20frontendmobile.activities
 
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -39,43 +27,51 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+
+fun search(items : List<String>, query: String): List<String> {
+    return if (query.isEmpty()) {
+        listOf()
+    } else {
+        items.filter { it.contains(query, ignoreCase = true) }
+    }
+}
+
 
 @Composable
-fun ShowDiscovery(){
+fun ShowDiscovery(navController: NavHostController, inputQuery: String =""){
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Eventi", "Profili") //nomi tabs
 
-    var query by rememberSaveable { mutableStateOf("") }
-    var items = listOf<String>() //TODO rimpiazzare con Evento
-    val filteredItems by remember {
-        derivedStateOf {
-            if (query.isEmpty()) {
-                items
-            } else {
-                items.filter { it.contains(query, ignoreCase = true) }
-            }
-        }
+    var query by remember { mutableStateOf("") }
+    var items = listOf<String>("pinga", "pino", "sbingus", "sboxi") //TODO rimpiazzare con Evento
+    var filteredItems by remember { mutableStateOf<List<String>>(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        query=inputQuery
+        filteredItems = search(items, query)
     }
+
     Column(
     ){
         CustomizableSearchBar(
             query = query,
             onQueryChange = { query = it },
-            onSearch = { /* Handle search submission */ },
-            searchResults = filteredItems,
-            onResultClick = { query = it },
+            onSearch = { filteredItems = search(items, query) },
+            searchResults = listOf(), onResultClick = { query = it },
             // Customize appearance with optional parameters
             placeholder = { Text("Cerca un evento...") },
-            trailingIcon = {Icon(Icons.Default.Search, contentDescription = "Search")  },
+            trailingIcon = {Icon(Icons.Default.Search,
+                contentDescription = "Search") },
             supportingContent = { Text("Android dessert") },
-            leadingContent = { Icon(Icons.Filled.Star, contentDescription = "Starred item")},
-            modifier = Modifier.padding(15.dp, 0.dp, 15.dp, 0.dp )
+            leadingContent = { Icon(Icons.Filled.Star,
+                contentDescription = "Starred item")},
+            modifier = Modifier
+                .padding(15.dp, 0.dp, 15.dp, 0.dp )
         )
         TabRow(
             selectedTabIndex = selectedTabIndex,
@@ -99,7 +95,19 @@ fun ShowDiscovery(){
                 )
             }
         }
-        LazyColumn() {  }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            items(count = filteredItems.size) { index ->
+                val resultText = filteredItems[index]
+                Box(
+                    modifier = Modifier.padding(top = 25.dp)
+                ){
+                    eventCard(resultText, "aaaaaaaaaaaaaaaaaaaaa", navController)
+                }
+            }
+        }
     }
 }
 
@@ -132,5 +140,6 @@ fun NoRippleTab(
 @Preview
 @Composable
 fun previ(){
-    ShowDiscovery()
+    val nav=rememberNavController()
+    ShowDiscovery(nav)
 }

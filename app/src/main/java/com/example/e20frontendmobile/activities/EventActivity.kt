@@ -1,14 +1,20 @@
-package com.example.e20frontendmobile
+package com.example.e20frontendmobile.activities
 
+import android.Manifest
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -16,12 +22,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,8 +38,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -41,36 +53,66 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LastBaseline
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.e20frontendmobile.R
+import com.example.e20frontendmobile.canemartello
+import com.example.e20frontendmobile.mainFun
+import kotlinx.coroutines.launch
 
 
 @Composable
-fun ShowEvent(){
+fun ShowEvent(navController: NavHostController ,isAdmin: Boolean){
 
     val scrollState = rememberScrollState()
     var toggledBell by rememberSaveable { mutableStateOf(false) }
     var toggledHeart by rememberSaveable { mutableStateOf(false) }
 
+    val restricted = true
+
+    val scope = rememberCoroutineScope()
+
+    var image by remember { mutableStateOf<ImageBitmap?>(null) }
+
+    LaunchedEffect(Unit) {
+        image = canemartello()
+    }
+
+
     Column (
         modifier = Modifier
             .verticalScroll(scrollState)
     ){
-        Image(
-            /*bitmap = event.image?.asImageBitmap() ?: ,*/
-            painter = painterResource(id = R.drawable.images) ,
-            contentDescription = "Image of ${"event.id"}",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        if (image != null) {
+            Image(
+                bitmap = image!!,
+                contentDescription = "Image of event.id",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxWidth().height(250.dp)
+            )
+        } else {
+            Box(
+                modifier = Modifier.fillMaxWidth().height(250.dp),
+                contentAlignment = Alignment.Center
+            ){
+                Text("Caricamento in corso...")
+            }
+        }
         Column(
             modifier = Modifier.padding(15.dp, 10.dp, 15.dp, 0.dp)
         ){
@@ -86,51 +128,83 @@ fun ShowEvent(){
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.headlineLarge
                     )
-                    Box(
-                        Modifier
-                            .clip(RoundedCornerShape(15.dp))
-                            .background(
-                                brush = Brush.horizontalGradient(
-                                    colors = listOf(
-                                        Color(255, 157, 71, 255),
-                                        Color(199, 79, 0, 255)
-                                    ),
+                    Row{
+                        Box(
+                            Modifier
+                                .clip(RoundedCornerShape(15.dp))
+                                .background(
+                                    brush = Brush.horizontalGradient(
+                                        colors = listOf(
+                                            Color(255, 157, 71, 255),
+                                            Color(199, 79, 0, 255)
+                                        ),
+                                    )
                                 )
+                                .height(40.dp)
+                                .width(150.dp),
+                            Alignment.Center
+                        ){
+                            TextWithShadow(
+                                modifier = Modifier,
+                                text = "Sep 11, 2001 - 11.00"
                             )
-                            .height(40.dp)
-                            .width(150.dp),
-                        Alignment.Center
-                    ){
-                        TextWithShadow(
-                            modifier = Modifier,
-                            text = "9-11-2001 11.00"
-                        )
+                        }
+                        if (restricted){
+                            Spacer(modifier = Modifier.size(10.dp))
+                            //TODO mettere icona restricted
+                        }
                     }
                 }
                 Column (
                     Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp)
                 ){
-                    IconButton(
-                        onClick = { toggledBell = !toggledBell }
-                    ){
-                        Icon(
-                            Icons.Filled.Notifications,
-                            contentDescription = "Ricordamelo",
-                            modifier = Modifier
-                                .size(50.dp),
-                            tint = if (toggledBell) Color.Yellow else Color.Black
-                        )
-                    }
-                    IconButton(
-                        onClick = { toggledHeart = !toggledHeart }
-                    ) {
-                        Icon(
-                            Icons.Filled.FavoriteBorder,
-                            contentDescription = "Salva",
-                            modifier = Modifier
-                                .size(50.dp),
-                            tint = if (toggledHeart) Color.Red else Color.Black
-                        )
+                    if (isAdmin){
+                        IconButton(
+                            onClick = { /* edit */ }
+                        ) {
+                            Icon(
+                                Icons.Filled.Create,
+                                contentDescription = "Modifica",
+                                modifier = Modifier
+                                    .size(50.dp),
+                                tint = if (toggledHeart) Color.Red else Color.Black
+                            )
+                        }
+                        IconButton(
+                            onClick = {navController.navigate("scanner")}
+                        ) {
+                            Icon(
+                                //TODO RIMPIAZZARE CON ICONA QR
+                                Icons.Filled.Settings,
+                                contentDescription = "Scansiona",
+                                modifier = Modifier
+                                    .size(50.dp),
+                                tint = if (toggledHeart) Color.Red else Color.Black
+                            )
+                        }
+                    } else{
+                        IconButton(
+                            onClick = { toggledBell = !toggledBell }
+                        ){
+                            Icon(
+                                Icons.Filled.Notifications,
+                                contentDescription = "Ricordamelo",
+                                modifier = Modifier
+                                    .size(50.dp),
+                                tint = if (toggledBell) Color.Yellow else Color.Black
+                            )
+                        }
+                        IconButton(
+                            onClick = { toggledHeart = !toggledHeart }
+                        ) {
+                            Icon(
+                                Icons.Filled.FavoriteBorder,
+                                contentDescription = "Salva",
+                                modifier = Modifier
+                                    .size(50.dp),
+                                tint = if (toggledHeart) Color.Red else Color.Black
+                            )
+                        }
                     }
                 }
             }
@@ -217,7 +291,7 @@ fun ShowEvent(){
                 verticalAlignment = Alignment.CenterVertically
             ){
                 TextButton(
-                    onClick = {},
+                    onClick = {navController.navigate("checkout")},
                     colors = ButtonColors(Color.Transparent, Color.Black, Color.Transparent, Color.Transparent)
 
                 ) {
@@ -343,10 +417,15 @@ fun WebViewScreen(latitude: Double, longitude: Double) {
     )
 }
 
+@Composable
+@Preview
+fun prev(){
+    ShowEvent(rememberNavController(), true)
+}
 
 
 @Composable
-@PreviewScreenSizes
-fun prev(){
-    ShowEvent()
+@Preview
+fun prev2(){
+    ShowEvent(rememberNavController(), false)
 }

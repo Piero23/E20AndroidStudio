@@ -49,6 +49,7 @@ import com.example.e20frontendmobile.ui.theme.spaceLarge
 import com.example.e20frontendmobile.ui.theme.spaceMedium
 import com.example.e20frontendmobile.ui.theme.white
 
+//TODO redirectare logout a pagina login con navhostcontroller
 class UserActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -312,7 +313,7 @@ fun LogOutBox() {
 
 
 @Composable
-fun MainScreen(
+fun MainProfileScreen(
     username: String
 ) {
     Column(
@@ -384,7 +385,7 @@ fun RegisterScreen() {
 @Composable
 fun MainScreenPreview() {
     E20FrontendMobileTheme(darkTheme = false) {
-        MainScreen(
+        MainProfileScreen(
             username = "username"
         )
     }

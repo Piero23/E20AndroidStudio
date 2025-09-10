@@ -1,7 +1,6 @@
-package com.example.e20frontendmobile.activities
+package com.example.e20frontendmobile.activities.evento
 
 import android.icu.util.Calendar
-import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -50,13 +48,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import com.example.e20frontendmobile.R
 import com.example.e20frontendmobile.composables.CustomTextField
 import com.example.e20frontendmobile.composables.IconButtonType1
-import com.example.e20frontendmobile.composables.IconTextButtonType1
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
+import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
@@ -101,7 +98,7 @@ fun createEvent(){
         DatePickerModal(
             onDateSelected = { millis ->
                 millis?.let {
-                    val localDate = kotlinx.datetime.Instant.fromEpochMilliseconds(it)
+                    val localDate = Instant.fromEpochMilliseconds(it)
                         .toLocalDateTime(TimeZone.currentSystemDefault())
                         .date
 

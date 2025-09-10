@@ -1,4 +1,4 @@
-package com.example.e20frontendmobile.bottomNavigationScreen
+package com.example.e20frontendmobile.activities.bottomNavigationScreen
 
 import androidx.compose.ui.graphics.vector.ImageVector
 

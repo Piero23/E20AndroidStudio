@@ -32,15 +32,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.e20frontendmobile.activities.MainProfileScreen
-import com.example.e20frontendmobile.activities.ShowCheckout
+import com.example.e20frontendmobile.activities.user.MainProfileScreen
+import com.example.e20frontendmobile.activities.evento.ShowCheckout
 import com.example.e20frontendmobile.activities.ShowDiscovery
-import com.example.e20frontendmobile.activities.ShowEvent
-import com.example.e20frontendmobile.activities.createEvent
-import com.example.e20frontendmobile.bottomNavigationScreen.StandardBottomNavigation
-import com.example.e20frontendmobile.bottomNavigationScreen.bottomNavItems
+import com.example.e20frontendmobile.activities.evento.ShowEvent
+import com.example.e20frontendmobile.activities.evento.createEvent
+import com.example.e20frontendmobile.activities.bottomNavigationScreen.StandardBottomNavigation
+import com.example.e20frontendmobile.activities.bottomNavigationScreen.bottomNavItems
 import com.example.e20frontendmobile.mainFun
-import com.example.e20frontendmobile.qrScanner.QRCodeScannerWithBottomSheet
+import com.example.e20frontendmobile.activities.qrScanner.QRCodeScannerWithBottomSheet
 import com.example.e20frontendmobile.auth.AuthActivity
 import com.example.e20frontendmobile.auth.AuthStateStorage
 import com.example.e20frontendmobile.getMe
@@ -209,8 +209,5 @@ fun DebugTokenScreen() {
         Text(
             text = userIN
         )
-
-
-
     }
 }

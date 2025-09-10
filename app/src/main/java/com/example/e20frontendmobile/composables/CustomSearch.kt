@@ -1,4 +1,4 @@
-package com.example.e20frontendmobile.activities
+package com.example.e20frontendmobile.composables
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

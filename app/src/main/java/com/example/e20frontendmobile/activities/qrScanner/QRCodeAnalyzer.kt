@@ -1,4 +1,4 @@
-package com.example.e20frontendmobile.qrScanner
+package com.example.e20frontendmobile.activities.qrScanner
 
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage

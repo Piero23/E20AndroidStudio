@@ -1,4 +1,4 @@
-package com.example.e20frontendmobile.bottomNavigationScreen
+package com.example.e20frontendmobile.activities.bottomNavigationScreen
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add

@@ -22,7 +22,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +31,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.e20frontendmobile.activities.evento.eventCard
+import com.example.e20frontendmobile.composables.CustomizableSearchBar
 
 fun search(items : List<String>, query: String): List<String> {
     return if (query.isEmpty()) {
@@ -65,13 +66,21 @@ fun ShowDiscovery(navController: NavHostController, inputQuery: String =""){
             searchResults = listOf(), onResultClick = { query = it },
             // Customize appearance with optional parameters
             placeholder = { Text("Cerca un evento...") },
-            trailingIcon = {Icon(Icons.Default.Search,
-                contentDescription = "Search") },
+            trailingIcon = {
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = "Search"
+                )
+            },
             supportingContent = { Text("Android dessert") },
-            leadingContent = { Icon(Icons.Filled.Star,
-                contentDescription = "Starred item")},
+            leadingContent = {
+                Icon(
+                    Icons.Filled.Star,
+                    contentDescription = "Starred item"
+                )
+            },
             modifier = Modifier
-                .padding(15.dp, 0.dp, 15.dp, 0.dp )
+                .padding(15.dp, 0.dp, 15.dp, 0.dp)
         )
         TabRow(
             selectedTabIndex = selectedTabIndex,

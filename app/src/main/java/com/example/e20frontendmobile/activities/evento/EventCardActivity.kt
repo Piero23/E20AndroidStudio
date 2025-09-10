@@ -1,4 +1,4 @@
-package com.example.e20frontendmobile.activities
+package com.example.e20frontendmobile.activities.evento
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

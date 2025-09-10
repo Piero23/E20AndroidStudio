@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,12 +19,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,31 +41,29 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.e20frontendmobile.CustomBorderBox
+import androidx.navigation.NavHostController
+import com.example.e20frontendmobile.composables.CustomTextField
 import com.example.e20frontendmobile.composables.IconButtonType1
 import com.example.e20frontendmobile.composables.IconTextButtonType1
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import com.example.e20frontendmobile.ui.theme.backgroundGradient
 import com.example.e20frontendmobile.ui.theme.backgroundLinearGradient
 import com.example.e20frontendmobile.ui.theme.blurredDropShadow
-import com.example.e20frontendmobile.ui.theme.spaceExtraLarge
+import com.example.e20frontendmobile.ui.theme.iconSizeSmall
 import com.example.e20frontendmobile.ui.theme.spaceExtraSmall
 import com.example.e20frontendmobile.ui.theme.spaceSmall
 import com.example.e20frontendmobile.ui.theme.spaceLarge
 import com.example.e20frontendmobile.ui.theme.spaceMedium
 import com.example.e20frontendmobile.ui.theme.white
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 //TODO redirectare logout a pagina login con navhostcontroller
-class UserActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            E20FrontendMobileTheme {
-                MainScreen(username = "usernsme")
-            }
-        }
-    }
+@Composable
+fun MainAccessUserPage(navController: NavHostController) {
+
 }
 
 // Components --------------------------------------------------------------------------------------
@@ -184,7 +188,9 @@ fun RegistrationTextField(
     label: String,
     isError: Boolean,
     modifier: Modifier = Modifier,
-    errorMessage: String? = null
+    placeholder: String? = null,
+    errorMessage: String? = null,
+    isPassword: Boolean = false
 ) {
     Column(
         modifier = modifier
@@ -194,12 +200,18 @@ fun RegistrationTextField(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onTertiary
+            color = MaterialTheme.colorScheme.onTertiary,
+            modifier = Modifier.padding(start = 10.dp)
         )
-        CustomBorderBox(
 
-            verticalWrap = false
-        ) // To Pass Value and OnValueChange
+        CustomTextField(
+            value = value,
+            onValueChange = { onValueChange(it) },
+            singleLine = true,
+            placeholder = placeholder,
+            isPassword = isPassword
+        )
+
         if (isError && errorMessage != null) {
             Text(
                 text = errorMessage,
@@ -212,6 +224,7 @@ fun RegistrationTextField(
 }
 
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun UserRegistrationBox(
     modifier: Modifier = Modifier
@@ -229,84 +242,179 @@ fun UserRegistrationBox(
                 color = MaterialTheme.colorScheme.background,
                 shape = MaterialTheme.shapes.medium
             )
-            .padding(spaceLarge)
+            .padding(spaceMedium)
 
     ) {
-        val (provaEmail, setProvaEmail) = remember { mutableStateOf("") }
-        // User First Name
+        // User Info
+        val (username, setUsername) = remember { mutableStateOf("") }
+        val (password, setPassword) = remember { mutableStateOf("") }
+        val (firstName, setFirstName) = remember { mutableStateOf("") }
+        val (lastName, setLastName) = remember { mutableStateOf("") }
+        val (email, setEmail) = remember { mutableStateOf("") }
+
+        val (birthDate, setBirthDate) = remember { mutableStateOf<String?>(null) }
+        val (showDatePicker, setShowDatePicker) = rememberSaveable { mutableStateOf(false) }
+
+        // On Show Date Picker to Select a Birth Date
+        if (showDatePicker) {
+            DatePickerModal(
+                onDateSelected = { millis ->
+                    millis?.let {
+                        val localDate = Instant
+                            .fromEpochMilliseconds(it)
+                            .toLocalDateTime(TimeZone.currentSystemDefault())
+                            .date
+
+                        setBirthDate(localDate.toString())
+                    }
+                },
+                onDismiss = { setShowDatePicker(false) }
+            )
+        }
+
+        // Fields ------------------------------
+
+        // Title
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = spaceMedium)
+        ) {
+            Text(
+                text = "Registrati",
+
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
+
+        // Log In Access
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.Transparent)
+        ) {
+            Text(
+                text = "Got already an account?",
+                textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onTertiary,
+
+                overflow = TextOverflow.Visible,
+                modifier = Modifier
+                    .weight(1f)
+            )
+
+            Spacer(Modifier.width(spaceLarge))
+
+            IconTextButtonType1(
+                onClick = {},
+                text = "Log In",
+                withIcon = true,
+                icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                modifier = Modifier
+                    .blurredDropShadow(
+                        shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
+                        offset = Offset(10f,10f),
+                        blurRadius = 10f,
+                    )
+            )
+        }
+
+        // Username Field
         RegistrationTextField(
-            label = "First Name",
-            value = "first_name",
-            onValueChange = { firstName -> {} },
+            label = "Username",
+            value = username,
+            placeholder = "Your Username",
+            onValueChange = { setUsername(it) },
             isError = false,
         )
 
-        Spacer(Modifier.height(spaceSmall))
-
-        // User Last Name
+        // Username Field
         RegistrationTextField(
-            label = "Last Name",
-            value = "last_name",
-            onValueChange = { lastName -> {} },
-            isError = true,
-            errorMessage = "Questa e' una prova"
+            label = "Password",
+            value = password,
+            placeholder = "Your Password",
+            onValueChange = { setPassword(it) },
+            isPassword = true,
+            isError = false,
         )
 
-        Spacer(Modifier.height(spaceLarge))
+        Spacer(Modifier.height(spaceMedium))
+
+        // User First and Last Name
+        Row(Modifier.fillMaxWidth()) {
+            // User First Name
+            RegistrationTextField(
+                label = "First Name",
+                value = firstName,
+                placeholder = "First Name",
+                onValueChange = { setFirstName(it) },
+                isError = false,
+
+                modifier = Modifier.weight(1f)
+            )
+
+            Spacer(Modifier.width(spaceExtraSmall))
+
+            // User Last Name
+            RegistrationTextField(
+                label = "Last Name",
+                value = lastName,
+                onValueChange = { setLastName(it) },
+                placeholder = "Last Name",
+                isError = false,
+                errorMessage = "Questa e' una prova",
+
+                modifier = Modifier.weight(1f)
+            )
+        }
 
         // User Email
         RegistrationTextField(
-            label = provaEmail,
-            value = provaEmail,
-            onValueChange = { setProvaEmail(it) },
-            isError = (provaEmail == "Miao"),
+            label = "Email",
+            value = email,
+            placeholder = "Your Email",
+            onValueChange = { setEmail(it) },
+            isError = (email == "Miao"),
             errorMessage = "Questa e' una prova"
         )
 
         Spacer(Modifier.height(spaceSmall))
 
         // User Birth Date
-        RegistrationTextField(
-            label = "Data di Nascita",
-            value = "birth_date",
-            onValueChange = { birthDate -> {} },
-            isError = false,
-        )
-    }
-}
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            RegistrationTextField(
+                label = "Birth Date",
+                value = birthDate ?: "No selected Date" ,
+                placeholder = "Your Birth Date",
+                onValueChange = {  },
+                isError = false,
 
-@Composable
-fun LogOutBox() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.Transparent)
-    ) {
-        Text(
-            text = "Cambia Password",
-            textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .8f),
+                modifier = Modifier.weight(1f)
+            )
 
-            overflow = TextOverflow.Visible,
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 20.dp, 0.dp, 0.dp, 0.dp)
-        )
+            Spacer(Modifier.width(spaceExtraSmall))
 
-        Spacer(Modifier.width(spaceLarge))
+            IconButtonType1(
+                onClick = { setShowDatePicker(true) },
+                icon = Icons.Default.DateRange,
+                iconDescription = "Select your Birth Date",
+                iconSize = 22.dp,
+                modifier = Modifier.padding(top = 10.dp)
+            )
+        }
+
+        Spacer(Modifier.height(spaceMedium))
 
         IconTextButtonType1(
-            onClick = {},
-            text = "Log Out",
-            withIcon = true,
-            icon = Icons.AutoMirrored.Filled.ExitToApp,
-            modifier = Modifier
-                .blurredDropShadow(
-                    shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
-                    offset = Offset(10f,10f),
-                    blurRadius = 10f,
-                )
+            text = "Registrati",
+            onClick = { },
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
@@ -355,7 +463,38 @@ fun MainProfileScreen(
         Spacer(Modifier.height(spaceMedium))
 
         // Log Out Button & Change Password
-        LogOutBox()
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.Transparent)
+        ) {
+            Text(
+                text = "Cambia Password",
+                textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .8f),
+
+                overflow = TextOverflow.Visible,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 20.dp, 0.dp, 0.dp, 0.dp)
+            )
+
+            Spacer(Modifier.width(spaceLarge))
+
+            IconTextButtonType1(
+                onClick = {},
+                text = "Log Out",
+                withIcon = true,
+                icon = Icons.AutoMirrored.Filled.ExitToApp,
+                modifier = Modifier
+                    .blurredDropShadow(
+                        shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
+                        offset = Offset(10f,10f),
+                        blurRadius = 10f,
+                    )
+            )
+        }
     }
 }
 
@@ -372,7 +511,7 @@ fun RegisterScreen() {
                     MaterialTheme.colorScheme.secondary
                 )
             )
-            .padding(top = 114.dp, start = 40.dp, bottom = 61.dp, end = 40.dp)
+            .padding(all = 40.dp)
     ) {
         // User Registration Box
         UserRegistrationBox()
@@ -452,15 +591,5 @@ fun SeguaciPreview() {
 fun UserInfoPreview() {
     E20FrontendMobileTheme {
         UserInfo("Mario", "Rossi", "mario.rossi@gmail.com", "2000-01-01")
-    }
-}
-
-//@Preview
-@Composable
-fun LogOutBoxPreview() {
-    E20FrontendMobileTheme {
-        Box(Modifier.height(300.dp)) {
-            LogOutBox()
-        }
     }
 }

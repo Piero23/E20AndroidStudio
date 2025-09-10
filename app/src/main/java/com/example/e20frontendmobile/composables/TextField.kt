@@ -24,6 +24,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.e20frontendmobile.ui.theme.buttonGradientType1FirstLight
@@ -36,7 +38,8 @@ fun CustomTextField(
     placeholder: String? = null,
     singleLine: Boolean = false,
     onValueChange: (String) -> Unit,
-    value: String
+    value: String,
+    isPassword: Boolean = false
 ) {
     var height by remember { mutableStateOf(10.dp) }
     var width by remember { mutableStateOf(10.dp) }
@@ -60,6 +63,7 @@ fun CustomTextField(
                 },
             textStyle = MaterialTheme.typography.bodyMedium,
             singleLine = singleLine,
+            visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
             decorationBox = { innerTextField ->
 
                 Row(

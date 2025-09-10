@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.e20frontendmobile.apiService.TicketService
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -119,7 +120,7 @@ fun QRCodeScannerWithBottomSheet() {
                             QRCodeAnalyzer { qrCode ->
                                 if (!showSheet) {
                                     scannedCode = qrCode
-                                    isValid = checkTicket(qrCode) // Valida il biglietto
+                                    isValid = checkTicket(context, qrCode)
                                     showSheet = true
                                 }
                             }
@@ -148,10 +149,14 @@ fun QRCodeScannerWithBottomSheet() {
     }
 }
 
-// Funzione di validazione (esempio)
-fun checkTicket(qrCode: String): Boolean {
-    // Esempio: se il codice contiene "VALID" allora è valido
-    return qrCode.contains("VALID")
+fun checkTicket(context: Context, qrCode: String): Boolean {
+    val ticketId = try {
+        UUID.fromString(qrCode)
+    } catch (e: Exception) {
+        return false
+    }
+
+    return TicketService(context).validate(ticketId)
 }
 
 @Composable

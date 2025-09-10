@@ -43,7 +43,7 @@ import com.example.e20frontendmobile.mainFun
 import com.example.e20frontendmobile.activities.qrScanner.QRCodeScannerWithBottomSheet
 import com.example.e20frontendmobile.auth.AuthActivity
 import com.example.e20frontendmobile.auth.AuthStateStorage
-import com.example.e20frontendmobile.getMe
+import com.example.e20frontendmobile.apiService.getMe
 
 
 @ExperimentalMaterial3Api

@@ -19,7 +19,7 @@ class LocationService(private val context: Context) : ApiParent()  {
     fun findAll(): List<Location>? = runBlocking {
         val token = getToken(context)
         try {
-            val response: HttpResponse = myHttpClient.get("http://$ip:8060/api/location") {
+            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/location") {
                 header(HttpHeaders.Authorization, "Bearer $token")
             }
             return@runBlocking if (response.status.value in 200..299) response.body() else null
@@ -33,7 +33,7 @@ class LocationService(private val context: Context) : ApiParent()  {
     fun findById(id: Long): Location? = runBlocking {
         val token = getToken(context)
         try {
-            val response: HttpResponse = myHttpClient.get("http://$ip:8060/api/location/$id") {
+            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/location/$id") {
                 header(HttpHeaders.Authorization, "Bearer $token")
             }
             return@runBlocking if (response.status.value in 200..299) response.body() else null
@@ -47,7 +47,7 @@ class LocationService(private val context: Context) : ApiParent()  {
     fun create(location: Location): Location? = runBlocking {
         val token = getToken(context)
         try {
-            val response: HttpResponse = myHttpClient.post("http://$ip:8060/api/location") {
+            val response: HttpResponse = myHttpClient.post("https://$ip:8060/api/location") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
                 setBody(location)
@@ -63,7 +63,7 @@ class LocationService(private val context: Context) : ApiParent()  {
     fun edit(id: Long, location: Location): Location? = runBlocking {
         val token = getToken(context)
         try {
-            val response: HttpResponse = myHttpClient.put("http://$ip:8060/api/location/$id") {
+            val response: HttpResponse = myHttpClient.put("https://$ip:8060/api/location/$id") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
                 setBody(location)
@@ -79,7 +79,7 @@ class LocationService(private val context: Context) : ApiParent()  {
     fun delete(id: Long): Boolean = runBlocking {
         val token = getToken(context)
         try {
-            val response: HttpResponse = myHttpClient.delete("http://$ip:8060/api/location/$id") {
+            val response: HttpResponse = myHttpClient.delete("https://$ip:8060/api/location/$id") {
                 header(HttpHeaders.Authorization, "Bearer $token")
             }
             return@runBlocking response.status.value in 200..299

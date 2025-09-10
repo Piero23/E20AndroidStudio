@@ -35,7 +35,7 @@ class PagamentoService(private val context: Context): ApiParent() {
                 )
             }
 
-            val response: HttpResponse = myHttpClient.post("http://$ip:8060/api/stripe/checkout") {
+            val response: HttpResponse = myHttpClient.post("https://$ip:8060/api/stripe/checkout") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
                 setBody(

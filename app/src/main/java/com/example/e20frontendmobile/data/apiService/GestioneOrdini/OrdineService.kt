@@ -19,7 +19,7 @@ class OrdineService(private val context: Context) : ApiParent()  {
     fun findAll(): List<Ordine>? = runBlocking {
         val token = getToken(context)
         try {
-            val response: HttpResponse = myHttpClient.get("http://$ip:8060/api/ordine") {
+            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/ordine") {
                 header(HttpHeaders.Authorization, "Bearer $token")
             }
             return@runBlocking if (response.status.value in 200..299) response.body() else null
@@ -33,7 +33,7 @@ class OrdineService(private val context: Context) : ApiParent()  {
     fun findById(id: UUID): Ordine? = runBlocking {
         val token = getToken(context)
         try {
-            val response: HttpResponse = myHttpClient.get("http://$ip:8060/api/ordine/$id") {
+            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/ordine/$id") {
                 header(HttpHeaders.Authorization, "Bearer $token")
             }
             return@runBlocking if (response.status.value in 200..299) response.body() else null
@@ -47,7 +47,7 @@ class OrdineService(private val context: Context) : ApiParent()  {
     fun findAllByUtente(utenteId: UUID): List<Ordine>? = runBlocking {
         val token = getToken(context)
         try {
-            val response: HttpResponse = myHttpClient.get("http://$ip:8060/api/ordine/utente") {
+            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/ordine/utente") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 parameter("utente", utenteId.toString())
             }
@@ -62,7 +62,7 @@ class OrdineService(private val context: Context) : ApiParent()  {
     fun findAllBigliettiByOrdine(ordineId: UUID): List<Ticket>? = runBlocking {
         val token = getToken(context)
         try {
-            val response: HttpResponse = myHttpClient.get("http://$ip:8060/api/ordine/biglietti") {
+            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/ordine/biglietti") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 parameter("ordine", ordineId.toString())
             }

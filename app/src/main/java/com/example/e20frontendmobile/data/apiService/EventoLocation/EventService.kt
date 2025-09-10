@@ -1,10 +1,11 @@
-package com.example.e20frontendmobile.apiService.EventoLocation
+package com.example.e20frontendmobile.data.apiService.EventoLocation
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import com.example.e20frontendmobile.apiService.getToken
-import com.example.e20frontendmobile.apiService.myHttpClient
+import com.example.e20frontendmobile.data.apiService.ApiParent
+import com.example.e20frontendmobile.data.apiService.getToken
+import com.example.e20frontendmobile.data.apiService.myHttpClient
 import com.example.e20frontendmobile.model.Event
 import io.ktor.client.call.body
 import io.ktor.client.request.*
@@ -20,8 +21,7 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 
-class EventService(private val context: Context) {
-    var ip = "192.168.1.14"
+class EventService(private val context: Context) : ApiParent() {
 
     // 🔹 GET Event by ID
     fun findById(idEvento: Long): Event? = runBlocking {

@@ -1,4 +1,4 @@
-package com.example.e20frontendmobile.apiService
+package com.example.e20frontendmobile.data.apiService
 
 import android.content.Context
 import com.example.e20frontendmobile.model.Ticket

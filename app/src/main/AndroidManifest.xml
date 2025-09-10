@@ -29,7 +29,7 @@
             android:theme="@style/Theme.E20FrontendMobile" />
 
         <activity
-            android:name=".auth.AuthActivity"
+            android:name=".data.auth.AuthActivity"
             android:exported="true">
         </activity>
 

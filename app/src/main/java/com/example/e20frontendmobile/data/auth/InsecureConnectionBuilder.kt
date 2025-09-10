@@ -1,4 +1,4 @@
-package com.example.e20frontendmobile.auth
+package com.example.e20frontendmobile.data.auth
 
 import android.annotation.SuppressLint
 import android.net.Uri

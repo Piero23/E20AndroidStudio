@@ -20,7 +20,6 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,9 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.e20frontendmobile.activities.evento.eventCard
-import com.example.e20frontendmobile.apiService.EventoLocation.EventService
 import com.example.e20frontendmobile.composables.CustomizableSearchBar
-import com.example.e20frontendmobile.model.Event
 import com.example.e20frontendmobile.viewModels.EventViewModel
 
 @Composable

@@ -1,8 +1,8 @@
-package com.example.e20frontendmobile.apiService
+package com.example.e20frontendmobile.data.apiService
 
 import android.content.Context
-import com.example.e20frontendmobile.auth.AuthManager
-import com.example.e20frontendmobile.auth.AuthStateStorage
+import com.example.e20frontendmobile.data.auth.AuthManager
+import com.example.e20frontendmobile.data.auth.AuthStateStorage
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.HttpTimeout

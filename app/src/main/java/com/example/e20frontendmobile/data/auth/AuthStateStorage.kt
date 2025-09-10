@@ -1,10 +1,13 @@
-package com.example.e20frontendmobile.auth
+package com.example.e20frontendmobile.data.auth
 
 import android.content.Context
+import android.util.Base64
 import android.util.Log
 import net.openid.appauth.AuthState
 import org.json.JSONException
 import androidx.core.content.edit
+import org.json.JSONArray
+import org.json.JSONObject
 
 class AuthStateStorage(private val context: Context) {
 
@@ -43,10 +46,10 @@ class AuthStateStorage(private val context: Context) {
             if (parts.size < 2) return null
 
             val payloadJson = String(
-                android.util.Base64.decode(parts[1], android.util.Base64.URL_SAFE)
+                Base64.decode(parts[1], Base64.URL_SAFE)
             )
 
-            val jsonObject = org.json.JSONObject(payloadJson)
+            val jsonObject = JSONObject(payloadJson)
             val map = mutableMapOf<String, Any>()
             jsonObject.keys().forEach { key ->
                 map[key] = jsonObject.get(key)
@@ -65,7 +68,7 @@ class AuthStateStorage(private val context: Context) {
         val sub = claims?.get("sub") as? String ?: return null
 
         val roles: List<String> = when (val raw = claims["roles"]) {
-            is org.json.JSONArray -> {
+            is JSONArray -> {
                 val list = mutableListOf<String>()
                 for (i in 0 until raw.length()) {
                     list.add(raw.getString(i))

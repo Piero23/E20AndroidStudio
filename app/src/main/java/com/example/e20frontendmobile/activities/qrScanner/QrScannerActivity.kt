@@ -29,7 +29,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.e20frontendmobile.apiService.TicketService
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

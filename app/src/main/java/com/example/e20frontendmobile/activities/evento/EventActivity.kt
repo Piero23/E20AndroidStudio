@@ -1,11 +1,11 @@
 package com.example.e20frontendmobile.activities.evento
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.QrCode
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +39,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -51,7 +49,6 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -65,15 +62,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.e20frontendmobile.R
-import com.example.e20frontendmobile.apiService.EventoLocation.EventService
-import com.example.e20frontendmobile.model.Event
+import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
 import com.example.e20frontendmobile.viewModels.EventViewModel
-import kotlinx.coroutines.flow.StateFlow
-import androidx.compose.runtime.collectAsState
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.format
+import kotlinx.coroutines.delay
 
 
 @Composable
@@ -97,13 +89,30 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var spotsLeft: Int by remember { mutableStateOf(0) }
 
+
+    //TODO mettere nel view Model
     LaunchedEffect(event.id) {
+        delay(5000L)
+
         val service = EventService(context)
         imageBitmap = service.getImage(event.id)
         spotsLeft = service.spotsLeft(event.id)
     }
 
-    Column(modifier = Modifier.verticalScroll(scrollState)) {
+    val dataReady = imageBitmap != null && spotsLeft != null
+
+    // Placeholder finché i dati non sono pronti
+    if (!dataReady) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Caricamento evento...", style = MaterialTheme.typography.headlineMedium)
+        }
+        return
+    }
+
+    Column(modifier = Modifier.verticalScroll(
+        enabled = true,
+        state = ScrollState(0)
+    )) {
         // Immagine
         if (imageBitmap != null) {
             Image(
@@ -172,7 +181,7 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
 
                 Column(Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp)) {
                     if (isAdmin) {
-                        IconButton(onClick = { /* edit */ }) {
+                        IconButton(onClick = { /* TODO */ }) {
                             Icon(
                                 Icons.Filled.Create,
                                 contentDescription = "Modifica",
@@ -342,7 +351,8 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                 .height(700.dp)
                 .padding(15.dp, 10.dp, 15.dp, 50.dp)
         ) {
-            WebViewScreen(45.0755969, 7.638332)
+            //TODO
+//            WebViewScreen(45.0755969, 7.638332)
         }
     }
 }

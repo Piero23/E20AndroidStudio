@@ -42,8 +42,8 @@ import com.example.e20frontendmobile.activities.bottomNavigationScreen.StandardB
 import com.example.e20frontendmobile.activities.bottomNavigationScreen.bottomNavItems
 import com.example.e20frontendmobile.mainFun
 import com.example.e20frontendmobile.activities.qrScanner.QRCodeScannerWithBottomSheet
-import com.example.e20frontendmobile.auth.AuthActivity
-import com.example.e20frontendmobile.auth.AuthStateStorage
+import com.example.e20frontendmobile.data.auth.AuthActivity
+import com.example.e20frontendmobile.data.auth.AuthStateStorage
 import com.example.e20frontendmobile.viewModels.EventViewModel
 
 

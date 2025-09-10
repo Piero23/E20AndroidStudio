@@ -1,18 +1,18 @@
 package com.example.e20frontendmobile.apiService
 
 import android.content.Context
+import com.example.e20frontendmobile.data.apiService.ApiParent
+import com.example.e20frontendmobile.data.apiService.getToken
+import com.example.e20frontendmobile.data.apiService.myHttpClient
 import com.example.e20frontendmobile.model.Ticket
 import io.ktor.client.call.body
 import io.ktor.client.request.*
 import io.ktor.client.statement.HttpResponse
-import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
-import io.ktor.http.contentType
 import kotlinx.coroutines.runBlocking
 import java.util.UUID
 
-class TicketService(private val context: Context) {
-    var ip = "192.168.1.14"
+class TicketService(private val context: Context) : ApiParent() {
 
     fun getAllBiglietti(): List<Ticket>? = runBlocking {
         val token = getToken(context)

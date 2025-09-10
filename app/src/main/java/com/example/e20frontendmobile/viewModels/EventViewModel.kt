@@ -3,10 +3,9 @@ package com.example.e20frontendmobile.viewModels
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.e20frontendmobile.apiService.EventoLocation.EventService
+import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
 import com.example.e20frontendmobile.model.Event
 import kotlinx.coroutines.launch
 import android.content.Context

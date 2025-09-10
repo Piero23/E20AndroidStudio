@@ -1,8 +1,10 @@
 package com.example.e20frontendmobile.apiService
 
 import android.content.Context
+import com.example.e20frontendmobile.data.apiService.ApiParent
+import com.example.e20frontendmobile.data.apiService.getToken
+import com.example.e20frontendmobile.data.apiService.myHttpClient
 import com.example.e20frontendmobile.model.Event
-import com.example.e20frontendmobile.model.Preferiti
 import io.ktor.client.call.body
 import io.ktor.client.request.*
 import io.ktor.client.statement.HttpResponse
@@ -12,8 +14,7 @@ import io.ktor.http.contentType
 import kotlinx.coroutines.runBlocking
 import java.util.UUID
 
-class PreferitiService(private val context: Context) {
-    var ip = "192.168.1.14"
+class PreferitiService(private val context: Context) : ApiParent() {
 
     /**
      * Recupera tutti gli eventi preferiti di un utente

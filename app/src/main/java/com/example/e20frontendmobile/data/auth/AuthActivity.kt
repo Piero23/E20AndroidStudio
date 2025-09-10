@@ -1,4 +1,4 @@
-package com.example.e20frontendmobile.auth
+package com.example.e20frontendmobile.data.auth
 
 import android.content.Intent
 import android.os.Bundle

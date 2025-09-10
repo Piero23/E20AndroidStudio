@@ -1,4 +1,4 @@
-package com.example.e20frontendmobile.auth
+package com.example.e20frontendmobile.data.auth
 
 import android.app.Activity
 import android.content.Context
@@ -14,7 +14,7 @@ import net.openid.appauth.*
 class AuthManager(private val context: Context) {
 
 
-    var ip : String = "192.168.1.14"
+    var ip : String = "192.168.1.212"
     private val authService: AuthorizationService by lazy {
         val appAuthConfiguration = AppAuthConfiguration.Builder()
             .setConnectionBuilder(ConnectionBuilderForTesting.INSTANCE) // <-- Use the new class here

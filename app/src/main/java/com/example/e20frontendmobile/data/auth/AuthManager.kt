@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import io.github.cdimascio.dotenv.dotenv
 import net.openid.appauth.*
 
 
@@ -14,7 +15,11 @@ import net.openid.appauth.*
 class AuthManager(private val context: Context) {
 
 
-    var ip : String = "192.168.1.232"
+    val ip : String= dotenv {
+        directory = "/assets"
+        filename = "env"
+    }["IP"]
+
     private val authService: AuthorizationService by lazy {
         val appAuthConfiguration = AppAuthConfiguration.Builder()
             .setConnectionBuilder(ConnectionBuilderForTesting.INSTANCE) // <-- Use the new class here

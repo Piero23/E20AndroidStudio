@@ -72,11 +72,13 @@ import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import com.example.e20frontendmobile.viewModels.EventViewModel
 
 import kotlinx.coroutines.launch
+import java.io.File
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         //enableEdgeToEdge()
         setContent {
@@ -99,6 +101,8 @@ fun SimpleSearchBar(
     onSearch: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+
     // Controls expansion state of the search bar
     var expanded by rememberSaveable { mutableStateOf(false) }
 
@@ -332,19 +336,19 @@ fun mainFun(navController: NavHostController, eventViewModel: EventViewModel){
             Spacer(modifier = Modifier.height(30.dp))
             Column {
 
-                var items by  remember { mutableStateOf<List<Event>>(listOf())}
-
-                var listaEventi = items
-
-                val context = LocalContext.current
-                LaunchedEffect(true) {
-                    items = EventService(context).findAll()
-                }
-
-                EventCarousel(28.sp,
-                    "Eventi in voga",
-                    navController ,
-                    eventViewModel,listaEventi)
+//                var items by  remember { mutableStateOf<List<Event>>(listOf())}
+//
+//                var listaEventi = items
+//
+//                val context = LocalContext.current
+//                LaunchedEffect(true) {
+//                    items = EventService(context).findAll()
+//                }
+//
+//                EventCarousel(28.sp,
+//                    "Eventi in voga",
+//                    navController ,
+//                    eventViewModel,listaEventi)
 //                EventCarousel(28.sp, "Partecipano i tuoi amici", navController, eventViewModel)
 //                EventCarousel(28.sp, "Partecipano i tuoi amici", navController, eventViewModel)
 //                EventCarousel(28.sp, "Partecipano i tuoi amici", navController, eventViewModel)

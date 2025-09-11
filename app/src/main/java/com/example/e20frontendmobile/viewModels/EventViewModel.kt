@@ -66,23 +66,6 @@ class EventViewModel : ViewModel() {
         }
     }
 
-    fun findALl(context: Context) {
-        loading = true
-        error = null
-
-        viewModelScope.launch {
-            try {
-                val eventService = EventService(context)
-                items = eventService.findAll()
-            } catch (e: Exception) {
-                error = e.message ?: "Impossibile Caricare Evento"
-                items = emptyList()
-            } finally {
-                loading = false
-            }
-        }
-    }
-
     private val _eventImages = mutableMapOf<Long, Bitmap?>()
     fun getCachedImage(eventId: Long): Bitmap? = _eventImages[eventId]
 

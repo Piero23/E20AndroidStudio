@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -134,6 +135,11 @@ fun ShowCheckout(navController: NavHostController, eventViewModel: EventViewMode
                     onTicketChange = { updatedTicket ->
                         tickets = tickets.toMutableList().also { it[index] = updatedTicket }
                     },
+                    onRemoveTicket = {
+                        tickets = tickets.toMutableList().also { list ->
+                            list.removeAt(index)
+                        }
+                    },
                     evento = event
                 )
                 HorizontalDivider(modifier = Modifier.padding(10.dp))
@@ -229,6 +235,7 @@ fun NameTicket(
     number: Int,
     ticket: Ticket,
     onTicketChange: (Ticket) -> Unit,
+    onRemoveTicket: (Int) -> Unit,
     evento: Event
 ) {
     ticket.idEvento=evento.id
@@ -236,15 +243,28 @@ fun NameTicket(
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
 
     Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+
             Text(
                 text = "Biglietto $number",
                 fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.align(Alignment.Center)
             )
+
+
+            IconButton(
+                onClick = { onRemoveTicket(number - 1) },
+                modifier = Modifier
+                    .size(32.dp)
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Remove,
+                    contentDescription = "Elimina ticket",
+                )
+            }
         }
 
         if (evento.b_nominativo) {

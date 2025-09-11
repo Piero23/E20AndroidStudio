@@ -65,6 +65,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.composeuitemplates.presentation.bottomNavigationScreen.BottomNavigationScreen
 import com.example.e20frontendmobile.activities.home.EventCarousel
+import com.example.e20frontendmobile.data.LocationPickerScreen
 import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
 import com.example.e20frontendmobile.model.Event
 import com.example.e20frontendmobile.ui.theme.BungeeInline
@@ -83,7 +84,8 @@ class MainActivity : ComponentActivity() {
         //enableEdgeToEdge()
         setContent {
             E20FrontendMobileTheme {
-                BottomNavigationScreen()
+                //BottomNavigationScreen()
+                LocationPickerScreen()
             }
         }
     }

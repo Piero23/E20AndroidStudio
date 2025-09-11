@@ -195,6 +195,7 @@ fun DebugTokenScreen() {
         }
 
         Button(onClick = {
+
             userIN = userInfo?.sub +"\n"
             userIN += userInfo?.roles
 

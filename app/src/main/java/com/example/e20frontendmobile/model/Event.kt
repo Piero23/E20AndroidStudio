@@ -10,8 +10,7 @@ data class Event(
     val id: Long,
     @SerialName("descrizione") val description: String,
     @SerialName("nome") val title: String,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    @SerialName("data") val date: LocalDateTime,
+    @SerialName("data") val date: String?,
     @SerialName("locationId") val locationId: Long,
     @SerialName("immagine") val image: String? = null,
     @SerialName("posti") val posti: Int,

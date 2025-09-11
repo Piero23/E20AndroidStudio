@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -36,6 +37,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -45,15 +47,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.e20frontendmobile.R
 import com.example.e20frontendmobile.composables.CustomTextField
 import com.example.e20frontendmobile.composables.IconButtonType1
+import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
+import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
+import com.example.e20frontendmobile.data.auth.AuthStateStorage
+import com.example.e20frontendmobile.model.Event
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
@@ -74,8 +83,8 @@ fun createEvent(){
 
     var titolo by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
-    var posti by remember { mutableIntStateOf(0) }
-    var prezzo by remember { mutableFloatStateOf(0f) }
+    var posti by remember { mutableStateOf("") }
+    var prezzo by remember { mutableStateOf("") }
     var ageRestricted by remember { mutableStateOf(false) }
     var nominativo by remember { mutableStateOf(false) }
     var riutilizzabile by remember { mutableStateOf(false) }
@@ -92,7 +101,6 @@ fun createEvent(){
         initialMinute = currentTime.get(Calendar.MINUTE),
         is24Hour = true
     )
-
 
     if (showDatePicker) {
         DatePickerModal(
@@ -226,7 +234,6 @@ fun createEvent(){
                         )
                     }
                 }
-
             }
 
             Column {
@@ -259,7 +266,6 @@ fun createEvent(){
                 .height(30.dp)
                 .padding(vertical = 18.dp))
 
-
             Row (
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
@@ -275,10 +281,11 @@ fun createEvent(){
 
                     Row {
                         CustomTextField(
-                            value = posti.toString(),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            value = posti,
                             onValueChange = { newValue ->
-                                if (newValue.all { it.isDigit() }) {
-                                    posti = newValue.toInt()
+                                if (newValue.matches(Regex("^\\d*\\.?\\d*\$")) || newValue.isEmpty()) {
+                                    posti = newValue
                                 } },
                             placeholder = "Posti",
                             singleLine = true,
@@ -297,28 +304,24 @@ fun createEvent(){
 
                     Row {
                         CustomTextField(
-                            value = prezzo.toString(),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            value = prezzo,
                             onValueChange = { newValue->
-                                if (newValue.matches(Regex("^\\d*\\.?\\d*\$"))) {
-                                    prezzo = newValue.toFloat()
+                                if (newValue.matches(Regex("^\\d*\\.?\\d*\$")) || newValue.isEmpty()) {
+                                    prezzo = newValue
                                 }
                             },
-                            placeholder = "Prezzo",
+                            placeholder = "0.0",
                             singleLine = true,
                             modifier = Modifier.width(300.dp)
                         )
                     }
                 }
-
-
-
             }
 
             Spacer(modifier = Modifier
                 .height(30.dp)
                 .padding(vertical = 18.dp))
-
-            var checked by remember { mutableStateOf(true) }
 
             Row (verticalAlignment = Alignment.CenterVertically){
                 Text(
@@ -398,8 +401,30 @@ fun createEvent(){
 
 
 
+
+
+            //TODO mettere nel model
+            val context = LocalContext.current
+            val storage = remember { AuthStateStorage(context) }
+
             Button(
-                onClick = {},
+                onClick = {
+                    EventService(context).create(
+                        Event(
+                            1,
+                            descrizione,
+                            title = titolo,
+                            date = selectedDate+"T"+selectedTime,
+                            locationId = location.toLong(),
+                            posti = posti.toInt(),
+                            prezzo = prezzo.toDouble(),
+                            restricted = ageRestricted,
+                            organizzatore = UtenteService(context).getUtenteSub() ?: "no",
+                            b_riutilizzabile = riutilizzabile,
+                            b_nominativo = nominativo
+                        )
+                    )
+                },
                 modifier = Modifier.fillMaxWidth().height(80.dp),
                 shape = RoundedCornerShape(20)
             ){

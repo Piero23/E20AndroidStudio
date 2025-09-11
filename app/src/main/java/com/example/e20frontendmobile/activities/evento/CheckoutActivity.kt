@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -60,6 +61,11 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.util.UUID
 import kotlin.time.ExperimentalTime
+import androidx.core.net.toUri
+import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
+import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
+import com.example.e20frontendmobile.model.Event
+import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalTime::class)
 @Composable
@@ -129,7 +135,12 @@ fun ShowCheckout(navController: NavHostController, eventViewModel: EventViewMode
                     onTicketChange = { updatedTicket ->
                         tickets = tickets.toMutableList().also { it[index] = updatedTicket }
                     },
-                    idEvento = event.id
+                    onRemoveTicket = {
+                        tickets = tickets.toMutableList().also { list ->
+                            list.removeAt(index)
+                        }
+                    },
+                    evento = event
                 )
                 HorizontalDivider(modifier = Modifier.padding(10.dp))
             }
@@ -165,15 +176,38 @@ fun ShowCheckout(navController: NavHostController, eventViewModel: EventViewMode
                 onClick = {
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
+                            if (!checkFields(event, tickets)){
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        context,
+                                        "Perfavore compilare tutti i campi vuoti",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                                return@launch
+                            }
+
+                            val spots = EventService(context).spotsLeft(event.id)
+                            if (tickets.size > spots) {
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        context,
+                                        "Posti insufficienti! Disponibili: $spots, richiesti: ${tickets.size}",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                                return@launch
+                            }
+
                             val link = PagamentoService(context).checkout(
-                                UUID.fromString("5a49d976-5b8c-47ed-8d9b-1e0a553a0d9d"),
+                                UUID.fromString(UtenteService(context).getUtenteSub()),
                                 "eur",
                                 tickets
                             )
 
                             link?.let {
                                 withContext(Dispatchers.Main) {
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
+                                    val intent = Intent(Intent.ACTION_VIEW, link.toUri())
                                     context.startActivity(intent)
                                 }
                             } ?: run {
@@ -183,9 +217,8 @@ fun ShowCheckout(navController: NavHostController, eventViewModel: EventViewMode
                             }
                         } catch (e: Exception) {
                             withContext(Dispatchers.Main) {
-                                Toast.makeText(context, "Errore: ${e.message}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Errore: ${e.message}", Toast.LENGTH_LONG).show()
                             }
-                            println("Errore: ${e.message}")
                         }
                     }
                 }
@@ -202,54 +235,70 @@ fun NameTicket(
     number: Int,
     ticket: Ticket,
     onTicketChange: (Ticket) -> Unit,
-    idEvento: Long
+    onRemoveTicket: (Int) -> Unit,
+    evento: Event
 ) {
-    ticket.idEvento=idEvento
+    ticket.idEvento=evento.id
     // stato locale del DatePicker per questo singolo ticket
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
 
     Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+
             Text(
                 text = "Biglietto $number",
                 fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.align(Alignment.Center)
             )
+
+
+            IconButton(
+                onClick = { onRemoveTicket(number - 1) },
+                modifier = Modifier
+                    .size(32.dp)
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Remove,
+                    contentDescription = "Elimina ticket",
+                )
+            }
         }
 
-        // Nome + Cognome
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp, 5.dp, 10.dp, 0.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            CustomTextField(
-                value = ticket.nome,
-                onValueChange = { onTicketChange(ticket.copy(nome = it)) },
-                placeholder = "Nome",
-                singleLine = true,
+        if (evento.b_nominativo) {
+            // Nome + Cognome
+            Row(
                 modifier = Modifier
-                    .weight(0.5f)
-                    .padding(end = 2.5.dp)
-            )
-            CustomTextField(
-                value = ticket.cognome,
-                onValueChange = { onTicketChange(ticket.copy(cognome = it)) },
-                placeholder = "Cognome",
-                singleLine = true,
-                modifier = Modifier
-                    .weight(0.5f)
-                    .padding(start = 2.5.dp)
-            )
+                    .fillMaxWidth()
+                    .padding(10.dp, 5.dp, 10.dp, 0.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                CustomTextField(
+                    value = (ticket.nome ?: ""),
+                    onValueChange = { onTicketChange(ticket.copy(nome = it)) },
+                    placeholder = "Nome",
+                    singleLine = true,
+                    modifier = Modifier
+                        .weight(0.5f)
+                        .padding(end = 2.5.dp)
+                )
+                CustomTextField(
+                    value = (ticket.cognome ?: ""),
+                    onValueChange = { onTicketChange(ticket.copy(cognome = it)) },
+                    placeholder = "Cognome",
+                    singleLine = true,
+                    modifier = Modifier
+                        .weight(0.5f)
+                        .padding(start = 2.5.dp)
+                )
+            }
         }
 
         // Email
         CustomTextField(
-            value = ticket.email,
+            value = (ticket.email ?: ""),
             onValueChange = { onTicketChange(ticket.copy(email = it)) },
             placeholder = "eMail",
             singleLine = true,
@@ -258,39 +307,40 @@ fun NameTicket(
                 .padding(10.dp)
         )
 
-        Row(
-            modifier = Modifier
-                .padding(70.dp, 0.dp, 70.dp, 0.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CustomTextField(
-                value = ticket.dataNascita,
-                onValueChange = { onTicketChange(ticket.copy(dataNascita = it)) },
-                placeholder = "Data di nascita",
-                singleLine = true,
-                readOnly = true,
+        if (evento.restricted) {
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 2.5.dp, end = 5.dp)
-                    .weight(1f)
-            )
-            IconButton(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(buttonGradientType1()),
-                onClick = { showDatePicker = true }
+                    .padding(70.dp, 0.dp, 70.dp, 0.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    Icons.Filled.DateRange,
-                    contentDescription = "Scegli data",
-                    tint = Color.White,
-                    modifier = Modifier.size(32.dp)
+                CustomTextField(
+                    value = (ticket.dataNascita ?: ""),
+                    onValueChange = { onTicketChange(ticket.copy(dataNascita = it)) },
+                    placeholder = "Data di nascita",
+                    singleLine = true,
+                    readOnly = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 2.5.dp, end = 5.dp)
+                        .weight(1f)
                 )
+                IconButton(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(buttonGradientType1()),
+                    onClick = { showDatePicker = true }
+                ) {
+                    Icon(
+                        Icons.Filled.DateRange,
+                        contentDescription = "Scegli data",
+                        tint = Color.White,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
             }
         }
-
         // Mostra il DatePicker solo per questo ticket
         if (showDatePicker) {
             DatePickerModal(
@@ -307,5 +357,18 @@ fun NameTicket(
             )
         }
     }
+}
+
+fun checkFields(evento: Event, tickets: List<Ticket>): Boolean {
+    for (ticket in tickets) {
+        if (evento.b_nominativo) {
+            if (ticket.nome.isNullOrBlank() || ticket.cognome.isNullOrBlank()) return false
+        }
+
+        if (ticket.email.isNullOrBlank()) return false
+
+        if (evento.restricted && ticket.dataNascita.isNullOrBlank()) return false
+    }
+    return true
 }
 

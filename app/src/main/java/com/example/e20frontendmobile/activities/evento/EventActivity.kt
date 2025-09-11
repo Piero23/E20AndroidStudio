@@ -1,9 +1,19 @@
 package com.example.e20frontendmobile.activities.evento
 
+import android.Manifest
+import android.content.ContentResolver
+import android.content.ContentUris
+import android.content.ContentValues
+import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.provider.CalendarContract
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -20,7 +30,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -57,15 +66,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.example.e20frontendmobile.R
 import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
+import com.example.e20frontendmobile.model.Event
 import com.example.e20frontendmobile.viewModels.EventViewModel
-import kotlinx.coroutines.delay
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlin.time.ExperimentalTime
 
 
 @Composable
@@ -74,11 +88,11 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
     var toggledBell by rememberSaveable { mutableStateOf(false) }
     var toggledHeart by rememberSaveable { mutableStateOf(false) }
 
+    var calendarEventId by remember { mutableStateOf<Long?>(null) }
+
     val context = LocalContext.current
 
     val event = eventViewModel.selectedEvent
-    val imageBitmap = eventViewModel.selectedImage
-
 
     if (event == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -86,12 +100,47 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
         }
         return
     }
+
+    var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var spotsLeft: Int by remember { mutableStateOf(0) }
+
 
     LaunchedEffect(event.id) {
         val service = EventService(context)
+        imageBitmap = service.getImage(event.id)
         spotsLeft = service.spotsLeft(event.id)
     }
+
+    var hasCalendarPermission by remember { mutableStateOf(false) }
+
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        hasCalendarPermission = permissions[Manifest.permission.READ_CALENDAR] == true &&
+                permissions[Manifest.permission.WRITE_CALENDAR] == true
+    }
+
+    LaunchedEffect(Unit) {
+        val readGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED
+        val writeGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED
+        if (!readGranted || !writeGranted) {
+            requestPermissionLauncher.launch(arrayOf(Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR))
+        } else {
+            hasCalendarPermission = true
+        }
+    }
+
+    LaunchedEffect(hasCalendarPermission) {
+        if (hasCalendarPermission) {
+            val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+            val savedId = prefs.getLong("event_id", -1L)
+            if (savedId != -1L && isEventInCalendar(context, savedId)) {
+                calendarEventId = savedId
+                toggledBell = true
+            }
+        }
+    }
+
 
     Column(modifier = Modifier.verticalScroll(
         enabled = true,
@@ -152,9 +201,7 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                         ) {
                             TextWithShadow(
                                 modifier = Modifier.padding(horizontal=10.dp),
-                                text = "AFA"
-                                //TODO fix
-                                //text = "${event.date.month.name.take(3).capitalize()} ${event.date.dayOfMonth}, ${event.date.year} - ${event.date.hour}.${event.date.minute}"
+                                text = "${event.date.month.name.take(3).capitalize()} ${event.date.dayOfMonth}, ${event.date.year} - ${event.date.hour}.${event.date.minute}"
                             )
                         }
 
@@ -167,7 +214,7 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
 
                 Column(Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp)) {
                     if (isAdmin) {
-                        IconButton(onClick = { /* TODO */ }) {
+                        IconButton(onClick = { }) {
                             Icon(
                                 Icons.Filled.Create,
                                 contentDescription = "Modifica",
@@ -184,7 +231,24 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                             )
                         }
                     } else {
-                        IconButton(onClick = { toggledBell = !toggledBell }) {
+                        IconButton(onClick = {
+                            toggledBell = !toggledBell
+                            if (toggledBell) {
+                                calendarEventId = addEventToCalendar(context, event.title, event.date);
+                                saveEventId(context, calendarEventId ?: -1) //TODO togliere sto -1 che fa schifo
+                                calendarEventId?.let {
+                                    context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit().putLong("event_id", it).apply()
+                                }
+                                Toast.makeText(context, "Evento aggiunto al calendario", Toast.LENGTH_SHORT).show()
+                            } else {
+                                calendarEventId?.let {
+                                    removeEventFromCalendar(context, it)
+                                    context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit().remove("event_id").apply()
+                                }
+                                calendarEventId = null
+                                Toast.makeText(context, "Evento rimosso dal calendario", Toast.LENGTH_SHORT).show()
+                            }
+                        },) {
                             Icon(
                                 Icons.Filled.Notifications,
                                 contentDescription = "Ricordamelo",
@@ -318,7 +382,9 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(start = 15.dp, end = 15.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 15.dp, end = 15.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.weight(1f)) {
@@ -381,14 +447,49 @@ fun WebViewScreen(latitude: Double, longitude: Double) {
     )
 }
 
-@Composable
-@Preview
-fun prev() {
-    // ShowEvent(rememberNavController(), true, EventViewModel(LocalContext.current))
+
+
+@OptIn(ExperimentalTime::class)
+fun addEventToCalendar(context: Context, title: String, dateTime: LocalDateTime, durationMinutes: Long = 60): Long? {
+    val startMillis = dateTime.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
+    val endMillis = startMillis + durationMinutes * 60 * 1000
+
+    val values = ContentValues().apply {
+        put(CalendarContract.Events.DTSTART, startMillis)
+        put(CalendarContract.Events.DTEND, endMillis)
+        put(CalendarContract.Events.TITLE, title)
+        put(CalendarContract.Events.CALENDAR_ID, 1)
+        put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.currentSystemDefault().id)
+    }
+
+    println("NEGRI")
+    println(values.toString())
+    return if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
+        context.contentResolver.insert(CalendarContract.Events.CONTENT_URI, values)?.lastPathSegment?.toLong()
+    } else null
+}
+fun removeEventFromCalendar(context: Context, eventId: Long) {
+    if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
+        val uri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId)
+        context.contentResolver.delete(uri, null, null)
+    }
 }
 
-@Composable
-@Preview
-fun prev2() {
-    // ShowEvent(rememberNavController(), false, EventViewModel(LocalContext.current))
+fun isEventInCalendar(context: Context, eventId: Long): Boolean {
+    if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+        return false
+    }
+
+    val uri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId)
+    val cursor = context.contentResolver.query(uri, arrayOf(CalendarContract.Events._ID), null, null, null)
+    val exists = cursor?.moveToFirst() == true
+    cursor?.close()
+    return exists
+}
+
+fun saveEventId(context: Context, eventId: Long) {
+    context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        .edit()
+        .putLong("event_id", eventId)
+        .apply()
 }

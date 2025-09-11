@@ -5,10 +5,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Ticket(
-    @SerialName("nome") var nome: String = "",
-    @SerialName("cognome") var cognome: String = "",
-    @SerialName("email") var email: String = "",
-    @SerialName("dataNascita") var dataNascita: String = "",
-    @SerialName("idEvento") var idEvento: Long = 0L,
-    @SerialName("e_valido") var eValido: Boolean = true
+    @SerialName("nome") var nome: String? = null,
+    @SerialName("cognome") var cognome: String? = null,
+    @SerialName("email") var email: String? = null,
+    @SerialName("dataNascita") var dataNascita: String? = null,
+    @SerialName("idEvento") var idEvento: Long? = null,
+    @SerialName("e_valido") var eValido: Boolean? = null
 )

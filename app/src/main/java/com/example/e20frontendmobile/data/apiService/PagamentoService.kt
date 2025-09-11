@@ -1,6 +1,7 @@
 package com.example.e20frontendmobile.data.apiService
 
 import android.content.Context
+import android.util.Log
 import com.example.e20frontendmobile.model.Ticket
 import io.ktor.client.call.body
 import io.ktor.client.request.*
@@ -10,6 +11,10 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import kotlinx.coroutines.runBlocking
 import java.util.UUID
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.encodeToJsonElement
 
 class PagamentoService(private val context: Context): ApiParent() {
 
@@ -23,34 +28,22 @@ class PagamentoService(private val context: Context): ApiParent() {
         biglietti: List<Ticket>
     ): String? = runBlocking {
         val token = getToken(context)
-        try {
-            val ticketsMap = biglietti.map { ticket ->
-                mapOf(
-                    "nome" to ticket.nome,
-                    "cognome" to ticket.cognome,
-                    "email" to ticket.email,
-                    "dataNascita" to ticket.dataNascita,
-                    "idEvento" to ticket.idEvento,
-                    "eValido" to ticket.eValido
-                )
+        return@runBlocking try {
+            val body = buildJsonObject {
+                put("utenteId", utenteId.toString())
+                put("valuta", valuta)
+                put("biglietti", Json.encodeToJsonElement(biglietti))
             }
 
             val response: HttpResponse = myHttpClient.post("https://$ip:8060/api/stripe/checkout") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
-                setBody(
-                    mapOf(
-                        "utenteId" to utenteId.toString(),
-                        "valuta" to valuta,
-                        "biglietti" to ticketsMap
-                    )
-                )
+                setBody(body)
             }
 
             val map: Map<String, String> = response.body()
-            return@runBlocking map["url"]
+            map["url"]
         } catch (e: Exception) {
-            println("Errore checkout: ${e.message}")
             null
         }
     }

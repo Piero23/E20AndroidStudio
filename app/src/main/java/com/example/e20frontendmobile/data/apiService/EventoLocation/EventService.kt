@@ -76,8 +76,6 @@ class EventService(private val context: Context) : ApiParent() {
     // 🔹 POST create event
     fun create(event: Event): Event? = runBlocking {
         val token = getToken(context)
-
-
         try {
             val response: HttpResponse = myHttpClient.post("https://$ip:8060/api/evento") {
                 header(HttpHeaders.Authorization, "Bearer $token")

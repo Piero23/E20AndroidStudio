@@ -1,18 +1,11 @@
 package com.example.e20frontendmobile.ui.theme
 
 import android.graphics.BlurMaskFilter
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -20,11 +13,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.unit.dp
-
-
-// Helper Class to use Percentages
-data class Percent(val x: Float, val y: Float)
 
 
 // Custom Drop Shadow Modifier
@@ -63,14 +51,36 @@ fun Modifier.blurredDropShadow(
             )
 }
 
+// Custom Background Linear Modifier
+@Composable
+fun Modifier.backgroundLinearGradient(
+    colors: List<Color>,
+    start: Offset = Offset(0f, 0f),
+    end: Offset = Offset(1f, 1f),
+) : Modifier {
+    return this.then(Modifier
+        .drawWithCache {
+            val brush = Brush.linearGradient(
+                colors = colors,
+                start = Offset(size.width * start.x, size.height * start.y),
+                end = Offset(size.width * end.x, size.height * end.y)
+            )
+            onDrawBehind {
+                drawRect(brush = brush)
+            }
+        }
+    )
+}
+
+
 // Internal Gradients
 @Composable
 fun linearGradient(
     colors: List<Color>,
-    start: Percent = Percent(0f, 0f),
-    end: Percent = Percent(1f, 1f),
+    start: Offset = Offset(0f, 0f),
+    end: Offset = Offset(1f, 1f),
+    size: Size = Size.Zero
 ): Brush {
-    var size by remember { mutableStateOf(Size.Zero) }
 
     return if (size != Size.Zero) {
         Brush.linearGradient(
@@ -104,8 +114,8 @@ fun backgroundGradient(): Brush =
 
 @Composable
 fun imageOverlayGradient(
-    start: Percent = Percent(0f, 0f),
-    end: Percent = Percent(1f, 1f),
+    start: Offset = Offset(0f, 0f),
+    end: Offset = Offset(1f, 1f),
 ): Brush = linearGradient(
     colors = listOf(overlayBlack10, overlayBlack40),
     start = start,
@@ -118,6 +128,6 @@ fun buttonGradientType1(): Brush = linearGradient(
     colors = if(isSystemInDarkTheme()) listOf(buttonGradientType1FirstDark, buttonGradientType1LastDark)
              else listOf(buttonGradientType1FirstLight, buttonGradientType1LastLight),
 
-    start = Percent(0f, 0.5f),
-    end = Percent(1f, 0.5f)
+    start = Offset(0f, 0.5f),
+    end = Offset(1f, 0.5f)
 )

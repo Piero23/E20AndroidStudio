@@ -61,6 +61,7 @@ import kotlinx.datetime.toLocalDateTime
 import java.util.UUID
 import kotlin.time.ExperimentalTime
 import androidx.core.net.toUri
+import com.example.e20frontendmobile.model.Event
 
 @OptIn(ExperimentalTime::class)
 @Composable
@@ -130,7 +131,7 @@ fun ShowCheckout(navController: NavHostController, eventViewModel: EventViewMode
                     onTicketChange = { updatedTicket ->
                         tickets = tickets.toMutableList().also { it[index] = updatedTicket }
                     },
-                    idEvento = event.id
+                    evento = event
                 )
                 HorizontalDivider(modifier = Modifier.padding(10.dp))
             }
@@ -203,9 +204,9 @@ fun NameTicket(
     number: Int,
     ticket: Ticket,
     onTicketChange: (Ticket) -> Unit,
-    idEvento: Long
+    evento: Event
 ) {
-    ticket.idEvento=idEvento
+    ticket.idEvento=evento.id
     // stato locale del DatePicker per questo singolo ticket
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
 
@@ -221,31 +222,33 @@ fun NameTicket(
             )
         }
 
-        // Nome + Cognome
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp, 5.dp, 10.dp, 0.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            CustomTextField(
-                value = (ticket.nome ?: ""),
-                onValueChange = { onTicketChange(ticket.copy(nome = it)) },
-                placeholder = "Nome",
-                singleLine = true,
+        if (evento.b_nominativo) {
+            // Nome + Cognome
+            Row(
                 modifier = Modifier
-                    .weight(0.5f)
-                    .padding(end = 2.5.dp)
-            )
-            CustomTextField(
-                value = (ticket.cognome ?: ""),
-                onValueChange = { onTicketChange(ticket.copy(cognome = it)) },
-                placeholder = "Cognome",
-                singleLine = true,
-                modifier = Modifier
-                    .weight(0.5f)
-                    .padding(start = 2.5.dp)
-            )
+                    .fillMaxWidth()
+                    .padding(10.dp, 5.dp, 10.dp, 0.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                CustomTextField(
+                    value = (ticket.nome ?: ""),
+                    onValueChange = { onTicketChange(ticket.copy(nome = it)) },
+                    placeholder = "Nome",
+                    singleLine = true,
+                    modifier = Modifier
+                        .weight(0.5f)
+                        .padding(end = 2.5.dp)
+                )
+                CustomTextField(
+                    value = (ticket.cognome ?: ""),
+                    onValueChange = { onTicketChange(ticket.copy(cognome = it)) },
+                    placeholder = "Cognome",
+                    singleLine = true,
+                    modifier = Modifier
+                        .weight(0.5f)
+                        .padding(start = 2.5.dp)
+                )
+            }
         }
 
         // Email
@@ -259,39 +262,40 @@ fun NameTicket(
                 .padding(10.dp)
         )
 
-        Row(
-            modifier = Modifier
-                .padding(70.dp, 0.dp, 70.dp, 0.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CustomTextField(
-                value = (ticket.dataNascita ?: ""),
-                onValueChange = { onTicketChange(ticket.copy(dataNascita = it)) },
-                placeholder = "Data di nascita",
-                singleLine = true,
-                readOnly = true,
+        if (evento.restricted) {
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 2.5.dp, end = 5.dp)
-                    .weight(1f)
-            )
-            IconButton(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(buttonGradientType1()),
-                onClick = { showDatePicker = true }
+                    .padding(70.dp, 0.dp, 70.dp, 0.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    Icons.Filled.DateRange,
-                    contentDescription = "Scegli data",
-                    tint = Color.White,
-                    modifier = Modifier.size(32.dp)
+                CustomTextField(
+                    value = (ticket.dataNascita ?: ""),
+                    onValueChange = { onTicketChange(ticket.copy(dataNascita = it)) },
+                    placeholder = "Data di nascita",
+                    singleLine = true,
+                    readOnly = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 2.5.dp, end = 5.dp)
+                        .weight(1f)
                 )
+                IconButton(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(buttonGradientType1()),
+                    onClick = { showDatePicker = true }
+                ) {
+                    Icon(
+                        Icons.Filled.DateRange,
+                        contentDescription = "Scegli data",
+                        tint = Color.White,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
             }
         }
-
         // Mostra il DatePicker solo per questo ticket
         if (showDatePicker) {
             DatePickerModal(

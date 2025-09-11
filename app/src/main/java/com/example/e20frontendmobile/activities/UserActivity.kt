@@ -41,10 +41,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.e20frontendmobile.composables.CustomTextField
 import com.example.e20frontendmobile.composables.IconButtonType1
 import com.example.e20frontendmobile.composables.IconTextButtonType1
+import com.example.e20frontendmobile.model.UserRegistration
+import com.example.e20frontendmobile.toJavaLocalDate
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import com.example.e20frontendmobile.ui.theme.backgroundGradient
 import com.example.e20frontendmobile.ui.theme.backgroundLinearGradient
@@ -55,15 +58,57 @@ import com.example.e20frontendmobile.ui.theme.spaceSmall
 import com.example.e20frontendmobile.ui.theme.spaceLarge
 import com.example.e20frontendmobile.ui.theme.spaceMedium
 import com.example.e20frontendmobile.ui.theme.white
+import com.example.e20frontendmobile.viewModels.RegistrationViewModel
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import java.time.LocalDate
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 //TODO redirectare logout a pagina login con navhostcontroller
 @Composable
 fun MainAccessUserPage(navController: NavHostController) {
-
+//    val navController = rememberNavController()
+//    val user = userViewModel.currentUser
+//
+//    NavHost(
+//        navController = navController,
+//        startDestination = if (user == null) "login" else "profile"
+//    ) {
+//        composable("login") {
+//            LoginScreen(
+//                onLoginSuccess = { loggedUser ->
+//                    userViewModel.login(loggedUser)
+//                    navController.navigate("profile") {
+//                        popUpTo("login") { inclusive = true } // rimuove login dallo stack
+//                    }
+//                }
+//            )
+//        }
+//
+//        composable("profile") {
+//            ProfileScreen(
+//                user = userViewModel.currentUser!!,
+//                onLogout = {
+//                    userViewModel.logout()
+//                    navController.navigate("login") {
+//                        popUpTo("profile") { inclusive = true }
+//                    }
+//                },
+//                onFollowerClick = { followerId ->
+//                    navController.navigate("userDetail/$followerId")
+//                }
+//            )
+//        }
+//
+//        composable(
+//            route = "userDetail/{userId}",
+//            arguments = listOf(navArgument("userId") { type = NavType.StringType })
+//        ) { backStackEntry ->
+//            val userId = backStackEntry.arguments?.getString("userId")
+//            UserDetailScreen(userId = userId ?: "")
+//        }
+//    }
 }
 
 // Components --------------------------------------------------------------------------------------
@@ -122,7 +167,8 @@ fun UserImage(
 
 @Composable
 fun UserInfo(
-    firstName: String, lastName: String, email: String, birthDate: String,
+    email: String,
+    birthDate: String,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -149,17 +195,6 @@ fun UserInfo(
                 .fillMaxWidth()
                 .padding(14.dp)
         ) {
-            Text(
-                text = firstName,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onTertiary
-            )
-            Text(
-                text = lastName,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onTertiary
-            )
-            Spacer(Modifier.height(spaceMedium))
             Text(
                 text = email,
                 style = MaterialTheme.typography.bodyLarge,
@@ -226,7 +261,12 @@ fun RegistrationTextField(
 
 @OptIn(ExperimentalTime::class)
 @Composable
-fun UserRegistrationBox(
+private fun UserRegistrationBox(
+    userState: UserRegistration,
+    onUsernameChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onEmailChange: (String) -> Unit,
+    onBirthDateChange: (LocalDate) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -246,13 +286,7 @@ fun UserRegistrationBox(
 
     ) {
         // User Info
-        val (username, setUsername) = remember { mutableStateOf("") }
-        val (password, setPassword) = remember { mutableStateOf("") }
-        val (firstName, setFirstName) = remember { mutableStateOf("") }
-        val (lastName, setLastName) = remember { mutableStateOf("") }
-        val (email, setEmail) = remember { mutableStateOf("") }
 
-        val (birthDate, setBirthDate) = remember { mutableStateOf<String?>(null) }
         val (showDatePicker, setShowDatePicker) = rememberSaveable { mutableStateOf(false) }
 
         // On Show Date Picker to Select a Birth Date
@@ -264,8 +298,9 @@ fun UserRegistrationBox(
                             .fromEpochMilliseconds(it)
                             .toLocalDateTime(TimeZone.currentSystemDefault())
                             .date
+                            .toJavaLocalDate()
 
-                        setBirthDate(localDate.toString())
+                        onBirthDateChange(localDate)
                     }
                 },
                 onDismiss = { setShowDatePicker(false) }
@@ -273,112 +308,36 @@ fun UserRegistrationBox(
         }
 
         // Fields ------------------------------
-
-        // Title
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = spaceMedium)
-        ) {
-            Text(
-                text = "Registrati",
-
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
-
-        // Log In Access
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Transparent)
-        ) {
-            Text(
-                text = "Got already an account?",
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onTertiary,
-
-                overflow = TextOverflow.Visible,
-                modifier = Modifier
-                    .weight(1f)
-            )
-
-            Spacer(Modifier.width(spaceLarge))
-
-            IconTextButtonType1(
-                onClick = {},
-                text = "Log In",
-                withIcon = true,
-                icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                modifier = Modifier
-                    .blurredDropShadow(
-                        shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
-                        offset = Offset(10f,10f),
-                        blurRadius = 10f,
-                    )
-            )
-        }
-
         // Username Field
         RegistrationTextField(
             label = "Username",
-            value = username,
+            value = userState.username,
             placeholder = "Your Username",
-            onValueChange = { setUsername(it) },
-            isError = false,
+            onValueChange = onUsernameChange,
+            isError = userState.errors["username"]?.isNotEmpty() == true,
+            errorMessage = userState.errors["username"]
         )
 
         // Username Field
         RegistrationTextField(
             label = "Password",
-            value = password,
+            value = userState.password,
             placeholder = "Your Password",
-            onValueChange = { setPassword(it) },
-            isPassword = true,
-            isError = false,
+            onValueChange = onPasswordChange,
+            isError = userState.errors["password"]?.isNotEmpty() == true,
+            errorMessage = userState.errors["password"]
         )
 
         Spacer(Modifier.height(spaceMedium))
 
-        // User First and Last Name
-        Row(Modifier.fillMaxWidth()) {
-            // User First Name
-            RegistrationTextField(
-                label = "First Name",
-                value = firstName,
-                placeholder = "First Name",
-                onValueChange = { setFirstName(it) },
-                isError = false,
-
-                modifier = Modifier.weight(1f)
-            )
-
-            Spacer(Modifier.width(spaceExtraSmall))
-
-            // User Last Name
-            RegistrationTextField(
-                label = "Last Name",
-                value = lastName,
-                onValueChange = { setLastName(it) },
-                placeholder = "Last Name",
-                isError = false,
-                errorMessage = "Questa e' una prova",
-
-                modifier = Modifier.weight(1f)
-            )
-        }
-
         // User Email
         RegistrationTextField(
             label = "Email",
-            value = email,
+            value = userState.email,
             placeholder = "Your Email",
-            onValueChange = { setEmail(it) },
-            isError = (email == "Miao"),
-            errorMessage = "Questa e' una prova"
+            onValueChange = onEmailChange,
+            isError = userState.errors["email"]?.isNotEmpty() == true,
+            errorMessage = userState.errors["email"]
         )
 
         Spacer(Modifier.height(spaceSmall))
@@ -390,10 +349,11 @@ fun UserRegistrationBox(
         ) {
             RegistrationTextField(
                 label = "Birth Date",
-                value = birthDate ?: "No selected Date" ,
+                value = userState.birthDate.toString(),
                 placeholder = "Your Birth Date",
-                onValueChange = {  },
-                isError = false,
+                onValueChange = { }, // Not Editable
+                isError = userState.errors["birthDate"]?.isNotEmpty() == true,
+                errorMessage = userState.errors["birthDate"],
 
                 modifier = Modifier.weight(1f)
             )
@@ -458,7 +418,7 @@ fun MainProfileScreen(
         Spacer(Modifier.height(spaceMedium))
 
         // User Info
-        UserInfo("Mario", "Rossi", "mario.rossi@gmail.com", "2000-01-01")
+        UserInfo("mario.rossi@gmail.com", "2000-01-01")
 
         Spacer(Modifier.height(spaceMedium))
 
@@ -500,7 +460,10 @@ fun MainProfileScreen(
 
 
 @Composable
-fun RegisterScreen() {
+fun RegisterScreen(registrationViewModel: RegistrationViewModel = viewModel()) {
+
+    val userState = registrationViewModel.registratingUserState
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -513,14 +476,67 @@ fun RegisterScreen() {
             )
             .padding(all = 40.dp)
     ) {
+        // Title
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = spaceMedium)
+        ) {
+            Text(
+                text = "Registrati",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
+
+        // Log In Access
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.Transparent)
+        ) {
+            Text(
+                text = "Got already an account?",
+                textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onTertiary,
+
+                overflow = TextOverflow.Visible,
+                modifier = Modifier
+                    .weight(1f)
+            )
+
+            Spacer(Modifier.width(spaceLarge))
+
+            IconTextButtonType1(
+                onClick = {},
+                text = "Log In",
+                withIcon = true,
+                icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                modifier = Modifier
+                    .blurredDropShadow(
+                        shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
+                        offset = Offset(10f,10f),
+                        blurRadius = 10f,
+                    )
+            )
+        }
+
         // User Registration Box
-        UserRegistrationBox()
+        UserRegistrationBox(
+            userState = userState,
+            onUsernameChange = { registrationViewModel.onUsernameChange(it) },
+            onPasswordChange = { registrationViewModel.onPasswordChange(it) },
+            onEmailChange = { registrationViewModel.onEmailChange(it) },
+            onBirthDateChange = { registrationViewModel.onBirthDateChange(it) },
+        )
     }
 }
 
 // Previews ----------------------------------------------------------------------------------------
 
-//@Preview
+@Preview
 @Composable
 fun MainScreenPreview() {
     E20FrontendMobileTheme(darkTheme = false) {
@@ -590,6 +606,6 @@ fun SeguaciPreview() {
 @Composable
 fun UserInfoPreview() {
     E20FrontendMobileTheme {
-        UserInfo("Mario", "Rossi", "mario.rossi@gmail.com", "2000-01-01")
+        UserInfo("mario.rossi@gmail.com", "2000-01-01")
     }
 }

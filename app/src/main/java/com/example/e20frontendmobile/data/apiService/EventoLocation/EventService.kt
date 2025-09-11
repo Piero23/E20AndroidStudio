@@ -76,12 +76,20 @@ class EventService(private val context: Context) : ApiParent() {
     // 🔹 POST create event
     fun create(event: Event): Event? = runBlocking {
         val token = getToken(context)
+
+
+        println("LA POST DELLA CREAZIONE")
+        println("Token : $token")
+        println(event.toString())
         try {
             val response: HttpResponse = myHttpClient.post("https://$ip:8060/api/evento") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
                 setBody(event)
             }
+
+            println(response.bodyAsText())
+
             return@runBlocking if (response.status.value in 200..299) response.body() else null
         } catch (e: Exception) {
             println("Errore create event: ${e.message}")

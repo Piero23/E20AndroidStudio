@@ -52,6 +52,7 @@ dependencies {
 
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.camera2)
+    implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
     implementation(libs.barcode.scanning)
@@ -66,6 +67,7 @@ dependencies {
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.content.negotiation)
+
 
     implementation("io.ktor:ktor-client-okhttp:2.3.7")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.7")

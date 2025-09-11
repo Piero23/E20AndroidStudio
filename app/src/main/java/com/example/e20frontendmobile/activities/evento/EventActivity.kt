@@ -201,7 +201,9 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                         ) {
                             TextWithShadow(
                                 modifier = Modifier.padding(horizontal=10.dp),
-                                text = "${event.date.month.name.take(3).capitalize()} ${event.date.dayOfMonth}, ${event.date.year} - ${event.date.hour}.${event.date.minute}"
+                                text = "AFA"
+                                //TODO fix
+                                //text = "${event.date.month.name.take(3).capitalize()} ${event.date.dayOfMonth}, ${event.date.year} - ${event.date.hour}.${event.date.minute}"
                             )
                         }
 

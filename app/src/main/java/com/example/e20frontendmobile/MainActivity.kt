@@ -38,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -47,6 +48,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.isTraversalGroup
@@ -58,22 +60,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.composeuitemplates.presentation.bottomNavigationScreen.BottomNavigationScreen
 import com.example.e20frontendmobile.activities.home.EventCarousel
+import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
+import com.example.e20frontendmobile.model.Event
 import com.example.e20frontendmobile.ui.theme.BungeeInline
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
+import com.example.e20frontendmobile.viewModels.EventViewModel
 
 import kotlinx.coroutines.launch
+import java.io.File
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         //enableEdgeToEdge()
         setContent {
@@ -96,6 +101,8 @@ fun SimpleSearchBar(
     onSearch: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+
     // Controls expansion state of the search bar
     var expanded by rememberSaveable { mutableStateOf(false) }
 
@@ -259,21 +266,8 @@ fun cia(){
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
-@PreviewScreenSizes
 @Composable
-fun wallpaperPreview(){
-    val navController = rememberNavController()
-
-    E20FrontendMobileTheme {
-        mainFun(navController)
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun mainFun(navController: NavHostController){
+fun mainFun(navController: NavHostController, eventViewModel: EventViewModel){
 
     val list1  = listOf(R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a,
         R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a, R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a,
@@ -341,10 +335,23 @@ fun mainFun(navController: NavHostController){
             }
             Spacer(modifier = Modifier.height(30.dp))
             Column {
-                EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
-                EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
-                EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
-                EventCarousel(28.sp, "Partecipano i tuoi amici",navController)
+
+//                var items by  remember { mutableStateOf<List<Event>>(listOf())}
+//
+//                var listaEventi = items
+//
+//                val context = LocalContext.current
+//                LaunchedEffect(true) {
+//                    items = EventService(context).findAll()
+//                }
+//
+//                EventCarousel(28.sp,
+//                    "Eventi in voga",
+//                    navController ,
+//                    eventViewModel,listaEventi)
+//                EventCarousel(28.sp, "Partecipano i tuoi amici", navController, eventViewModel)
+//                EventCarousel(28.sp, "Partecipano i tuoi amici", navController, eventViewModel)
+//                EventCarousel(28.sp, "Partecipano i tuoi amici", navController, eventViewModel)
             }
         }
 

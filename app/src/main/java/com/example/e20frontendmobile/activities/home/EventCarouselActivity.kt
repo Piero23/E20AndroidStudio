@@ -18,10 +18,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
@@ -30,22 +36,26 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.e20frontendmobile.activities.evento.eventCard
+import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
+import com.example.e20frontendmobile.model.Event
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
+import com.example.e20frontendmobile.viewModels.EventViewModel
 
 
 @Composable
-fun EventCarousel(fontSize: TextUnit, carouselText: String, navController: NavHostController){
+fun EventCarousel(
+    fontSize: TextUnit,
+    carouselText: String,
+    navController: NavHostController,
+    eventViewModel: EventViewModel,
+    listaEventi :List<Event>
+){
+
 
 
     Column (horizontalAlignment =  Alignment.CenterHorizontally ,
         modifier = Modifier.padding(vertical = 20.dp)) {
 
-        val listaEventi = listOf(
-            Pair("Evento Bello","Via santa maria napoli ciahh"),
-            Pair("Evento Bello","Via santa maria napoli ciahh"),
-            Pair("Evento Bello","Via santa maria napoli ciahh"),
-            Pair("Evento Bello","Via santa maria napoli ciahh"),
-            )
 
         Text(
             text = carouselText,
@@ -53,10 +63,12 @@ fun EventCarousel(fontSize: TextUnit, carouselText: String, navController: NavHo
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.headlineMedium
         )
+
         Spacer(modifier = Modifier.height(28.dp))
         val pagerState = rememberPagerState(pageCount = {
             listaEventi.size
         })
+
         HorizontalPager(
             state =  pagerState,
             modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -65,7 +77,7 @@ fun EventCarousel(fontSize: TextUnit, carouselText: String, navController: NavHo
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                //ìeventCard(listaEventi[page].first,listaEventi[page].second, navController) //TODO
+                eventCard(listaEventi[page] , navController , eventViewModel) //TODO
             }
         }
 
@@ -91,13 +103,3 @@ fun EventCarousel(fontSize: TextUnit, carouselText: String, navController: NavHo
     }
 }
 
-
-
-@Composable
-@Preview
-fun previewEventCarousel(){
-    E20FrontendMobileTheme {
-        val navController = rememberNavController()
-        EventCarousel(28.sp, "Eventi più seguiti", navController)
-    }
-}

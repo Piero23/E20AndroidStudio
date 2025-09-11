@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,6 +33,7 @@ import com.example.e20frontendmobile.ui.theme.linearGradient
 
 @Composable
 fun CustomTextField(
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     modifier: Modifier = Modifier,
     placeholder: String? = null,
     singleLine: Boolean = false,
@@ -51,6 +53,7 @@ fun CustomTextField(
         contentAlignment = Alignment.TopEnd
     ) {
         BasicTextField(
+            keyboardOptions = keyboardOptions,
             enabled = !readOnly,
             value = value,
             onValueChange = onValueChange,

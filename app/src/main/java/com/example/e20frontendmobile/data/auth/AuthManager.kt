@@ -14,7 +14,7 @@ import net.openid.appauth.*
 class AuthManager(private val context: Context) {
 
 
-    var ip : String = "192.168.1.212"
+    var ip : String = "192.168.1.232"
     private val authService: AuthorizationService by lazy {
         val appAuthConfiguration = AppAuthConfiguration.Builder()
             .setConnectionBuilder(ConnectionBuilderForTesting.INSTANCE) // <-- Use the new class here
@@ -29,8 +29,8 @@ class AuthManager(private val context: Context) {
 
     // Puoi anche usare la fetchFromIssuer se il server espone il discovery document
     private val serviceConfig = AuthorizationServiceConfiguration(
-        Uri.parse("http://"+ ip +":9000/oauth2/authorize"), // authorization endpoint
-        Uri.parse("http://"+ ip +":9000/oauth2/token")      // token endpoint
+        Uri.parse("https://"+ ip +":9000/oauth2/authorize"), // authorization endpoint
+        Uri.parse("https://"+ ip +":9000/oauth2/token")      // token endpoint
     )
 
     private val authRequest: AuthorizationRequest by lazy {

@@ -17,7 +17,7 @@ class TicketService(private val context: Context) : ApiParent() {
     fun getAllBiglietti(): List<Ticket>? = runBlocking {
         val token = getToken(context)
         try {
-            val response: HttpResponse = myHttpClient.get("http://$ip:8060/api/biglietto") {
+            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/biglietto") {
                 header(HttpHeaders.Authorization, "Bearer $token")
             }
             return@runBlocking if (response.status.value in 200..299) response.body() else null
@@ -30,7 +30,7 @@ class TicketService(private val context: Context) : ApiParent() {
     fun getQrCode(id: UUID): String? = runBlocking {
         val token = getToken(context)
         try {
-            val response: HttpResponse = myHttpClient.get("http://$ip:8060/api/biglietto/$id/qr") {
+            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/biglietto/$id/qr") {
                 header(HttpHeaders.Authorization, "Bearer $token")
             }
             val map: Map<String, String> = response.body()
@@ -45,7 +45,7 @@ class TicketService(private val context: Context) : ApiParent() {
         val token = getToken(context) ?: return@runBlocking false
 
         try {
-            val response: HttpResponse = myHttpClient.post("http://$ip:8060/api/biglietto/$id") {
+            val response: HttpResponse = myHttpClient.post("https://$ip:8060/api/biglietto/$id") {
                 header(HttpHeaders.Authorization, "Bearer $token")
             }
 
@@ -59,7 +59,7 @@ class TicketService(private val context: Context) : ApiParent() {
     fun getBigliettoEvento(eventoId: Long): List<Ticket>? = runBlocking {
         val token = getToken(context)
         try {
-            val response: HttpResponse = myHttpClient.get("http://$ip:8060/api/biglietto/evento") {
+            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/biglietto/evento") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 parameter("id", eventoId)
             }

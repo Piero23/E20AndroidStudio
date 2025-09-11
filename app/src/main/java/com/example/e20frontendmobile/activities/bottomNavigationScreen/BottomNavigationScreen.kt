@@ -61,6 +61,7 @@ fun BottomNavigationScreen() {
             rememberNavController(), // per tab 3
             rememberNavController()  // per tab 4
         )
+
         val eventViewModel: EventViewModel = viewModel()
 
         Scaffold(
@@ -104,7 +105,7 @@ fun BottomNavigationScreen() {
                                 ShowEvent(navControllers[0], isAdmin, eventViewModel)
                             }
                             composable("checkout") {
-                                ShowCheckout(navControllers[0])
+                                ShowCheckout(navControllers[0], eventViewModel)
                             }
                             composable("scanner"){
                                 QRCodeScannerWithBottomSheet()
@@ -133,7 +134,7 @@ fun BottomNavigationScreen() {
                                 ShowEvent(navControllers[1], isAdmin, eventViewModel)
                             }
                             composable("checkout") {
-                                ShowCheckout(navControllers[1])
+                                ShowCheckout(navControllers[1], eventViewModel)
                             }
                             composable("scanner"){
                                 QRCodeScannerWithBottomSheet()

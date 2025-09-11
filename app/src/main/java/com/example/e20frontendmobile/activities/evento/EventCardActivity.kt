@@ -61,6 +61,7 @@ fun eventCard(event: Event,
             .size(width = 320.dp, height = 320.dp),
         onClick = {
             eventViewModel.selectEvent(event)
+            eventViewModel.selectedImage
             navController.navigate("card")
         }
     ) {

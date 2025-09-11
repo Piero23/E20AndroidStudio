@@ -10,11 +10,16 @@ import com.example.e20frontendmobile.model.Event
 import kotlinx.coroutines.launch
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import com.example.e20frontendmobile.R
 
 class EventViewModel : ViewModel() {
 
     // Evento selezionato
     var selectedEvent by mutableStateOf<Event?>(null)
+        private set
+
+    var selectedImage by mutableStateOf<Bitmap?>(null)
         private set
 
     // Lista risultati ricerca
@@ -35,10 +40,12 @@ class EventViewModel : ViewModel() {
 
     fun selectEvent(event: Event) {
         selectedEvent = event
+        selectedImage = _eventImages[event.id]
     }
 
     fun clearSelection() {
         selectedEvent = null
+        selectedImage = null
     }
 
     fun search(context: Context, newQuery: String) {
@@ -80,7 +87,6 @@ class EventViewModel : ViewModel() {
     fun getCachedImage(eventId: Long): Bitmap? = _eventImages[eventId]
 
     fun fetchImage(context: Context, eventId: Long, onResult: (Bitmap?) -> Unit) {
-        // se già c’è in cache, restituisci subito
         _eventImages[eventId]?.let {
             onResult(it)
             return
@@ -88,7 +94,7 @@ class EventViewModel : ViewModel() {
 
         viewModelScope.launch {
             val eventService = EventService(context)
-            val bitmap = eventService.getImage(eventId)
+            val bitmap = eventService.getImage(eventId) ?: BitmapFactory.decodeResource(context.resources, R.drawable.images)
             _eventImages[eventId] = bitmap
             onResult(bitmap)
         }

@@ -22,7 +22,7 @@ class PreferitiService(private val context: Context) : ApiParent() {
     fun getAllPreferiti(utenteId: UUID): List<Event>? = runBlocking {
         val token = getToken(context)
         try {
-            val response: HttpResponse = myHttpClient.get("http://$ip:8060/api/utente/$utenteId/preferiti") {
+            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/utente/$utenteId/preferiti") {
                 header(HttpHeaders.Authorization, "Bearer $token")
             }
             return@runBlocking response.body()
@@ -38,7 +38,7 @@ class PreferitiService(private val context: Context) : ApiParent() {
     fun aggiungiAiPreferiti(utenteId: UUID, eventoId: Long): Boolean = runBlocking {
         val token = getToken(context)
         try {
-            val response: HttpResponse = myHttpClient.post("http://$ip:8060/api/utente/$utenteId/preferiti") {
+            val response: HttpResponse = myHttpClient.post("https://$ip:8060/api/utente/$utenteId/preferiti") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
                 setBody(mapOf("eventoId" to eventoId))
@@ -56,7 +56,7 @@ class PreferitiService(private val context: Context) : ApiParent() {
     fun rimuoviDaiPreferiti(utenteId: UUID, eventoId: Long): Boolean = runBlocking {
         val token = getToken(context)
         try {
-            val response: HttpResponse = myHttpClient.delete("http://$ip:8060/api/utente/$utenteId/preferiti") {
+            val response: HttpResponse = myHttpClient.delete("https://$ip:8060/api/utente/$utenteId/preferiti") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
                 setBody(mapOf("eventoId" to eventoId))

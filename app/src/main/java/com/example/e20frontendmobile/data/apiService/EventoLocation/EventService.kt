@@ -78,9 +78,6 @@ class EventService(private val context: Context) : ApiParent() {
         val token = getToken(context)
 
 
-        println("LA POST DELLA CREAZIONE")
-        println("Token : $token")
-        println(event.toString())
         try {
             val response: HttpResponse = myHttpClient.post("https://$ip:8060/api/evento") {
                 header(HttpHeaders.Authorization, "Bearer $token")

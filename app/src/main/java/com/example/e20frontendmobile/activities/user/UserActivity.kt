@@ -1,6 +1,7 @@
 package com.example.e20frontendmobile.activities.user
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.e20frontendmobile.activities.evento.DatePickerModal
 import com.example.e20frontendmobile.composables.CustomTextField
 import com.example.e20frontendmobile.composables.IconButtonType1
 import com.example.e20frontendmobile.composables.IconTextButtonType1
@@ -265,6 +268,9 @@ private fun UserRegistrationBox(
     onBirthDateChange: (LocalDate) -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+
+
     Column(
         horizontalAlignment = Alignment.Start,
         modifier = modifier
@@ -281,6 +287,39 @@ private fun UserRegistrationBox(
             .padding(spaceMedium)
 
     ) {
+
+        // Log In Access
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.Transparent)
+        ) {
+            Text(
+                text = "Got already an account?",
+                textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onTertiary,
+
+                overflow = TextOverflow.Visible,
+                modifier = Modifier
+                    .weight(1f)
+            )
+
+            Spacer(Modifier.width(spaceLarge))
+
+            IconTextButtonType1(
+                onClick = {},
+                text = "Log In",
+                withIcon = true,
+                icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                modifier = Modifier
+                    .blurredDropShadow(
+                        shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
+                        offset = Offset(10f,10f),
+                        blurRadius = 10f,
+                    )
+            )
+        }
         // User Info
 
         val (showDatePicker, setShowDatePicker) = rememberSaveable { mutableStateOf(false) }
@@ -365,13 +404,7 @@ private fun UserRegistrationBox(
             )
         }
 
-        Spacer(Modifier.height(spaceMedium))
 
-        IconTextButtonType1(
-            text = "Registrati",
-            onClick = { },
-            modifier = Modifier.fillMaxWidth()
-        )
     }
 }
 
@@ -457,7 +490,7 @@ fun MainProfileScreen(
 
 @Composable
 fun RegisterScreen(registrationViewModel: RegistrationViewModel = viewModel()) {
-
+    val context = LocalContext.current
     val userState = registrationViewModel.registratingUserState
 
     Column(
@@ -482,50 +515,29 @@ fun RegisterScreen(registrationViewModel: RegistrationViewModel = viewModel()) {
             Text(
                 text = "Registrati",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onBackground,
             )
         }
 
-        // Log In Access
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Transparent)
-        ) {
-            Text(
-                text = "Got already an account?",
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onTertiary,
 
-                overflow = TextOverflow.Visible,
-                modifier = Modifier
-                    .weight(1f)
-            )
-
-            Spacer(Modifier.width(spaceLarge))
-
-            IconTextButtonType1(
-                onClick = {},
-                text = "Log In",
-                withIcon = true,
-                icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                modifier = Modifier
-                    .blurredDropShadow(
-                        shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
-                        offset = Offset(10f,10f),
-                        blurRadius = 10f,
-                    )
-            )
-        }
 
         // User Registration Box
         UserRegistrationBox(
+
             userState = userState,
             onUsernameChange = { registrationViewModel.onUsernameChange(it) },
             onPasswordChange = { registrationViewModel.onPasswordChange(it) },
             onEmailChange = { registrationViewModel.onEmailChange(it) },
             onBirthDateChange = { registrationViewModel.onBirthDateChange(it) },
+
+        )
+
+        Spacer(Modifier.height(spaceMedium))
+
+        IconTextButtonType1(
+            text = "Registrati",
+            onClick = { registrationViewModel.registerUser(context) },
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }

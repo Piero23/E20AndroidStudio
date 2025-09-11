@@ -5,6 +5,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.ThumbUp
 
 fun bottomNavItems(isAdmin: Boolean): List<BottomNavItem> {
@@ -28,7 +29,7 @@ fun bottomNavItems(isAdmin: Boolean): List<BottomNavItem> {
             BottomNavItem(
                 index = 3,
                 contentDescription = "Notification",
-                icon = Icons.Default.ThumbUp
+                icon = Icons.Filled.ShoppingBag //TODO da decidere
             ),
             BottomNavItem(
                 index = 4,
@@ -51,7 +52,7 @@ fun bottomNavItems(isAdmin: Boolean): List<BottomNavItem> {
             BottomNavItem(
                 index = 3,
                 contentDescription = "Notification",
-                icon = Icons.Default.ThumbUp
+                icon = Icons.Default.ShoppingBag
             ),
             BottomNavItem(
                 index = 4,

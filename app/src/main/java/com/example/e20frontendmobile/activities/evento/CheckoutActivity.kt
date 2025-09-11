@@ -61,7 +61,10 @@ import kotlinx.datetime.toLocalDateTime
 import java.util.UUID
 import kotlin.time.ExperimentalTime
 import androidx.core.net.toUri
+import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
+import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
 import com.example.e20frontendmobile.model.Event
+import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalTime::class)
 @Composable
@@ -167,8 +170,20 @@ fun ShowCheckout(navController: NavHostController, eventViewModel: EventViewMode
                 onClick = {
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
+                            val spots = EventService(context).spotsLeft(event.id)
+                            if (tickets.size > spots) {
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        context,
+                                        "Posti insufficienti! Disponibili: $spots, richiesti: ${tickets.size}",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                                return@launch //
+                            }
+
                             val link = PagamentoService(context).checkout(
-                                UUID.fromString("5a49d976-5b8c-47ed-8d9b-1e0a553a0d9d"),
+                                UUID.fromString(UtenteService(context).getUtenteSub()),
                                 "eur",
                                 tickets
                             )
@@ -185,9 +200,8 @@ fun ShowCheckout(navController: NavHostController, eventViewModel: EventViewMode
                             }
                         } catch (e: Exception) {
                             withContext(Dispatchers.Main) {
-                                Toast.makeText(context, "Errore: ${e.message}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Errore: ${e.message}", Toast.LENGTH_LONG).show()
                             }
-                            println("Errore: ${e.message}")
                         }
                     }
                 }

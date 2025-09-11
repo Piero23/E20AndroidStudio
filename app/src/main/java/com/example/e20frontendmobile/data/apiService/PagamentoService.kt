@@ -32,7 +32,7 @@ class PagamentoService(private val context: Context): ApiParent() {
             val body = buildJsonObject {
                 put("utenteId", utenteId.toString())
                 put("valuta", valuta)
-                put("biglietti", Json.encodeToJsonElement(biglietti)) // lista di Ticket serializzabile
+                put("biglietti", Json.encodeToJsonElement(biglietti))
             }
 
             val response: HttpResponse = myHttpClient.post("https://$ip:8060/api/stripe/checkout") {
@@ -42,10 +42,8 @@ class PagamentoService(private val context: Context): ApiParent() {
             }
 
             val map: Map<String, String> = response.body()
-            Log.d("PagamentoService", "MAP RESPONSE: $map")
             map["url"]
         } catch (e: Exception) {
-            Log.e("PagamentoService", "Errore checkout", e)
             null
         }
     }

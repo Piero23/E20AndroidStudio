@@ -414,7 +414,7 @@ fun createEvent(){
                             1,
                             descrizione,
                             title = titolo,
-                            date = selectedDate+"T"+selectedTime,
+                            date = LocalDateTime.parse(selectedDate+"T"+selectedTime),
                             locationId = location.toLong(),
                             posti = posti.toInt(),
                             prezzo = prezzo.toDouble(),

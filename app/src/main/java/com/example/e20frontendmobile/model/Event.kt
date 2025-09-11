@@ -4,13 +4,15 @@ import android.graphics.Bitmap
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.datetime.LocalDateTime
+import kotlinx.serialization.Serializer
 
 @Serializable
 data class Event(
     val id: Long,
     @SerialName("descrizione") val description: String,
     @SerialName("nome") val title: String,
-    @SerialName("data") val date: String?,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    @SerialName("data") val date: LocalDateTime,
     @SerialName("locationId") val locationId: Long,
     @SerialName("immagine") val image: String? = null,
     @SerialName("posti") val posti: Int,

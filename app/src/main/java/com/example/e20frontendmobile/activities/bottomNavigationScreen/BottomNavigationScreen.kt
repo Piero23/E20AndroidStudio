@@ -52,7 +52,7 @@ import com.example.e20frontendmobile.viewModels.EventViewModel
 fun BottomNavigationScreen() {
     Surface(color = Color.LightGray) {
         val selectedIndex = remember { mutableIntStateOf(0) }
-        var isAdmin: Boolean = true
+        var isAdmin: Boolean = false
 
         val navControllers = listOf(
             rememberNavController(), // per tab 0

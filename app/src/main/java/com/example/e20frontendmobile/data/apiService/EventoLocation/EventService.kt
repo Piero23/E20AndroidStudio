@@ -121,6 +121,7 @@ class EventService(private val context: Context) : ApiParent() {
 
 
     suspend fun spotsLeft(id: Long): Int {
+        println("MADONNA")
         return try {
             val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/evento/$id/spots")
             val body = response.bodyAsText()

@@ -19,9 +19,6 @@ class EventViewModel : ViewModel() {
     var selectedEvent by mutableStateOf<Event?>(null)
         private set
 
-    var selectedImage by mutableStateOf<Bitmap?>(null)
-        private set
-
     // Lista risultati ricerca
     var items by mutableStateOf<List<Event>>(emptyList())
         private set
@@ -40,12 +37,10 @@ class EventViewModel : ViewModel() {
 
     fun selectEvent(event: Event) {
         selectedEvent = event
-        selectedImage = _eventImages[event.id]
     }
 
     fun clearSelection() {
         selectedEvent = null
-        selectedImage = null
     }
 
     fun search(context: Context, newQuery: String) {

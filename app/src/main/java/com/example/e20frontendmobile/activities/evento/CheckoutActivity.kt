@@ -60,6 +60,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.util.UUID
 import kotlin.time.ExperimentalTime
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalTime::class)
 @Composable
@@ -173,7 +174,7 @@ fun ShowCheckout(navController: NavHostController, eventViewModel: EventViewMode
 
                             link?.let {
                                 withContext(Dispatchers.Main) {
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
+                                    val intent = Intent(Intent.ACTION_VIEW, link.toUri())
                                     context.startActivity(intent)
                                 }
                             } ?: run {
@@ -228,7 +229,7 @@ fun NameTicket(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             CustomTextField(
-                value = ticket.nome,
+                value = (ticket.nome ?: ""),
                 onValueChange = { onTicketChange(ticket.copy(nome = it)) },
                 placeholder = "Nome",
                 singleLine = true,
@@ -237,7 +238,7 @@ fun NameTicket(
                     .padding(end = 2.5.dp)
             )
             CustomTextField(
-                value = ticket.cognome,
+                value = (ticket.cognome ?: ""),
                 onValueChange = { onTicketChange(ticket.copy(cognome = it)) },
                 placeholder = "Cognome",
                 singleLine = true,
@@ -249,7 +250,7 @@ fun NameTicket(
 
         // Email
         CustomTextField(
-            value = ticket.email,
+            value = (ticket.email ?: ""),
             onValueChange = { onTicketChange(ticket.copy(email = it)) },
             placeholder = "eMail",
             singleLine = true,
@@ -266,7 +267,7 @@ fun NameTicket(
             verticalAlignment = Alignment.CenterVertically
         ) {
             CustomTextField(
-                value = ticket.dataNascita,
+                value = (ticket.dataNascita ?: ""),
                 onValueChange = { onTicketChange(ticket.copy(dataNascita = it)) },
                 placeholder = "Data di nascita",
                 singleLine = true,

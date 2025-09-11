@@ -14,7 +14,7 @@ import net.openid.appauth.*
 class AuthManager(private val context: Context) {
 
 
-    var ip : String = "192.168.1.232"
+    var ip : String = "192.168.1.14"
     private val authService: AuthorizationService by lazy {
         val appAuthConfiguration = AppAuthConfiguration.Builder()
             .setConnectionBuilder(ConnectionBuilderForTesting.INSTANCE) // <-- Use the new class here

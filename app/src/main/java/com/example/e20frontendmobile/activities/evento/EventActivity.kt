@@ -77,8 +77,6 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
     val context = LocalContext.current
 
     val event = eventViewModel.selectedEvent
-    val imageBitmap = eventViewModel.selectedImage
-
 
     if (event == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -86,10 +84,14 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
         }
         return
     }
+
+    var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var spotsLeft: Int by remember { mutableStateOf(0) }
+
 
     LaunchedEffect(event.id) {
         val service = EventService(context)
+        imageBitmap = service.getImage(event.id)
         spotsLeft = service.spotsLeft(event.id)
     }
 

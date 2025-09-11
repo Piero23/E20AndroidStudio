@@ -65,7 +65,8 @@ fun CustomTextField(
                 .fillMaxWidth()
                 .onFocusChanged { focusState ->
                     isFocused = focusState.isFocused
-                },
+                }
+                .background(MaterialTheme.colorScheme.background),
             textStyle = MaterialTheme.typography.bodyMedium,
             singleLine = singleLine,
             visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
@@ -105,7 +106,7 @@ fun CustomTextField(
                     Brush.horizontalGradient(
                         colorStops = arrayOf(
                             0.5f to Color.Transparent,
-                            0.51f to Color.White
+                            0.51f to MaterialTheme.colorScheme.background
                         )
                     ),
                     shape = RoundedCornerShape(11.dp)
@@ -119,7 +120,7 @@ fun CustomTextField(
                 .background(
                     Brush.verticalGradient(
                         colorStops = arrayOf(
-                            0.5f to Color.White,
+                            0.5f to MaterialTheme.colorScheme.background,
                             0.51f to Color.Transparent
                         )
                     ),

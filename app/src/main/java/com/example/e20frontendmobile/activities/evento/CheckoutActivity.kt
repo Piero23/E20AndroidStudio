@@ -170,6 +170,17 @@ fun ShowCheckout(navController: NavHostController, eventViewModel: EventViewMode
                 onClick = {
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
+                            if (!checkFields(event, tickets)){
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        context,
+                                        "Perfavore compilare tutti i campi vuoti",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                                return@launch
+                            }
+
                             val spots = EventService(context).spotsLeft(event.id)
                             if (tickets.size > spots) {
                                 withContext(Dispatchers.Main) {
@@ -179,7 +190,7 @@ fun ShowCheckout(navController: NavHostController, eventViewModel: EventViewMode
                                         Toast.LENGTH_LONG
                                     ).show()
                                 }
-                                return@launch //
+                                return@launch
                             }
 
                             val link = PagamentoService(context).checkout(
@@ -326,5 +337,18 @@ fun NameTicket(
             )
         }
     }
+}
+
+fun checkFields(evento: Event, tickets: List<Ticket>): Boolean {
+    for (ticket in tickets) {
+        if (evento.b_nominativo) {
+            if (ticket.nome.isNullOrBlank() || ticket.cognome.isNullOrBlank()) return false
+        }
+
+        if (ticket.email.isNullOrBlank()) return false
+
+        if (evento.restricted && ticket.dataNascita.isNullOrBlank()) return false
+    }
+    return true
 }
 

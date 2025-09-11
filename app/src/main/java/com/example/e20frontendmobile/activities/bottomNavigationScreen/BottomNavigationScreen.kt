@@ -141,7 +141,7 @@ fun BottomNavigationScreen() {
                             }
                         }
                     }
-                    2 -> createEvent()//admin
+                    2 -> createEvent(eventViewModel)//admin
                     3 -> {
 //                      Orders()
 

@@ -1,6 +1,8 @@
 package com.example.e20frontendmobile.model
 
+import android.R
 import android.graphics.Bitmap
+import androidx.compose.runtime.mutableStateOf
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.datetime.LocalDateTime
@@ -20,3 +22,5 @@ data class Event(
     val b_riutilizzabile: Boolean,
     val b_nominativo: Boolean
 )
+
+

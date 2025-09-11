@@ -46,6 +46,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -61,37 +62,19 @@ import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
 import com.example.e20frontendmobile.data.auth.AuthStateStorage
 import com.example.e20frontendmobile.model.Event
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
+import com.example.e20frontendmobile.viewModels.EventViewModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
 
-@Preview
-@Composable
-fun createEventPreview(){
-    E20FrontendMobileTheme {
-        createEvent()
-    }
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
-fun createEvent(){
+fun createEvent(eventViewModel: EventViewModel){
     val scrollState = rememberScrollState()
 
-    var titolo by remember { mutableStateOf("") }
-    var location by remember { mutableStateOf("") }
-    var posti by remember { mutableStateOf("") }
-    var prezzo by remember { mutableStateOf("") }
-    var ageRestricted by remember { mutableStateOf(false) }
-    var nominativo by remember { mutableStateOf(false) }
-    var riutilizzabile by remember { mutableStateOf(false) }
-    var descrizione by remember { mutableStateOf("") }
-
-    var selectedDate by remember { mutableStateOf<String?>(null) }
-    var selectedTime by remember { mutableStateOf<String?>(null) }
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
 
@@ -110,7 +93,7 @@ fun createEvent(){
                         .toLocalDateTime(TimeZone.currentSystemDefault())
                         .date
 
-                    selectedDate = localDate.toString()
+                    eventViewModel.selectedDate = localDate.toString()
                 }
             },
             onDismiss = { showDatePicker = false }
@@ -123,7 +106,7 @@ fun createEvent(){
             state = timePickerState,
             onDismiss = { showTimePicker = false },
             onConfirm = {
-                selectedTime = String.format(
+                eventViewModel.selectedTime = String.format(
                     "%02d:%02d",
                     timePickerState.hour,
                     timePickerState.minute
@@ -158,15 +141,27 @@ fun createEvent(){
             horizontalAlignment = Alignment.Start,
             modifier = Modifier.padding(15.dp, 10.dp, 15.dp, 0.dp)
         ){
-            Text(
-                "Titolo",
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.headlineLarge
-            )
+            Row {
+                Text(
+                    "Titolo",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.headlineLarge
+                )
+                if(eventViewModel.nomeSbagliato){
+                    Text(
+                        "*",
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.Red,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                }
+            }
+
 
             CustomTextField(
-                value = titolo,
-                onValueChange = { titolo = it },
+                value = eventViewModel.titolo,
+                onValueChange = { eventViewModel.titolo = it },
                 placeholder = "Titolo",
                 singleLine = true,
                 modifier = Modifier
@@ -182,16 +177,29 @@ fun createEvent(){
             ) {
 
                 Column(horizontalAlignment = Alignment.Start) {
-                    Text(
-                        "Data",
-                        fontWeight = FontWeight.SemiBold,
-                        style = MaterialTheme.typography.titleSmall
-                    )
+                    Row {
+                        Text(
+                            "Data",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.headlineLarge
+                        )
+                        if(eventViewModel.dataSbagliata){
+                            Text(
+                                "*",
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.Red,
+                                modifier = Modifier.padding(10.dp)
+                            )
+                        }
+                    }
+
+
 
                     Row {
                         CustomTextField(
-                            value = selectedDate ?: "",
-                            onValueChange = { selectedDate = it },
+                            value = eventViewModel.selectedDate ?: "",
+                            onValueChange = { eventViewModel.selectedDate = it },
                             placeholder = "Data",
                             singleLine = true,
                             modifier = Modifier.width(120.dp),
@@ -209,16 +217,27 @@ fun createEvent(){
                 }
 
                 Column {
-                    Text(
-                        "Orario",
-                        fontWeight = FontWeight.SemiBold,
-                        style = MaterialTheme.typography.titleSmall
-                    )
+                    Row {
+                        Text(
+                            "Orario",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.headlineLarge
+                        )
+                        if(eventViewModel.orarioSbagliato){
+                            Text(
+                                "*",
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.Red,
+                                modifier = Modifier.padding(10.dp)
+                            )
+                        }
+                    }
 
                     Row {
                         CustomTextField(
-                            value = selectedTime ?: "",
-                            onValueChange = { selectedTime = it },
+                            value = eventViewModel.selectedTime ?: "",
+                            onValueChange = { eventViewModel.selectedTime = it },
                             placeholder = "Orario",
                             singleLine = true,
                             modifier = Modifier.width(120.dp),
@@ -237,16 +256,30 @@ fun createEvent(){
             }
 
             Column {
-                Text(
-                    "Location",
-                    fontWeight = FontWeight.SemiBold,
-                    style = MaterialTheme.typography.titleSmall
-                )
+
+
+
+                Row {
+                    Text(
+                        "Location",
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.headlineLarge
+                    )
+                    if(eventViewModel.locationSbagliata){
+                        Text(
+                            "*",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.Red,
+                            modifier = Modifier.padding(10.dp)
+                        )
+                    }
+                }
 
                 Row {
                     CustomTextField(
-                        value = location,
-                        onValueChange = { location = it },
+                        value = eventViewModel.location,
+                        onValueChange = { eventViewModel.location = it },
                         placeholder = "Location",
                         singleLine = true,
                         modifier = Modifier.width(300.dp)
@@ -272,20 +305,34 @@ fun createEvent(){
 
                 ) {
 
+
+
                 Column (modifier = Modifier.fillMaxWidth(0.5f)){
-                    Text(
-                        "Posti",
-                        fontWeight = FontWeight.SemiBold,
-                        style = MaterialTheme.typography.titleSmall
-                    )
+                    Row {
+                        Text(
+                            "Posti",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.headlineLarge
+                        )
+                        if(eventViewModel.postiSbagliati){
+                            Text(
+                                "*",
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.Red,
+                                modifier = Modifier.padding(10.dp)
+                            )
+                        }
+                    }
+
 
                     Row {
                         CustomTextField(
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            value = posti,
+                            value = eventViewModel.posti,
                             onValueChange = { newValue ->
                                 if (newValue.matches(Regex("^\\d*\\.?\\d*\$")) || newValue.isEmpty()) {
-                                    posti = newValue
+                                    eventViewModel.posti = newValue
                                 } },
                             placeholder = "Posti",
                             singleLine = true,
@@ -296,19 +343,31 @@ fun createEvent(){
                 Spacer(modifier = Modifier.padding(horizontal = 5.dp))
 
                 Column {
-                    Text(
-                        "Prezzo",
-                        fontWeight = FontWeight.SemiBold,
-                        style = MaterialTheme.typography.titleSmall
-                    )
+                    Row {
+                        Text(
+                            "Prezzo",
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.headlineLarge
+                        )
+                        if(eventViewModel.prezzoSbagliato){
+                            Text(
+                                "*",
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.Red,
+                                modifier = Modifier.padding(10.dp)
+                            )
+                        }
+                    }
+
 
                     Row {
                         CustomTextField(
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            value = prezzo,
+                            value = eventViewModel.prezzo,
                             onValueChange = { newValue->
                                 if (newValue.matches(Regex("^\\d*\\.?\\d*\$")) || newValue.isEmpty()) {
-                                    prezzo = newValue
+                                    eventViewModel.prezzo = newValue
                                 }
                             },
                             placeholder = "0.0",
@@ -333,9 +392,9 @@ fun createEvent(){
                         .width(250.dp)
                 )
                 Switch(
-                    checked = ageRestricted,
+                    checked = eventViewModel.ageRestricted,
                     onCheckedChange = {
-                        ageRestricted = it
+                        eventViewModel.ageRestricted = it
                     },
                 )
             }
@@ -350,9 +409,9 @@ fun createEvent(){
                         .width(250.dp)
                 )
                 Switch(
-                    checked = nominativo,
+                    checked = eventViewModel.nominativo,
                     onCheckedChange = {
-                        nominativo = it
+                        eventViewModel.nominativo = it
                     }
                 )
             }
@@ -368,9 +427,9 @@ fun createEvent(){
                         .width(250.dp)
                 )
                 Switch(
-                    checked = riutilizzabile,
+                    checked = eventViewModel.riutilizzabile,
                     onCheckedChange = {
-                        riutilizzabile = it
+                        eventViewModel.riutilizzabile = it
                     }
                 )
             }
@@ -386,8 +445,8 @@ fun createEvent(){
 
                 Row {
                     CustomTextField(
-                        value = descrizione,
-                        onValueChange = { descrizione = it },
+                        value = eventViewModel.descrizione,
+                        onValueChange = { eventViewModel.descrizione = it },
                         placeholder = "Descrizione",
                         singleLine = true,
                         modifier = Modifier.width(300.dp)
@@ -405,25 +464,10 @@ fun createEvent(){
 
             //TODO mettere nel model
             val context = LocalContext.current
-            val storage = remember { AuthStateStorage(context) }
 
             Button(
                 onClick = {
-                    EventService(context).create(
-                        Event(
-                            1,
-                            descrizione,
-                            title = titolo,
-                            date = selectedDate+"T"+selectedTime,
-                            locationId = location.toLong(),
-                            posti = posti.toInt(),
-                            prezzo = prezzo.toDouble(),
-                            restricted = ageRestricted,
-                            organizzatore = UtenteService(context).getUtenteSub() ?: "no",
-                            b_riutilizzabile = riutilizzabile,
-                            b_nominativo = nominativo
-                        )
-                    )
+                    eventViewModel.sendEvent(context)
                 },
                 modifier = Modifier.fillMaxWidth().height(80.dp),
                 shape = RoundedCornerShape(20)

@@ -167,8 +167,8 @@ fun BottomNavigationScreen() {
 //                                style = MaterialTheme.typography.bodyLarge
 //                            )
 //                        }
-                        //DebugTokenScreen()
-                        Orders()
+                        DebugTokenScreen()
+                        //Orders()
                     } //ticket
                     4 -> RegisterScreen()
                          //navControllers[4]

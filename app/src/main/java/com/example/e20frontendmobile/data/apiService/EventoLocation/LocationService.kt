@@ -4,14 +4,21 @@ import android.content.Context
 import com.example.e20frontendmobile.data.apiService.ApiParent
 import com.example.e20frontendmobile.data.apiService.getToken
 import com.example.e20frontendmobile.data.apiService.myHttpClient
+import com.example.e20frontendmobile.model.Event
 import com.example.e20frontendmobile.model.Location
 import io.ktor.client.call.body
 import io.ktor.client.request.*
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 
 class LocationService(private val context: Context) : ApiParent()  {
 
@@ -86,6 +93,30 @@ class LocationService(private val context: Context) : ApiParent()  {
         } catch (e: Exception) {
             println("Errore delete: ${e.message}")
             false
+        }
+    }
+
+    suspend fun search(query: String): List<Location> {
+        val token = getToken(context)
+        return withContext(Dispatchers.IO) { // esegue in background
+            try {
+                val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/location/search/$query"){
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                }
+                if (response.status.value in 200..299) {
+                    val jsonString = response.bodyAsText()
+                    val jsonElement = Json.parseToJsonElement(jsonString).jsonObject
+                    val contentJson = jsonElement["content"]?.toString() ?: "[]"
+                    Json.decodeFromString(ListSerializer(Location.serializer()), contentJson)
+                } else {
+                    println("Errore server: ${response.status.value}")
+                    emptyList()
+                }
+            } catch (e: Exception) {
+                println("Errore nella GET: ${e.message}")
+                emptyList()
+            }
+
         }
     }
 }

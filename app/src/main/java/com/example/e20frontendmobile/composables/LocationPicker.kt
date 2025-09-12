@@ -1,5 +1,6 @@
-package com.example.e20frontendmobile.data
+package com.example.e20frontendmobile.composables
 
+import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Canvas
@@ -21,18 +22,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
-import com.example.e20frontendmobile.composables.CustomTextField
-import com.example.e20frontendmobile.composables.CustomizableSearchBar
 import com.example.e20frontendmobile.data.apiService.EventoLocation.LocationService
 import com.example.e20frontendmobile.model.Location
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
+import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.Overlay
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
@@ -43,7 +44,7 @@ fun LocationPickerPopup(
 ) {
     val context = LocalContext.current
     val activity = context as ComponentActivity
-    val LOCATION_PERMISSION = android.Manifest.permission.ACCESS_FINE_LOCATION
+    val LOCATION_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
 
     var selectedLocation by remember { mutableStateOf<GeoPoint?>(null) }
     var searchQuery by remember { mutableStateOf("") }
@@ -177,15 +178,15 @@ fun LocationPickerPopup(
                 factory = { ctx ->
                     MapView(ctx).apply {
                         mapViewRef = this
-                        org.osmdroid.config.Configuration.getInstance()
+                        Configuration.getInstance()
                             .load(ctx, ctx.getSharedPreferences("osmdroid", Context.MODE_PRIVATE))
-                        setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
+                        setTileSource(TileSourceFactory.MAPNIK)
                         setMultiTouchControls(true)
                         controller.setZoom(10.0)
                         controller.setCenter(GeoPoint(45.4641, 9.1919))
 
                         // Overlay per tap sulla mappa
-                        val touchOverlay = object : org.osmdroid.views.overlay.Overlay() {
+                        val touchOverlay = object : Overlay() {
                             override fun onSingleTapConfirmed(
                                 e: MotionEvent?,
                                 mapView: MapView?

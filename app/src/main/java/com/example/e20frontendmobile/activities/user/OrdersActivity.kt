@@ -47,6 +47,7 @@ import com.example.e20frontendmobile.model.Ordine
 import com.example.e20frontendmobile.model.Ticket
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import com.example.e20frontendmobile.viewModels.OrdineViewModel
+import kotlinx.datetime.LocalDateTime
 
 @Composable
 fun OrdersList(ordineViewModel: OrdineViewModel = viewModel()) {
@@ -144,7 +145,7 @@ fun ParticipantRow(participant: Ticket) {
             Column(modifier = Modifier.weight(1f)) {
                 participant.nome?.let { Text(it, fontWeight = FontWeight.Medium) }
                 participant.email?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
-                participant.dataNascita?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+                participant.dataNascita?.let { Text(it.split("T")[0], style = MaterialTheme.typography.bodySmall) }
             }
             Box(
                 modifier = Modifier

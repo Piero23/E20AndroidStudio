@@ -2,6 +2,7 @@ package com.example.e20frontendmobile.activities.evento
 
 import android.icu.util.Calendar
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,8 +10,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -23,8 +28,13 @@ import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import com.example.e20frontendmobile.R
 import com.example.e20frontendmobile.composables.CustomTextField
 import com.example.e20frontendmobile.composables.IconButtonType1
+import com.example.e20frontendmobile.composables.LocationPickerPopup
 import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
 import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
 import com.example.e20frontendmobile.data.auth.AuthStateStorage
@@ -77,6 +88,12 @@ fun createEvent(eventViewModel: EventViewModel){
 
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
+    var showLocationPicker by remember { mutableStateOf(false) }
+
+    var showSearch by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
 
     val currentTime = Calendar.getInstance()
     val timePickerState = rememberTimePickerState(
@@ -114,6 +131,10 @@ fun createEvent(eventViewModel: EventViewModel){
                 showTimePicker = false
             }
         )
+    }
+
+    if (showLocationPicker){
+        LocationPickerPopup {  }
     }
 
     Column (
@@ -279,19 +300,74 @@ fun createEvent(eventViewModel: EventViewModel){
                 Row {
                     CustomTextField(
                         value = eventViewModel.location,
-                        onValueChange = { eventViewModel.location = it },
+                        onValueChange = {
+                            eventViewModel.location = it
+                            eventViewModel.searchLocations(context, it)
+                                        showSearch = true},
                         placeholder = "Location",
                         singleLine = true,
                         modifier = Modifier.width(300.dp)
                     )
 
                     IconButtonType1(
-                        onClick = { },
+                        onClick = { showLocationPicker = true},
                         icon = Icons.Default.Place,
                         iconDescription = "",
                         iconSize = 20.dp,
                         modifier = Modifier.padding(10.dp)
                     )
+                }
+                if (eventViewModel.location.isNotEmpty() && showSearch) {
+                    Card(
+                        modifier = Modifier
+                            .width(300.dp)
+                            .padding(top = 2.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        when {
+                            eventViewModel.loading -> {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(10.dp),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(20.dp),
+                                        strokeWidth = 2.dp
+                                    )
+                                    Spacer(Modifier.width(8.dp))
+                                    Text("Ricerca in corso…")
+                                }
+                            }
+                            eventViewModel.locations.isNotEmpty() -> {
+                                LazyColumn(
+                                    modifier = Modifier.heightIn(max = 200.dp)
+                                ) {
+                                    items(eventViewModel.locations) { option ->
+                                        Text(
+                                            text = option.nome ?: "",
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    eventViewModel.location = option.nome ?: ""
+                                                    eventViewModel.clearLocations()
+                                                    showSearch = false
+                                                }
+                                                .padding(10.dp)
+                                        )
+                                    }
+                                }
+                            }
+                            else -> {
+                                Text(
+                                    "Nessun risultato",
+                                    modifier = Modifier.padding(10.dp)
+                                )
+                            }
+                        }
+                    }
                 }
             }
 

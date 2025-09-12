@@ -16,7 +16,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.example.e20frontendmobile.R
+import com.example.e20frontendmobile.data.apiService.EventoLocation.LocationService
 import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
+import com.example.e20frontendmobile.model.Location
 import kotlinx.datetime.LocalDateTime
 
 class EventViewModel : ViewModel() {
@@ -31,6 +33,10 @@ class EventViewModel : ViewModel() {
     var descrizione by mutableStateOf("")
     var selectedDate by  mutableStateOf<String?>(null)
     var selectedTime by mutableStateOf<String?>(null)
+
+    var locations by mutableStateOf<List<Location>>(emptyList())
+        private set
+
 
 
     var nomeSbagliato by mutableStateOf(false)
@@ -70,6 +76,10 @@ class EventViewModel : ViewModel() {
         selectedEvent = null
     }
 
+    fun clearLocations(){
+        locations = emptyList()
+    }
+
     fun search(context: Context, newQuery: String) {
         query = newQuery
         loading = true
@@ -107,6 +117,20 @@ class EventViewModel : ViewModel() {
 
     fun refresh(context: Context) {
         search(context, query)
+    }
+
+    fun searchLocations(context: Context, query: String){
+        viewModelScope.launch {
+            loading = true
+            try {
+                val locationService = LocationService(context)
+                locations=locationService.search(query)
+            } catch (e: Exception) {
+                locations = emptyList()
+            } finally {
+                loading = false
+            }
+        }
     }
 
 

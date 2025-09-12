@@ -17,7 +17,7 @@ class PreferitiService(private val context: Context) : ApiParent() {
     /**
      * Recupera tutti gli eventi preferiti di un utente
      */
-    suspend fun getAllPreferiti(utenteId: String?): List<Event>? {
+    suspend fun getAllPreferiti(utenteId: String?): List<Event> {
         val token = getToken(context)
         return try {
             val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/utente/$utenteId/preferiti") {
@@ -26,7 +26,7 @@ class PreferitiService(private val context: Context) : ApiParent() {
             response.body()
         } catch (e: Exception) {
             println("Errore getAllPreferiti: ${e.message}")
-            null
+            listOf()
         }
     }
 

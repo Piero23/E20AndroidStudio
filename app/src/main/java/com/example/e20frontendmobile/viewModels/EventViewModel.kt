@@ -15,6 +15,8 @@ import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.core.net.toUri
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import com.example.e20frontendmobile.R
 import com.example.e20frontendmobile.apiService.PreferitiService
 import com.example.e20frontendmobile.data.apiService.EventoLocation.LocationService
@@ -289,9 +291,13 @@ class EventViewModel : ViewModel() {
     }
 
     fun checkIfPreferito(context: Context): Boolean {
+
+        val storage =  AuthStateStorage(context)
+        val userInfo = storage.getUserInfo()
+
         var allpreferiti: List<Event> = listOf()
         viewModelScope.launch {
-            allpreferiti = PreferitiService(context).getAllPreferiti(UtenteService(context).getUtenteSub())!!
+            allpreferiti = PreferitiService(context).getAllPreferiti(userInfo?.sub)
         }
         for (item in allpreferiti){
             if (item.id== selectedEvent?.id) return true

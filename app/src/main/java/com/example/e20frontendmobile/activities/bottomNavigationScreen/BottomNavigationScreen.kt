@@ -45,6 +45,7 @@ import com.example.e20frontendmobile.activities.user.Orders
 import com.example.e20frontendmobile.data.auth.AuthActivity
 import com.example.e20frontendmobile.data.auth.AuthStateStorage
 import com.example.e20frontendmobile.viewModels.EventViewModel
+import com.example.e20frontendmobile.viewModels.UserViewModel
 
 
 @ExperimentalMaterial3Api
@@ -63,6 +64,7 @@ fun BottomNavigationScreen() {
         )
 
         val eventViewModel: EventViewModel = viewModel()
+        val utenteViewModel: UserViewModel = viewModel()
 
         Scaffold(
             bottomBar = {
@@ -92,7 +94,7 @@ fun BottomNavigationScreen() {
                                 arguments = listOf(navArgument("query") { type = NavType.StringType })
                             ) { backStackEntry ->
                                 val query = backStackEntry.arguments?.getString("query") ?: ""
-                                ShowDiscovery(navControllers[0], query, eventViewModel)
+                                ShowDiscovery(navControllers[0], query, eventViewModel, utenteViewModel)
                             }
                             composable("card"/*, arguments =
                                 listOf(navArgument("id") { type = NavType.StringType})*/) {
@@ -124,7 +126,7 @@ fun BottomNavigationScreen() {
                             exitTransition = { ExitTransition.None }
                         ) {
                             composable("discovery") {
-                                ShowDiscovery(navControllers[1], eventViewModel = eventViewModel)
+                                ShowDiscovery(navControllers[1], eventViewModel = eventViewModel, userViewModel = utenteViewModel)
                             }
                             composable("card"/*, arguments =
                                 listOf(navArgument("id") { type = NavType.StringType})*/) {

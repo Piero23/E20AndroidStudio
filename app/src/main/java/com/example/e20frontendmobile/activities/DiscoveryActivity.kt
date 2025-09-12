@@ -35,31 +35,40 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.e20frontendmobile.activities.evento.eventCard
 import com.example.e20frontendmobile.composables.CustomizableSearchBar
+import com.example.e20frontendmobile.model.Event
 import com.example.e20frontendmobile.viewModels.EventViewModel
+import com.example.e20frontendmobile.viewModels.UserViewModel
 
 @Composable
 fun ShowDiscovery(
     navController: NavHostController,
     inputQuery: String = "",
-    eventViewModel: EventViewModel
+    eventViewModel: EventViewModel,
+    userViewModel: UserViewModel
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Eventi", "Profili")
 
     var query by remember { mutableStateOf(inputQuery) }
-    val items = eventViewModel.items
+    val itemsEventi = eventViewModel.items
+    val itemsProfile = userViewModel.items
 
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        eventViewModel.search(context, query, )
+        eventViewModel.search(context, query)
     }
 
     Column {
         CustomizableSearchBar(
             query = query,
             onQueryChange = { query = it },
-            onSearch = { eventViewModel.search(context, query) },
+            onSearch = {
+                if (selectedTabIndex==0)
+                    eventViewModel.search(context, query)
+                else
+                    userViewModel.search(context, query)
+                       },
             searchResults = listOf(),
             onResultClick = { query = it },
             placeholder = { Text("Cerca un evento...") },
@@ -95,12 +104,24 @@ fun ShowDiscovery(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(
-                items = items,
-                key = { it.id }
-            ) { resultItem ->
-                Box(Modifier.padding(top = 25.dp)) {
-                    eventCard(resultItem, navController, eventViewModel)
+            if (selectedTabIndex==0){
+                items(
+                    items = itemsEventi,
+                    key = { it.id }
+                ) { resultItem ->
+                    Box(Modifier.padding(top = 25.dp)) {
+                        eventCard(resultItem, navController, eventViewModel)
+                    }
+                }
+            }
+            else {
+                items(
+                    items = itemsProfile,
+                    key = { it.id }
+                ) { resultItem ->
+                    Box(Modifier.padding(top = 25.dp)) {
+                        //TODO creare utente card
+                    }
                 }
             }
         }

@@ -134,7 +134,7 @@ fun createEvent(eventViewModel: EventViewModel){
     }
 
     if (showLocationPicker){
-        LocationPickerPopup {  }
+        LocationPickerPopup { showLocationPicker = false }
     }
 
     Column (

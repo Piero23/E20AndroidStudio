@@ -446,7 +446,7 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     eventViewModel.selectedEventLocation!!.nome?.let { Text(it, fontSize = 16.sp) }
-                    eventViewModel.selectedLocationAddress?.road?.let { Text(it, fontSize = 16.sp) }
+                    Text("${eventViewModel.selectedLocationAddress?.road}, ${eventViewModel.selectedLocationAddress!!.houseNumber}")
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     eventViewModel.selectedLocationAddress?.village?.let { Text(it, fontSize = 16.sp) }
@@ -462,7 +462,24 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                 .padding(15.dp, 10.dp, 15.dp, 50.dp)
                 .clipToBounds()
         ) {
-            MapScreen(45.0755969, 7.638332)
+            if (eventViewModel.selectedEventLocation!=null){
+                val lat = eventViewModel.selectedEventLocation?.position.toString().split(",")[0].toDouble()
+                val lon = eventViewModel.selectedEventLocation?.position.toString().split(",")[1].toDouble()
+                MapScreen(lat, lon)
+            }
+            else{
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                        .height(400.dp)
+                        .padding(15.dp, 10.dp, 15.dp, 50.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row{
+                        CircularProgressIndicator()
+                        Text("Caricamento mappa")
+                    }
+                }
+            }
         }
     }
 }

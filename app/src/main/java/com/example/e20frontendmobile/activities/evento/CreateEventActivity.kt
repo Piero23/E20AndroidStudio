@@ -41,6 +41,7 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -408,7 +409,8 @@ fun createEvent(eventViewModel: EventViewModel = viewModel (), edit: Boolean = f
                                         if (address != null) {
                                             Text(
                                                 text = """${option.nome} 
-                                                    |${address?.road}, ${address?.village}, ${address.postcode}""".trimMargin() ?: "",
+                                                    |${address?.road}, ${address.houseNumber} 
+                                                    |${address?.village}, ${address.postcode}""".trimMargin() ?: "",
                                                 modifier = Modifier
                                                     .fillMaxWidth()
                                                     .clickable {
@@ -419,6 +421,9 @@ fun createEvent(eventViewModel: EventViewModel = viewModel (), edit: Boolean = f
                                                     }
                                                     .padding(10.dp)
                                             )
+                                            if (index != eventViewModel.locations.size-1){
+                                                HorizontalDivider()
+                                            }
                                         }
                                     }
                                 }

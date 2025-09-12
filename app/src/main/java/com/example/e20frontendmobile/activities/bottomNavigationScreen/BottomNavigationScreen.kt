@@ -174,7 +174,7 @@ fun BottomNavigationScreen() {
                         )
                         {
                             composable(route = "orders") {
-                                DebugTokenScreen()
+                                Orders()
                             }
                         }
                     } //TODO rimpiazzare con gli ordini
@@ -226,7 +226,6 @@ fun DebugTokenScreen() {
         }
 
         Button(onClick = {
-            //println("MAAAAAAAMMAAAAA"+getMe(context))
         }) {
             Text("Testa")
         }

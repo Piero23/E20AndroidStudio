@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import com.example.e20frontendmobile.R
 import com.example.e20frontendmobile.data.apiService.EventoLocation.LocationService
 import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
+import com.example.e20frontendmobile.model.Address
 import com.example.e20frontendmobile.model.Location
 import kotlinx.datetime.LocalDateTime
 
@@ -35,9 +36,15 @@ class EventViewModel : ViewModel() {
     var selectedDate by  mutableStateOf<String?>(null)
     var selectedTime by mutableStateOf<String?>(null)
 
-    var spotsLeft: Int by mutableIntStateOf(0)
+    var spotsLeft: Int by mutableIntStateOf(-1)
 
+    var selectedEventLocation: Location? by mutableStateOf(null)
+
+    var selectedLocationAddress: Address? by mutableStateOf(null)
     var locations by mutableStateOf<List<Location>>(emptyList())
+        private set
+
+    var locationsAdress by mutableStateOf<List<Address>>(emptyList())
         private set
 
 
@@ -128,6 +135,9 @@ class EventViewModel : ViewModel() {
             try {
                 val locationService = LocationService(context)
                 locations=locationService.search(query)
+                locationsAdress = locations.mapNotNull { loc ->
+                    loc.position?.let { locationService.getAddress(it) }
+                }
             } catch (e: Exception) {
                 locations = emptyList()
             } finally {
@@ -144,6 +154,22 @@ class EventViewModel : ViewModel() {
                 spotsLeft = eventService.spotsLeft(selectedEvent?.id ?: -1)
             } catch (e: Exception) {
                 spotsLeft = -1
+            } finally {
+                loading = false
+            }
+        }
+    }
+
+    fun getLocationFromEvent(context: Context){
+        viewModelScope.launch {
+            loading = true
+            try {
+                val locationService = LocationService(context)
+                println(selectedEvent?.locationId ?: -1)
+                selectedEventLocation=locationService.findById(selectedEvent?.locationId ?: -1)
+                selectedLocationAddress = locationService.getAddress(selectedEventLocation?.position.toString())
+            } catch (e: Exception) {
+                selectedEventLocation = null
             } finally {
                 loading = false
             }

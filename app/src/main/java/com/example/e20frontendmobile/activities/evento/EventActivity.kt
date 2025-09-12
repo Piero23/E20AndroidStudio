@@ -118,6 +118,7 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
         val service = EventService(context)
         imageBitmap = service.getImage(event.id)
         eventViewModel.spotsLeft(context)
+        eventViewModel.getLocationFromEvent(context)
     }
 
     var hasCalendarPermission by remember { mutableStateOf(false) }
@@ -251,7 +252,7 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                             toggledBell = !toggledBell
                             if (toggledBell) {
                                 calendarEventId = addEventToCalendar(context, event.title, event.date);
-                                saveEventId(context, calendarEventId ?: -1) //TODO togliere sto -1 che fa schifo
+                                saveEventId(context, calendarEventId ?: -1)
                                 calendarEventId?.let {
                                     context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit().putLong("event_id", it).apply()
                                 }
@@ -309,7 +310,7 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleMedium
                 )
-                if (eventViewModel.loading) {
+                if (eventViewModel.spotsLeft==-1) {
                     CircularProgressIndicator(
                         modifier = Modifier
                             .size(24.dp)
@@ -407,20 +408,32 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                 fontWeight = FontWeight.Bold
             )
         }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 15.dp, end = 15.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text("Via di tua mamma", fontSize = 16.sp)
-                Text("118", fontSize = 16.sp)
+        if (eventViewModel.selectedEventLocation==null){
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Row{
+                    CircularProgressIndicator()
+                    Text("Caricamento")
+                }
             }
-            Column(horizontalAlignment = Alignment.End) {
-                Text("Napoli (NA)", fontSize = 16.sp)
-                Text("88888", fontSize = 16.sp)
+        }
+        else{
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 15.dp, end = 15.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    eventViewModel.selectedEventLocation!!.nome?.let { Text(it, fontSize = 16.sp) }
+                    eventViewModel.selectedLocationAddress?.road?.let { Text(it, fontSize = 16.sp) }
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    eventViewModel.selectedLocationAddress?.village?.let { Text(it, fontSize = 16.sp) }
+                    eventViewModel.selectedLocationAddress?.postcode?.let { Text(it, fontSize = 16.sp) }
+                }
             }
         }
 
@@ -465,7 +478,10 @@ fun MapScreen(latitude: Double, longitude: Double) {
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator()
+                Row{
+                    CircularProgressIndicator()
+                    Text("Caricamento mappa")
+                }
             }
         }
 

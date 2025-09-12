@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -345,18 +346,23 @@ fun createEvent(eventViewModel: EventViewModel){
                                 LazyColumn(
                                     modifier = Modifier.heightIn(max = 200.dp)
                                 ) {
-                                    items(eventViewModel.locations) { option ->
-                                        Text(
-                                            text = option.nome ?: "",
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .clickable {
-                                                    eventViewModel.location = option.nome ?: ""
-                                                    eventViewModel.clearLocations()
-                                                    showSearch = false
-                                                }
-                                                .padding(10.dp)
-                                        )
+                                    itemsIndexed(eventViewModel.locations) { index, option ->
+                                        val address = eventViewModel.locationsAdress.getOrNull(index)
+
+                                        if (address != null) {
+                                            Text(
+                                                text = """${option.nome} 
+                                                    |${address?.road}, ${address?.village}, ${address.postcode}""".trimMargin() ?: "",
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .clickable {
+                                                        eventViewModel.location = option.nome ?: ""
+                                                        eventViewModel.clearLocations()
+                                                        showSearch = false
+                                                    }
+                                                    .padding(10.dp)
+                                            )
+                                        }
                                     }
                                 }
                             }

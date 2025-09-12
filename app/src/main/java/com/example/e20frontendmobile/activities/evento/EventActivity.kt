@@ -76,6 +76,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.example.e20frontendmobile.R
 import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
+import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
 import com.example.e20frontendmobile.model.Event
 import com.example.e20frontendmobile.viewModels.EventViewModel
 import io.ktor.http.content.LastModifiedVersion
@@ -119,6 +120,7 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
         imageBitmap = service.getImage(event.id)
         eventViewModel.spotsLeft(context)
         eventViewModel.getLocationFromEvent(context)
+        toggledHeart = eventViewModel.checkIfPreferito(context)
     }
 
     var hasCalendarPermission by remember { mutableStateOf(false) }
@@ -230,7 +232,7 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                 }
 
                 Column(Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp)) {
-                    if (isAdmin) {
+                    if (isAdmin && eventViewModel.checkEventManager(context)) {
                         IconButton(onClick = { }) {
                             Icon(
                                 Icons.Filled.Create,
@@ -265,7 +267,7 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                                 calendarEventId = null
                                 Toast.makeText(context, "Evento rimosso dal calendario", Toast.LENGTH_SHORT).show()
                             }
-                        },) {
+                        }) {
                             Icon(
                                 Icons.Filled.Notifications,
                                 contentDescription = "Ricordamelo",
@@ -273,7 +275,21 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                                 tint = if (toggledBell) Color.Yellow else Color.Black
                             )
                         }
-                        IconButton(onClick = { toggledHeart = !toggledHeart }) {
+                        IconButton(onClick = {
+                            if (UtenteService(context).getUtenteSub()!="no"){
+                                toggledHeart = !toggledHeart
+                                if (toggledHeart) {
+                                    eventViewModel.salvaPreferito(context)
+                                    Toast.makeText(context, "Evento aggiunto ai preferiti", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    eventViewModel.removePreferiti(context)
+                                    Toast.makeText(context, "Evento rimosso dai preferiti", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                            else{
+                                Toast.makeText(context, "Devi essere registrato", Toast.LENGTH_SHORT).show()
+                            }
+                        }) {
                             Icon(
                                 Icons.Filled.FavoriteBorder,
                                 contentDescription = "Salva",

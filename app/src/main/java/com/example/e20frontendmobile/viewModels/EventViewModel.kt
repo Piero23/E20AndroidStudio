@@ -11,14 +11,12 @@ import kotlinx.coroutines.launch
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import com.example.e20frontendmobile.R
+import com.example.e20frontendmobile.apiService.PreferitiService
 import com.example.e20frontendmobile.data.apiService.EventoLocation.LocationService
 import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
+import com.example.e20frontendmobile.data.auth.AuthStateStorage
 import com.example.e20frontendmobile.model.Address
 import com.example.e20frontendmobile.model.Location
 import kotlinx.datetime.LocalDateTime
@@ -241,7 +239,41 @@ class EventViewModel : ViewModel() {
                     )
                 }
             }
+            //TODO clear campi
         }
+    }
+
+    fun salvaPreferito(context: Context){
+        viewModelScope.launch {
+            PreferitiService(context).aggiungiAiPreferiti(
+                AuthStateStorage(context).getUserInfo()?.sub,
+                selectedEvent!!.id
+            )
+        }
+    }
+
+    fun removePreferiti(context: Context){
+        viewModelScope.launch {
+            PreferitiService(context).rimuoviDaiPreferiti(
+                AuthStateStorage(context).getUserInfo()?.sub,
+                selectedEvent!!.id
+            )
+        }
+    }
+
+    fun checkEventManager(context: Context): Boolean{
+        return selectedEvent?.organizzatore == UtenteService(context).getUtenteSub()
+    }
+
+    fun checkIfPreferito(context: Context): Boolean {
+        var allpreferiti: List<Event> = listOf()
+        viewModelScope.launch {
+            allpreferiti = PreferitiService(context).getAllPreferiti(UtenteService(context).getUtenteSub())!!
+        }
+        for (item in allpreferiti){
+            if (item.id== selectedEvent?.id) return true
+        }
+        return false
     }
 
 }

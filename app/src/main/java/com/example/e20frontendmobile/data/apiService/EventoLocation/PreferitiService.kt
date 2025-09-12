@@ -41,7 +41,6 @@ class PreferitiService(private val context: Context) : ApiParent() {
                 contentType(ContentType.Application.Json)
                 setBody(mapOf("eventoId" to eventoId))
             }
-            println("MUCCA" + response.status.value)
             println("$username  $eventoId" )
             response.status.value in 200..299
         } catch (e: Exception) {

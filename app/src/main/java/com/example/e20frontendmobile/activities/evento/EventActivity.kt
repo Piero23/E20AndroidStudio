@@ -426,7 +426,7 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                 fontWeight = FontWeight.Bold
             )
         }
-        if (eventViewModel.selectedEventLocation==null){
+        if (eventViewModel.selectedEventLocation==null || eventViewModel.selectedLocationAddress==null){
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center

@@ -296,11 +296,13 @@ class EventViewModel : ViewModel() {
         val userInfo = storage.getUserInfo()
 
         var allpreferiti: List<Event> = listOf()
-        viewModelScope.launch {
-            allpreferiti = PreferitiService(context).getAllPreferiti(userInfo?.sub)
-        }
-        for (item in allpreferiti){
-            if (item.id== selectedEvent?.id) return true
+        if (userInfo?.sub!=null){
+            viewModelScope.launch {
+                allpreferiti = PreferitiService(context).getAllPreferiti(userInfo?.sub)
+            }
+            for (item in allpreferiti){
+                if (item.id== selectedEvent?.id) return true
+            }
         }
         return false
     }

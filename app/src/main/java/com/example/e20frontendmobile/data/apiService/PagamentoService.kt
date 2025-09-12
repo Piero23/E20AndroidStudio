@@ -29,6 +29,7 @@ class PagamentoService(private val context: Context): ApiParent() {
     ): String? = runBlocking {
         val token = getToken(context)
         return@runBlocking try {
+            println("cazzopalle $biglietti")
             val body = buildJsonObject {
                 put("utenteId", utenteId.toString())
                 put("valuta", valuta)

@@ -237,13 +237,5 @@ class EventViewModel : ViewModel() {
 
         return Uri.fromFile(file)
     }
-
-
-    suspend fun getSelectedeventImage(context : Context): Bitmap? {
-        val service = EventService(context)
-        var imageBitmap = service.getImage((selectedEvent?.id ?: ImageBitmap) as Long)
-        return imageBitmap
-    }
-
 }
 

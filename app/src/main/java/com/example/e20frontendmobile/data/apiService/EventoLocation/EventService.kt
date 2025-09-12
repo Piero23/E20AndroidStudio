@@ -46,16 +46,21 @@ class EventService(private val context: Context) : ApiParent() {
     }
 
     // 🔹 GET all events
-    fun findAll(): List<Event>? = runBlocking {
-        val token = getToken(context)
+    fun findAll(): List<Event> = runBlocking {
         try {
-            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/evento/") {
-                header(HttpHeaders.Authorization, "Bearer $token")
+            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/evento")
+            if (response.status.value in 200..299) {
+                val jsonString = response.bodyAsText()
+                val jsonElement = Json.parseToJsonElement(jsonString).jsonObject
+                val contentJson = jsonElement["content"]?.toString() ?: "[]"
+                Json.decodeFromString(ListSerializer(Event.serializer()), contentJson)
+            } else {
+                println("Errore server: ${response.status.value}")
+                emptyList()
             }
-            return@runBlocking if (response.status.value in 200..299) response.body() else null
         } catch (e: Exception) {
             println("Errore findAll: ${e.message}")
-            null
+            listOf()
         }
     }
 

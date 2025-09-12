@@ -2,6 +2,7 @@ package com.example.e20frontendmobile
 
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.LinearEasing
@@ -336,22 +337,24 @@ fun mainFun(navController: NavHostController, eventViewModel: EventViewModel){
             Spacer(modifier = Modifier.height(30.dp))
             Column {
 
-//                var items by  remember { mutableStateOf<List<Event>>(listOf())}
-//
-//                var listaEventi = items
-//
-//                val context = LocalContext.current
-//                LaunchedEffect(true) {
-//                    items = EventService(context).findAll()
-//                }
-//
-//                EventCarousel(28.sp,
-//                    "Eventi in voga",
-//                    navController ,
-//                    eventViewModel,listaEventi)
-//                EventCarousel(28.sp, "Partecipano i tuoi amici", navController, eventViewModel)
-//                EventCarousel(28.sp, "Partecipano i tuoi amici", navController, eventViewModel)
-//                EventCarousel(28.sp, "Partecipano i tuoi amici", navController, eventViewModel)
+                var items by  remember { mutableStateOf<List<Event>>(listOf())}
+
+                var listaEventi = items
+
+                val context = LocalContext.current
+                LaunchedEffect(context) {
+                    items = EventService(context).findAll()
+
+                    Log.d("Carousel" ,items.toString())
+                }
+
+                Log.d("Carousel" ,items.toString())
+
+                EventCarousel(28.sp,
+                    "Eventi in voga",
+                    navController ,
+                    eventViewModel,listaEventi)
+                EventCarousel(28.sp, "Partecipano i tuoi amici", navController, eventViewModel , items)
             }
         }
 

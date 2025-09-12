@@ -33,7 +33,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.e20frontendmobile.activities.user.MainProfileScreen
 import com.example.e20frontendmobile.activities.evento.ShowCheckout
 import com.example.e20frontendmobile.activities.ShowDiscovery
 import com.example.e20frontendmobile.activities.evento.ShowEvent
@@ -43,7 +42,6 @@ import com.example.e20frontendmobile.activities.bottomNavigationScreen.bottomNav
 import com.example.e20frontendmobile.mainFun
 import com.example.e20frontendmobile.activities.qrScanner.QRCodeScannerWithBottomSheet
 import com.example.e20frontendmobile.activities.user.Orders
-import com.example.e20frontendmobile.activities.user.RegisterScreen
 import com.example.e20frontendmobile.data.auth.AuthActivity
 import com.example.e20frontendmobile.data.auth.AuthStateStorage
 import com.example.e20frontendmobile.viewModels.EventViewModel
@@ -112,6 +110,9 @@ fun BottomNavigationScreen() {
                             composable("scanner"){
                                 QRCodeScannerWithBottomSheet()
                             }
+                            composable ("edit") {
+                                createEvent(eventViewModel)
+                            }
                         }
                     }
                     1 -> {
@@ -141,9 +142,12 @@ fun BottomNavigationScreen() {
                             composable("scanner"){
                                 QRCodeScannerWithBottomSheet()
                             }
+                            composable ("edit") {
+                                createEvent(eventViewModel,true)
+                            }
                         }
                     }
-                    2 -> createEvent(eventViewModel)//PhotoPickerExample()//admin
+                    2 -> createEvent()//PhotoPickerExample()//admin
                     3 -> {
 //                      Orders()
 

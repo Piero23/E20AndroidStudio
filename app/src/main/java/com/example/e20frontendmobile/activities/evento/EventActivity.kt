@@ -87,11 +87,8 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
 
     var toggledBell by rememberSaveable { mutableStateOf(false) }
     var toggledHeart by rememberSaveable { mutableStateOf(false) }
-
     var calendarEventId by remember { mutableStateOf<Long?>(null) }
-
     val context = LocalContext.current
-
     val event = eventViewModel.selectedEvent
 
     if (event == null) {
@@ -214,7 +211,9 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
 
                 Column(Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp)) {
                     if (isAdmin) {
-                        IconButton(onClick = { }) {
+                        IconButton(onClick = {
+                            navController.navigate("edit")
+                        }) {
                             Icon(
                                 Icons.Filled.Create,
                                 contentDescription = "Modifica",

@@ -24,17 +24,6 @@ import java.io.File
 
 class EventViewModel : ViewModel() {
 
-    var titolo by   mutableStateOf("")
-    var location by  mutableStateOf("")
-    var posti by   mutableStateOf("")
-    var prezzo by   mutableStateOf("")
-    var ageRestricted by mutableStateOf(false)
-    var nominativo by  mutableStateOf(false)
-    var riutilizzabile by  mutableStateOf(false)
-    var descrizione by mutableStateOf("")
-    var selectedDate by  mutableStateOf<String?>(null)
-    var selectedTime by mutableStateOf<String?>(null)
-
     var nomeSbagliato by mutableStateOf(false)
     var locationSbagliata by mutableStateOf(false)
     var prezzoSbagliato by mutableStateOf(false)
@@ -110,11 +99,35 @@ class EventViewModel : ViewModel() {
     }
 
     //-----------------------CREAZIONE EVENTO------------------------------
+    //TODO inizializzare alle variabili di evento
+
+    var edit by mutableStateOf(false)
+    var titolo by   mutableStateOf(selectedEvent?.title ?: "Minchia")
+
+    fun edit(){
+        titolo
+        location
+        posti
+        prezzo
+        ageRestricted
+        nominativo
+        riutilizzabile
+        descrizione
+        //TODO RISOLVERE DATA
+        selectedDate
+        selectedTime
+    }
+    var location by  mutableStateOf("")
+    var posti by   mutableStateOf("")
+    var prezzo by   mutableStateOf("")
+    var ageRestricted by mutableStateOf(false)
+    var nominativo by  mutableStateOf(false)
+    var riutilizzabile by  mutableStateOf(false)
+    var descrizione by mutableStateOf("")
+    var selectedDate by  mutableStateOf<String?>(null)
+    var selectedTime by mutableStateOf<String?>(null)
 
     fun verify(){
-
-
-
         if (titolo == "") {
             nomeSbagliato = true
         }
@@ -141,7 +154,6 @@ class EventViewModel : ViewModel() {
         }
     }
 
-
     fun resetDati(){
         nomeSbagliato = false
         locationSbagliata = false
@@ -153,8 +165,8 @@ class EventViewModel : ViewModel() {
 
     fun sendEvent(context : Context){
         resetDati()
-
         verify()
+
         if( !(dataSbagliata || postiSbagliati || prezzoSbagliato || locationSbagliata || nomeSbagliato || orarioSbagliato)) {
             viewModelScope.launch {
                 var evento = EventService(context).create(
@@ -172,18 +184,16 @@ class EventViewModel : ViewModel() {
                         b_nominativo = nominativo
                     )
                 )
-
-
                 EventService(context).uploadImageEvento(evento?.id ?: 0,uriToFile(context))
             }
         }
     }
 
+    //--------------------------AGGIORNAMENTO-------------------
+
+
     //--------------------------IMMAGINI------------------------
     var createSelectedImage by mutableStateOf("".toUri())
-
-
-
     fun uriToFile(context: Context): File {
         val inputStream = context.contentResolver.openInputStream(createSelectedImage)!!
         val file = File(context.cacheDir, "upload_image.jpg")

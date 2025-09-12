@@ -12,6 +12,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -33,6 +34,8 @@ class EventViewModel : ViewModel() {
     var descrizione by mutableStateOf("")
     var selectedDate by  mutableStateOf<String?>(null)
     var selectedTime by mutableStateOf<String?>(null)
+
+    var spotsLeft: Int by mutableIntStateOf(0)
 
     var locations by mutableStateOf<List<Location>>(emptyList())
         private set
@@ -127,6 +130,20 @@ class EventViewModel : ViewModel() {
                 locations=locationService.search(query)
             } catch (e: Exception) {
                 locations = emptyList()
+            } finally {
+                loading = false
+            }
+        }
+    }
+
+    fun spotsLeft(context: Context){
+        viewModelScope.launch {
+            loading = true
+            try {
+                val eventService = EventService(context)
+                spotsLeft = eventService.spotsLeft(selectedEvent?.id ?: -1)
+            } catch (e: Exception) {
+                spotsLeft = -1
             } finally {
                 loading = false
             }

@@ -338,7 +338,7 @@ fun createEvent(eventViewModel: EventViewModel){
                                         strokeWidth = 2.dp
                                     )
                                     Spacer(Modifier.width(8.dp))
-                                    Text("Ricerca in corso…")
+                                    Text("Ricerca in corso")
                                 }
                             }
                             eventViewModel.locations.isNotEmpty() -> {

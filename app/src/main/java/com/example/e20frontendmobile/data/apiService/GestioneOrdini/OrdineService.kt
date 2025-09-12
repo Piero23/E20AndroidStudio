@@ -16,6 +16,8 @@ import java.util.UUID
 
 class OrdineService(private val context: Context) : ApiParent()  {
 
+
+
     // 🔹 GET all orders
     fun findAll(): List<Ordine>? = runBlocking {
         val token = getToken(context)

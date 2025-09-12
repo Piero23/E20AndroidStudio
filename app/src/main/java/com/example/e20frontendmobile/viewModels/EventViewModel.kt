@@ -11,13 +11,16 @@ import kotlinx.coroutines.launch
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.core.net.toUri
 import com.example.e20frontendmobile.R
 import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
 import kotlinx.datetime.LocalDateTime
+import java.io.File
 
 class EventViewModel : ViewModel() {
 
@@ -32,7 +35,6 @@ class EventViewModel : ViewModel() {
     var selectedDate by  mutableStateOf<String?>(null)
     var selectedTime by mutableStateOf<String?>(null)
 
-
     var nomeSbagliato by mutableStateOf(false)
     var locationSbagliata by mutableStateOf(false)
     var prezzoSbagliato by mutableStateOf(false)
@@ -41,11 +43,9 @@ class EventViewModel : ViewModel() {
 
     var orarioSbagliato by mutableStateOf(false)
 
-
     // Evento selezionato
     var selectedEvent by mutableStateOf<Event?>(null)
         private set
-
     // Lista risultati ricerca
     var items by mutableStateOf<List<Event>>(emptyList())
         private set
@@ -109,6 +109,7 @@ class EventViewModel : ViewModel() {
         search(context, query)
     }
 
+    //-----------------------CREAZIONE EVENTO------------------------------
 
     fun verify(){
 
@@ -142,21 +143,21 @@ class EventViewModel : ViewModel() {
 
 
     fun resetDati(){
-
-    }
-
-    fun sendEvent(context : Context){
         nomeSbagliato = false
         locationSbagliata = false
         prezzoSbagliato = false
         postiSbagliati = false
         dataSbagliata = false
         orarioSbagliato = false
+    }
+
+    fun sendEvent(context : Context){
+        resetDati()
 
         verify()
         if( !(dataSbagliata || postiSbagliati || prezzoSbagliato || locationSbagliata || nomeSbagliato || orarioSbagliato)) {
             viewModelScope.launch {
-                EventService(context).create(
+                var evento = EventService(context).create(
                     Event(
                         1,
                         descrizione,
@@ -171,8 +172,25 @@ class EventViewModel : ViewModel() {
                         b_nominativo = nominativo
                     )
                 )
+
+
+                EventService(context).uploadImageEvento(evento?.id ?: 0,uriToFile(context))
             }
         }
+    }
+
+    //--------------------------IMMAGINI------------------------
+    var createSelectedImage by mutableStateOf("".toUri())
+
+
+
+    fun uriToFile(context: Context): File {
+        val inputStream = context.contentResolver.openInputStream(createSelectedImage)!!
+        val file = File(context.cacheDir, "upload_image.jpg")
+        file.outputStream().use { output ->
+            inputStream.copyTo(output)
+        }
+        return file
     }
 
 }

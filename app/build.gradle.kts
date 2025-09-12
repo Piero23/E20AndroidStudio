@@ -50,6 +50,9 @@ dependencies {
     implementation("androidx.compose.ui:ui:1.6.0")
     implementation("androidx.compose.material3:material3:1.2.0")
 
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
+
     implementation(libs.kotlinx.datetime.v060rc2)
 
     implementation(libs.androidx.compose.material.icons.extended)

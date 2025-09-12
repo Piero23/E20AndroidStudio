@@ -1,15 +1,22 @@
 package com.example.e20frontendmobile.activities.evento
 
 import android.icu.util.Calendar
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,6 +53,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -54,6 +62,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.e20frontendmobile.R
 import com.example.e20frontendmobile.composables.CustomTextField
 import com.example.e20frontendmobile.composables.IconButtonType1
@@ -70,11 +79,23 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
 
 
+//TODO Schermata caricamento e reindirizzamento all'evento creato
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
 fun createEvent(eventViewModel: EventViewModel){
-    val scrollState = rememberScrollState()
 
+    val pickMedia = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            Log.d("PhotoPicker", "Selected URI: $uri")
+            eventViewModel.createSelectedImage = uri
+        } else {
+            Log.d("PhotoPicker", "No media selected")
+        }
+    }
+
+    val scrollState = rememberScrollState()
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
 
@@ -122,15 +143,29 @@ fun createEvent(eventViewModel: EventViewModel){
         horizontalAlignment = Alignment.Start
     ){
         Box(contentAlignment = Alignment.BottomEnd){
-            Image(
-                /*bitmap = event.image?.asImageBitmap() ?: ,*/
-                painter = painterResource(id = R.drawable.images),
-                contentDescription = "Image of ${"event.id"}",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxWidth(),
-            )
+
+            if(eventViewModel.createSelectedImage.path != ""){
+                AsyncImage(
+                    model = eventViewModel.createSelectedImage,
+                    contentDescription = "Image of ${"event.id"}",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxWidth().height(300.dp),
+                )
+            }else{
+                Image(
+                    painter = painterResource(R.drawable.photomode_18072025_201346),
+                    contentDescription = "Placeholder",
+                    modifier = Modifier.fillMaxWidth().height(300.dp),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
             IconButtonType1(
-                onClick = { },
+                onClick = {
+                    pickMedia.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                },
                 icon = Icons.Default.Edit,
                 iconDescription = "",
                 iconSize = 20.dp,

@@ -48,6 +48,8 @@ import com.example.e20frontendmobile.model.Ticket
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import com.example.e20frontendmobile.viewModels.OrdineViewModel
 
+
+//TODO PULIRE TUTTO (controllo errori e qrCode cliccabile)
 @Composable
 fun OrdersList(ordineViewModel: OrdineViewModel = viewModel()) {
     val ordini = ordineViewModel.ordiniUtente

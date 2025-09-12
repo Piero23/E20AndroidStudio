@@ -9,17 +9,23 @@ import com.example.e20frontendmobile.data.apiService.myHttpClient
 import com.example.e20frontendmobile.model.Event
 import io.ktor.client.call.body
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
+import java.io.File
 
 class EventService(private val context: Context) : ApiParent() {
 
@@ -73,10 +79,41 @@ class EventService(private val context: Context) : ApiParent() {
         }
     }
 
-    // 🔹 POST create event
-    fun create(event: Event): Event? = runBlocking {
+    suspend fun uploadImageEvento(
+        idEvento: Long,
+        file: File
+    ): Boolean {
         val token = getToken(context)
-        try {
+
+        return try {
+            val response: HttpResponse = myHttpClient.submitFormWithBinaryData(
+                url = "https://$ip:8060/api/evento/$idEvento/image",
+                formData = formData {
+                    append(
+                        key = "immagine",
+                        value = file.readBytes(),
+                        headers = Headers.build {
+                            append(HttpHeaders.ContentType, "image/jpeg") // o image/png a seconda
+                            append(HttpHeaders.ContentDisposition, "filename=\"${file.name}\"")
+                        }
+                    )
+                }
+            ) {
+                method = HttpMethod.Put
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
+
+            response.status.isSuccess()
+        } catch (e: Exception) {
+            println("Errore upload: ${e.message}")
+            false
+        }
+    }
+
+    // 🔹 POST create event
+    suspend fun create(event: Event): Event? {
+        val token = getToken(context)
+        return try {
             val response: HttpResponse = myHttpClient.post("https://$ip:8060/api/evento") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
@@ -85,7 +122,7 @@ class EventService(private val context: Context) : ApiParent() {
 
             println(response.bodyAsText())
 
-            return@runBlocking if (response.status.value in 200..299) response.body() else null
+            return if (response.status.value in 200..299) response.body() else null
         } catch (e: Exception) {
             println("Errore create event: ${e.message}")
             null

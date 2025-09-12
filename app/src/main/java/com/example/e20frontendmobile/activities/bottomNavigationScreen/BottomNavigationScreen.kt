@@ -143,7 +143,7 @@ fun BottomNavigationScreen() {
                             }
                         }
                     }
-                    2 -> createEvent(eventViewModel)//admin
+                    2 -> createEvent(eventViewModel)//PhotoPickerExample()//admin
                     3 -> {
 //                      Orders()
 
@@ -167,10 +167,9 @@ fun BottomNavigationScreen() {
 //                                style = MaterialTheme.typography.bodyLarge
 //                            )
 //                        }
-                        //DebugTokenScreen()
                         Orders()
                     } //ticket
-                    4 -> RegisterScreen()
+                    4 ->  DebugTokenScreen() //RegisterScreen()
                          //navControllers[4]
                 }
             }

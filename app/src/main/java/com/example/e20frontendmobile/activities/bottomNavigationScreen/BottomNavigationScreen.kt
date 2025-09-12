@@ -148,36 +148,48 @@ fun BottomNavigationScreen() {
                         }
                     }
                     2 -> {
-                        eventViewModel.clearSelection()
-                        createEvent()
-                    }//PhotoPickerExample()//admin
+                        @OptIn(ExperimentalAnimationApi::class)
+                        NavHost(
+                            navController = navControllers[2],
+                            startDestination = "create",
+                            enterTransition = { EnterTransition.None },
+                            exitTransition = { ExitTransition.None }
+                        )
+                        {
+                            composable(route = "create"){
+                                eventViewModel.clearSelection()
+                                createEvent(eventViewModel)//admin
+                            }
+                        }
+                    }
                     3 -> {
-//                      Orders()
-
-
-//                        Column {
-//
-//
-//                            Button(onClick = {
-//                                val storage = AuthStateStorage(context)
-//                                val authState = storage.readAuthState()
-//                                token = authState?.accessToken
-//                            }) {
-//                                Text("Recupera Token")
-//                            }
-//
-//                            Spacer(Modifier.height(16.dp))
-//
-//                            Text(
-//                                text = token
-//                                    ?: "Nessun token",
-//                                style = MaterialTheme.typography.bodyLarge
-//                            )
-//                        }
-                        Orders()
-                    } //ticket
-                    4 ->  DebugTokenScreen() //RegisterScreen()
-                         //navControllers[4]
+                        @OptIn(ExperimentalAnimationApi::class)
+                        NavHost(
+                            navController = navControllers[3],
+                            startDestination = "orders",
+                            enterTransition = { EnterTransition.None },
+                            exitTransition = { ExitTransition.None }
+                        )
+                        {
+                            composable(route = "orders") {
+                                DebugTokenScreen()
+                            }
+                        }
+                    } //TODO rimpiazzare con gli ordini
+                    4 -> {
+                        @OptIn(ExperimentalAnimationApi::class)
+                        NavHost(
+                            navController = navControllers[3],
+                            startDestination = "profile",
+                            enterTransition = { EnterTransition.None },
+                            exitTransition = { ExitTransition.None }
+                        )
+                        {
+                            composable(route = "profile") {
+                                DebugTokenScreen()//RegisterScreen() //TODO gestire nav tra profilo, login e registra
+                            }
+                        }
+                    }
                 }
             }
         }

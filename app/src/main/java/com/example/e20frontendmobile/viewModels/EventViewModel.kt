@@ -14,12 +14,30 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.core.net.toUri
+import androidx.compose.runtime.mutableIntStateOf
 import com.example.e20frontendmobile.R
+import com.example.e20frontendmobile.apiService.PreferitiService
+import com.example.e20frontendmobile.data.apiService.EventoLocation.LocationService
 import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
+import com.example.e20frontendmobile.data.auth.AuthStateStorage
+import com.example.e20frontendmobile.model.Address
+import com.example.e20frontendmobile.model.Location
 import kotlinx.datetime.LocalDateTime
 import java.io.File
 
 class EventViewModel : ViewModel() {
+
+    var spotsLeft: Int by mutableIntStateOf(-1)
+
+    var selectedEventLocation: Location? by mutableStateOf(null)
+
+    var selectedLocationAddress: Address? by mutableStateOf(null)
+    var locations by mutableStateOf<List<Location>>(emptyList())
+        private set
+
+    var locationsAdress by mutableStateOf<List<Address>>(emptyList())
+        private set
+
 
     var nomeSbagliato by mutableStateOf(false)
     var locationSbagliata by mutableStateOf(false)
@@ -29,9 +47,11 @@ class EventViewModel : ViewModel() {
 
     var orarioSbagliato by mutableStateOf(false)
 
+
     // Evento selezionato
     var selectedEvent by mutableStateOf<Event?>(null)
         private set
+
     // Lista risultati ricerca
     var items by mutableStateOf<List<Event>>(emptyList())
         private set
@@ -65,6 +85,10 @@ class EventViewModel : ViewModel() {
 //        //TODO RISOLVERE DATA
         selectedDate =  ""
         selectedTime = ""
+    }
+
+    fun clearLocations(){
+        locations = emptyList()
     }
 
     fun search(context: Context, newQuery: String) {
@@ -125,7 +149,59 @@ class EventViewModel : ViewModel() {
     var selectedDate by  mutableStateOf<String?>(null)
     var selectedTime by mutableStateOf<String?>(null)
 
+    //--------------Location
+    fun searchLocations(context: Context, query: String){
+        viewModelScope.launch {
+            loading = true
+            try {
+                val locationService = LocationService(context)
+                locations=locationService.search(query)
+                locationsAdress = locations.mapNotNull { loc ->
+                    loc.position?.let { locationService.getAddress(it) }
+                }
+            } catch (e: Exception) {
+                locations = emptyList()
+            } finally {
+                loading = false
+            }
+        }
+    }
+
+    fun spotsLeft(context: Context){
+        viewModelScope.launch {
+            loading = true
+            try {
+                val eventService = EventService(context)
+                spotsLeft = eventService.spotsLeft(selectedEvent?.id ?: -1)
+            } catch (e: Exception) {
+                spotsLeft = -1
+            } finally {
+                loading = false
+            }
+        }
+    }
+
+    fun getLocationFromEvent(context: Context){
+        viewModelScope.launch {
+            loading = true
+            try {
+                val locationService = LocationService(context)
+                println(selectedEvent?.locationId ?: -1)
+                selectedEventLocation=locationService.findById(selectedEvent?.locationId ?: -1)
+                selectedLocationAddress = locationService.getAddress(selectedEventLocation?.position.toString())
+            } catch (e: Exception) {
+                selectedEventLocation = null
+            } finally {
+                loading = false
+            }
+        }
+    }
+
+
     fun verify(){
+
+
+
         if (titolo == "") {
             nomeSbagliato = true
         }
@@ -152,28 +228,30 @@ class EventViewModel : ViewModel() {
         }
     }
 
+
     fun resetDati(){
+
+    }
+
+    fun sendEvent(context : Context){
         nomeSbagliato = false
         locationSbagliata = false
         prezzoSbagliato = false
         postiSbagliati = false
         dataSbagliata = false
         orarioSbagliato = false
-    }
-
-    fun sendEvent(context : Context){
-        resetDati()
 
         verify()
         if( !(dataSbagliata || postiSbagliati || prezzoSbagliato || locationSbagliata || nomeSbagliato || orarioSbagliato)) {
             viewModelScope.launch {
+                selectedEventLocation?.let {
                     EventService(context).create(
                         Event(
                             1,
                             descrizione,
                             title = titolo,
                             date = LocalDateTime.parse(selectedDate+"T"+selectedTime),
-                            locationId = location.toLong(),
+                            locationId = it.id!!,
                             posti = posti.toInt(),
                             prezzo = prezzo.toDouble(),
                             restricted = ageRestricted,
@@ -182,9 +260,43 @@ class EventViewModel : ViewModel() {
                             b_nominativo = nominativo
                         )
                     )
+                }
             }
             //TODO clear campi
         }
+    }
+
+    fun salvaPreferito(context: Context){
+        viewModelScope.launch {
+            PreferitiService(context).aggiungiAiPreferiti(
+                AuthStateStorage(context).getUserInfo()?.sub,
+                selectedEvent!!.id
+            )
+        }
+    }
+
+    fun removePreferiti(context: Context){
+        viewModelScope.launch {
+            PreferitiService(context).rimuoviDaiPreferiti(
+                AuthStateStorage(context).getUserInfo()?.sub,
+                selectedEvent!!.id
+            )
+        }
+    }
+
+    fun checkEventManager(context: Context): Boolean{
+        return selectedEvent?.organizzatore == UtenteService(context).getUtenteSub()
+    }
+
+    fun checkIfPreferito(context: Context): Boolean {
+        var allpreferiti: List<Event> = listOf()
+        viewModelScope.launch {
+            allpreferiti = PreferitiService(context).getAllPreferiti(UtenteService(context).getUtenteSub())!!
+        }
+        for (item in allpreferiti){
+            if (item.id== selectedEvent?.id) return true
+        }
+        return false
     }
 
     //--------------------------AGGIORNAMENTO-------------------
@@ -244,6 +356,5 @@ class EventViewModel : ViewModel() {
         var imageBitmap = service.getImage((selectedEvent?.id ?: ImageBitmap) as Long)
         return imageBitmap
     }
-
 }
 

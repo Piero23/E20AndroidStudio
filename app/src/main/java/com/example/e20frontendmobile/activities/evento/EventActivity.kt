@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.QrCode
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -54,6 +55,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
@@ -74,11 +76,19 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.example.e20frontendmobile.R
 import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
+import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
 import com.example.e20frontendmobile.model.Event
 import com.example.e20frontendmobile.viewModels.EventViewModel
+import io.ktor.http.content.LastModifiedVersion
+import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
+import org.osmdroid.config.Configuration
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 import kotlin.time.ExperimentalTime
 
 
@@ -87,8 +97,11 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
 
     var toggledBell by rememberSaveable { mutableStateOf(false) }
     var toggledHeart by rememberSaveable { mutableStateOf(false) }
+
     var calendarEventId by remember { mutableStateOf<Long?>(null) }
+
     val context = LocalContext.current
+
     val event = eventViewModel.selectedEvent
 
     if (event == null) {
@@ -99,13 +112,15 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
     }
 
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var spotsLeft: Int by remember { mutableStateOf(0) }
+
 
 
     LaunchedEffect(event.id) {
         val service = EventService(context)
         imageBitmap = service.getImage(event.id)
-        spotsLeft = service.spotsLeft(event.id)
+        eventViewModel.spotsLeft(context)
+        eventViewModel.getLocationFromEvent(context)
+        toggledHeart = eventViewModel.checkIfPreferito(context)
     }
 
     var hasCalendarPermission by remember { mutableStateOf(false) }
@@ -160,7 +175,14 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                     .height(250.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text("Caricamento in corso...")
+                Row{
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text("Caricamento immagine")
+                }
             }
         }
 
@@ -210,7 +232,7 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                 }
 
                 Column(Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp)) {
-                    if (isAdmin) {
+                    if (isAdmin && eventViewModel.checkEventManager(context)) {
                         IconButton(onClick = {
                             navController.navigate("edit")
                         }) {
@@ -234,7 +256,7 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                             toggledBell = !toggledBell
                             if (toggledBell) {
                                 calendarEventId = addEventToCalendar(context, event.title, event.date);
-                                saveEventId(context, calendarEventId ?: -1) //TODO togliere sto -1 che fa schifo
+                                saveEventId(context, calendarEventId ?: -1)
                                 calendarEventId?.let {
                                     context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit().putLong("event_id", it).apply()
                                 }
@@ -247,7 +269,7 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                                 calendarEventId = null
                                 Toast.makeText(context, "Evento rimosso dal calendario", Toast.LENGTH_SHORT).show()
                             }
-                        },) {
+                        }) {
                             Icon(
                                 Icons.Filled.Notifications,
                                 contentDescription = "Ricordamelo",
@@ -255,7 +277,21 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                                 tint = if (toggledBell) Color.Yellow else Color.Black
                             )
                         }
-                        IconButton(onClick = { toggledHeart = !toggledHeart }) {
+                        IconButton(onClick = {
+                            if (UtenteService(context).getUtenteSub()!="no"){
+                                toggledHeart = !toggledHeart
+                                if (toggledHeart) {
+                                    eventViewModel.salvaPreferito(context)
+                                    Toast.makeText(context, "Evento aggiunto ai preferiti", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    eventViewModel.removePreferiti(context)
+                                    Toast.makeText(context, "Evento rimosso dai preferiti", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                            else{
+                                Toast.makeText(context, "Devi essere registrato", Toast.LENGTH_SHORT).show()
+                            }
+                        }) {
                             Icon(
                                 Icons.Filled.FavoriteBorder,
                                 contentDescription = "Salva",
@@ -292,13 +328,22 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleMedium
                 )
-                Text(
-                    spotsLeft.toString(),
-                    modifier = Modifier.alignBy(LastBaseline),
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = Color(106, 51, 0, 255)
-                )
+                if (eventViewModel.spotsLeft==-1) {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .alignBy(LastBaseline),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        eventViewModel.spotsLeft.toString(),
+                        modifier = Modifier.alignBy(LastBaseline),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = Color(106, 51, 0, 255)
+                    )
+                }
             }
 
             // Ticket box
@@ -319,13 +364,15 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                         )
                         Row(modifier = Modifier.offset(0.dp, (-8).dp)) {
                             Text(
-                                event.prezzo.toString(),
+                                modifier = Modifier.alignBy(LastBaseline),
+                                color = Color(106, 51, 0, 255),
+                                text = event.prezzo.toString(),
                                 style = MaterialTheme.typography.headlineLarge,
-                                fontSize = 40.sp,
-                                color = Color(106, 51, 0, 255)
+                                fontSize = 40.sp
                             )
                             Text(
                                 "€",
+                                modifier = Modifier.alignBy(LastBaseline),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontSize = 20.sp,
                                 color = Color(182, 97, 17, 255)
@@ -379,31 +426,43 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                 fontWeight = FontWeight.Bold
             )
         }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 15.dp, end = 15.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text("Via di tua mamma", fontSize = 16.sp)
-                Text("118", fontSize = 16.sp)
+        if (eventViewModel.selectedEventLocation==null){
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Row{
+                    CircularProgressIndicator()
+                    Text("Caricamento")
+                }
             }
-            Column(horizontalAlignment = Alignment.End) {
-                Text("Napoli (NA)", fontSize = 16.sp)
-                Text("88888", fontSize = 16.sp)
+        }
+        else{
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 15.dp, end = 15.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    eventViewModel.selectedEventLocation!!.nome?.let { Text(it, fontSize = 16.sp) }
+                    eventViewModel.selectedLocationAddress?.road?.let { Text(it, fontSize = 16.sp) }
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    eventViewModel.selectedLocationAddress?.village?.let { Text(it, fontSize = 16.sp) }
+                    eventViewModel.selectedLocationAddress?.postcode?.let { Text(it, fontSize = 16.sp) }
+                }
             }
         }
 
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(700.dp)
+                .height(400.dp)
                 .padding(15.dp, 10.dp, 15.dp, 50.dp)
+                .clipToBounds()
         ) {
-            //TODO
-//            WebViewScreen(45.0755969, 7.638332)
+            MapScreen(45.0755969, 7.638332)
         }
     }
 }
@@ -428,24 +487,49 @@ fun TextWithShadow(
 }
 
 @Composable
-fun WebViewScreen(latitude: Double, longitude: Double) {
-    AndroidView(
-        factory = { ctx ->
-            WebView(ctx).apply {
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-                settings.javaScriptEnabled = true
-                webViewClient = WebViewClient()
-            }
-        },
-        update = { web ->
-            web.loadUrl("https://maps.google.com/?q=${latitude},${longitude}")
-        }
-    )
-}
+fun MapScreen(latitude: Double, longitude: Double) {
+    var mapReady by remember { mutableStateOf(false) }
 
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (!mapReady) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Row{
+                    CircularProgressIndicator()
+                    Text("Caricamento mappa")
+                }
+            }
+        }
+
+        AndroidView(
+            factory = { ctx ->
+                MapView(ctx).apply {
+                    Configuration.getInstance().load(
+                        ctx,
+                        ctx.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
+                    )
+                    setTileSource(TileSourceFactory.MAPNIK)
+                    setMultiTouchControls(true)
+                    controller.setZoom(15.0)
+                    controller.setCenter(GeoPoint(latitude, longitude))
+
+                    // Marker fisso
+                    Marker(this).apply {
+                        position = GeoPoint(latitude, longitude)
+                        title = "Posizione"
+                        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                        overlays.add(this) // <-- qui
+                    }
+
+                    mapReady = true
+                }
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
 
 
 @OptIn(ExperimentalTime::class)
@@ -461,8 +545,6 @@ fun addEventToCalendar(context: Context, title: String, dateTime: LocalDateTime,
         put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.currentSystemDefault().id)
     }
 
-    println("NEGRI")
-    println(values.toString())
     return if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
         context.contentResolver.insert(CalendarContract.Events.CONTENT_URI, values)?.lastPathSegment?.toLong()
     } else null

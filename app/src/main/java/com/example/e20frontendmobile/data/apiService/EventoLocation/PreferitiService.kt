@@ -11,21 +11,19 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
-import kotlinx.coroutines.runBlocking
-import java.util.UUID
 
 class PreferitiService(private val context: Context) : ApiParent() {
 
     /**
      * Recupera tutti gli eventi preferiti di un utente
      */
-    fun getAllPreferiti(utenteId: UUID): List<Event>? = runBlocking {
+    suspend fun getAllPreferiti(utenteId: String?): List<Event>? {
         val token = getToken(context)
-        try {
+        return try {
             val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/utente/$utenteId/preferiti") {
                 header(HttpHeaders.Authorization, "Bearer $token")
             }
-            return@runBlocking response.body()
+            response.body()
         } catch (e: Exception) {
             println("Errore getAllPreferiti: ${e.message}")
             null
@@ -35,15 +33,17 @@ class PreferitiService(private val context: Context) : ApiParent() {
     /**
      * Aggiunge un evento ai preferiti di un utente
      */
-    fun aggiungiAiPreferiti(utenteId: UUID, eventoId: Long): Boolean = runBlocking {
+    suspend fun aggiungiAiPreferiti(username: String?, eventoId: Long): Boolean {
         val token = getToken(context)
-        try {
-            val response: HttpResponse = myHttpClient.post("https://$ip:8060/api/utente/$utenteId/preferiti") {
+        return try {
+            val response: HttpResponse = myHttpClient.post("https://$ip:8060/api/utente/$username/preferiti") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
                 setBody(mapOf("eventoId" to eventoId))
             }
-            return@runBlocking response.status.value in 200..299
+            println("MUCCA" + response.status.value)
+            println("$username  $eventoId" )
+            response.status.value in 200..299
         } catch (e: Exception) {
             println("Errore aggiungiAiPreferiti: ${e.message}")
             false
@@ -53,15 +53,15 @@ class PreferitiService(private val context: Context) : ApiParent() {
     /**
      * Rimuove un evento dai preferiti di un utente
      */
-    fun rimuoviDaiPreferiti(utenteId: UUID, eventoId: Long): Boolean = runBlocking {
+    suspend fun rimuoviDaiPreferiti(username: String?, eventoId: Long): Boolean {
         val token = getToken(context)
-        try {
-            val response: HttpResponse = myHttpClient.delete("https://$ip:8060/api/utente/$utenteId/preferiti") {
+        return try {
+            val response: HttpResponse = myHttpClient.delete("https://$ip:8060/api/utente/$username/preferiti") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
                 setBody(mapOf("eventoId" to eventoId))
             }
-            return@runBlocking response.status.value in 200..299
+            response.status.value in 200..299
         } catch (e: Exception) {
             println("Errore rimuoviDaiPreferiti: ${e.message}")
             false

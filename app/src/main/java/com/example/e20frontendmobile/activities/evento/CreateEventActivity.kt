@@ -357,6 +357,7 @@ fun createEvent(eventViewModel: EventViewModel){
                                                     .fillMaxWidth()
                                                     .clickable {
                                                         eventViewModel.location = option.nome ?: ""
+                                                        eventViewModel.selectedEventLocation = option
                                                         eventViewModel.clearLocations()
                                                         showSearch = false
                                                     }
@@ -619,7 +620,6 @@ fun TimePickerDialog(
         }
     )
 }
-
 
 
 

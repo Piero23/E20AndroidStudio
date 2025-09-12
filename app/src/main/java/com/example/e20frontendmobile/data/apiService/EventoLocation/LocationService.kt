@@ -65,9 +65,9 @@ class LocationService(private val context: Context) : ApiParent()  {
     }
 
     // 🔹 POST create new location
-    suspend fun create(location: Location): Location? {
+    fun create(location: Location): Location? = runBlocking{
         val token = getToken(context)
-        return try {
+        return@runBlocking try {
             val response: HttpResponse = myHttpClient.post("https://$ip:8060/api/location") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)

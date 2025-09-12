@@ -223,21 +223,23 @@ class EventViewModel : ViewModel() {
         verify()
         if( !(dataSbagliata || postiSbagliati || prezzoSbagliato || locationSbagliata || nomeSbagliato || orarioSbagliato)) {
             viewModelScope.launch {
-                EventService(context).create(
-                    Event(
-                        1,
-                        descrizione,
-                        title = titolo,
-                        date = LocalDateTime.parse(selectedDate+"T"+selectedTime),
-                        locationId = location.toLong(),
-                        posti = posti.toInt(),
-                        prezzo = prezzo.toDouble(),
-                        restricted = ageRestricted,
-                        organizzatore = UtenteService(context).getUtenteSub() ?: "no",
-                        b_riutilizzabile = riutilizzabile,
-                        b_nominativo = nominativo
+                selectedEventLocation?.let {
+                    EventService(context).create(
+                        Event(
+                            1,
+                            descrizione,
+                            title = titolo,
+                            date = LocalDateTime.parse(selectedDate+"T"+selectedTime),
+                            locationId = it.id!!,
+                            posti = posti.toInt(),
+                            prezzo = prezzo.toDouble(),
+                            restricted = ageRestricted,
+                            organizzatore = UtenteService(context).getUtenteSub() ?: "no",
+                            b_riutilizzabile = riutilizzabile,
+                            b_nominativo = nominativo
+                        )
                     )
-                )
+                }
             }
         }
     }

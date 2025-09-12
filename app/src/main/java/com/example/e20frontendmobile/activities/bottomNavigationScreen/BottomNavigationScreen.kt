@@ -111,7 +111,7 @@ fun BottomNavigationScreen() {
                                 QRCodeScannerWithBottomSheet()
                             }
                             composable ("edit") {
-                                createEvent(eventViewModel)
+                                createEvent(eventViewModel, true)
                             }
                         }
                     }
@@ -147,7 +147,10 @@ fun BottomNavigationScreen() {
                             }
                         }
                     }
-                    2 -> createEvent()//PhotoPickerExample()//admin
+                    2 -> {
+                        eventViewModel.clearSelection()
+                        createEvent()
+                    }//PhotoPickerExample()//admin
                     3 -> {
 //                      Orders()
 
@@ -202,10 +205,8 @@ fun DebugTokenScreen() {
         }
 
         Button(onClick = {
-
             userIN = userInfo?.sub +"\n"
             userIN += userInfo?.roles
-
         }) {
             Text("Mostra JWT Claims")
         }

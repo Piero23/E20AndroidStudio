@@ -12,10 +12,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.core.net.toUri
 import com.example.e20frontendmobile.R
 import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
@@ -57,6 +54,17 @@ class EventViewModel : ViewModel() {
 
     fun clearSelection() {
         selectedEvent = null
+        titolo =  ""
+        location =  ""
+        posti =  ""
+        prezzo =  ""
+        ageRestricted =  false
+        nominativo =  false
+        riutilizzabile =  false
+        descrizione = ""
+//        //TODO RISOLVERE DATA
+        selectedDate =  ""
+        selectedTime = ""
     }
 
     fun search(context: Context, newQuery: String) {
@@ -101,22 +109,12 @@ class EventViewModel : ViewModel() {
     //-----------------------CREAZIONE EVENTO------------------------------
     //TODO inizializzare alle variabili di evento
 
-    var edit by mutableStateOf(false)
-    var titolo by   mutableStateOf(selectedEvent?.title ?: "Minchia")
 
-    fun edit(){
-        titolo
-        location
-        posti
-        prezzo
-        ageRestricted
-        nominativo
-        riutilizzabile
-        descrizione
-        //TODO RISOLVERE DATA
-        selectedDate
-        selectedTime
-    }
+    var ciao = "Palle"
+    var titolo: String by   mutableStateOf("")
+
+
+
     var location by  mutableStateOf("")
     var posti by   mutableStateOf("")
     var prezzo by   mutableStateOf("")
@@ -165,32 +163,48 @@ class EventViewModel : ViewModel() {
 
     fun sendEvent(context : Context){
         resetDati()
-        verify()
 
+        verify()
         if( !(dataSbagliata || postiSbagliati || prezzoSbagliato || locationSbagliata || nomeSbagliato || orarioSbagliato)) {
             viewModelScope.launch {
-                var evento = EventService(context).create(
-                    Event(
-                        1,
-                        descrizione,
-                        title = titolo,
-                        date = LocalDateTime.parse(selectedDate+"T"+selectedTime),
-                        locationId = location.toLong(),
-                        posti = posti.toInt(),
-                        prezzo = prezzo.toDouble(),
-                        restricted = ageRestricted,
-                        organizzatore = UtenteService(context).getUtenteSub() ?: "no",
-                        b_riutilizzabile = riutilizzabile,
-                        b_nominativo = nominativo
+                    EventService(context).create(
+                        Event(
+                            1,
+                            descrizione,
+                            title = titolo,
+                            date = LocalDateTime.parse(selectedDate+"T"+selectedTime),
+                            locationId = location.toLong(),
+                            posti = posti.toInt(),
+                            prezzo = prezzo.toDouble(),
+                            restricted = ageRestricted,
+                            organizzatore = UtenteService(context).getUtenteSub() ?: "no",
+                            b_riutilizzabile = riutilizzabile,
+                            b_nominativo = nominativo
+                        )
                     )
-                )
-                EventService(context).uploadImageEvento(evento?.id ?: 0,uriToFile(context))
             }
+            //TODO clear campi
         }
     }
 
     //--------------------------AGGIORNAMENTO-------------------
+    var editing by  mutableStateOf(false)
 
+    fun edit(){
+        titolo = selectedEvent?.title ?: ""
+        location = selectedEvent?.locationId.toString() ?: ""
+        posti = selectedEvent?.posti.toString() ?: ""
+        prezzo = selectedEvent?.prezzo.toString() ?: ""
+        ageRestricted = selectedEvent?.restricted ?: false
+        nominativo = selectedEvent?.b_nominativo ?: false
+        riutilizzabile = selectedEvent?.b_riutilizzabile ?: false
+        descrizione = selectedEvent?.description ?: ""
+//        //TODO RISOLVERE DATA
+        selectedDate = selectedEvent?.date.toString() ?: ""
+        selectedTime = selectedEvent?.date.toString() ?: ""
+
+        editing = true
+    }
 
     //--------------------------IMMAGINI------------------------
     var createSelectedImage by mutableStateOf("".toUri())
@@ -201,6 +215,34 @@ class EventViewModel : ViewModel() {
             inputStream.copyTo(output)
         }
         return file
+    }
+
+    fun bitmapToFile(context: Context, bitmap: Bitmap): File {
+        // Crea un file nella cache dell’app
+        val file = File(context.cacheDir, "upload_image.jpg")
+
+        // Scrive il bitmap nel file
+        file.outputStream().use { output ->
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, output)
+        }
+
+        return file
+    }
+
+    fun bitmapToUri(context: Context, bitmap: Bitmap?): Uri {
+        val file = File(context.cacheDir, "upload_image.jpg")
+        file.outputStream().use { output ->
+            bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, output) ?: ""
+        }
+
+        return Uri.fromFile(file)
+    }
+
+
+    suspend fun getSelectedeventImage(context : Context): Bitmap? {
+        val service = EventService(context)
+        var imageBitmap = service.getImage((selectedEvent?.id ?: ImageBitmap) as Long)
+        return imageBitmap
     }
 
 }

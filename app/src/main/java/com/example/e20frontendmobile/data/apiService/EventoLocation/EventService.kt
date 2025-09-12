@@ -3,6 +3,7 @@ package com.example.e20frontendmobile.data.apiService.EventoLocation
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import com.example.e20frontendmobile.data.apiService.ApiParent
 import com.example.e20frontendmobile.data.apiService.getToken
 import com.example.e20frontendmobile.data.apiService.myHttpClient
@@ -26,6 +27,7 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import java.io.File
+import kotlin.math.log
 
 class EventService(private val context: Context) : ApiParent() {
 
@@ -112,6 +114,9 @@ class EventService(private val context: Context) : ApiParent() {
 
     // 🔹 POST create event
     suspend fun create(event: Event): Event? {
+
+        Log.d("EventCreate",event.toString())
+
         val token = getToken(context)
         return try {
             val response: HttpResponse = myHttpClient.post("https://$ip:8060/api/evento") {
@@ -120,7 +125,6 @@ class EventService(private val context: Context) : ApiParent() {
                 setBody(event)
             }
 
-            println(response.bodyAsText())
 
             return if (response.status.value in 200..299) response.body() else null
         } catch (e: Exception) {
@@ -129,7 +133,6 @@ class EventService(private val context: Context) : ApiParent() {
         }
     }
 
-    // 🔹 PUT edit event
     fun edit(id: Long, event: Event): Event? = runBlocking {
         val token = getToken(context)
         try {

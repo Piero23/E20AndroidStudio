@@ -40,6 +40,7 @@ import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -72,8 +73,14 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun createEvent(eventViewModel: EventViewModel = viewModel (), edit: Boolean = false){
 
-    if(edit)
-        eventViewModel.edit()
+    //TODO mettere nel model
+    val context = LocalContext.current
+
+    if(edit){
+        LaunchedEffect(eventViewModel.selectedEvent) {
+            eventViewModel.edit()
+        }
+    }
 
     val pickMedia = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -135,21 +142,37 @@ fun createEvent(eventViewModel: EventViewModel = viewModel (), edit: Boolean = f
     ){
         Box(contentAlignment = Alignment.BottomEnd){
 
-            if(eventViewModel.createSelectedImage.path != ""){
-                AsyncImage(
-                    model = eventViewModel.createSelectedImage,
-                    contentDescription = "Image of ${"event.id"}",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxWidth().height(300.dp),
-                )
-            }else{
-                Image(
-                    painter = painterResource(R.drawable.photomode_18072025_201346),
-                    contentDescription = "Placeholder",
-                    modifier = Modifier.fillMaxWidth().height(300.dp),
-                    contentScale = ContentScale.Crop
-                )
+
+
+
+            LaunchedEffect(eventViewModel.selectedEvent) {
+                if (edit)
+                    eventViewModel.createSelectedImage = eventViewModel.bitmapToUri(
+                        context,
+                        (eventViewModel.getCachedImage(eventViewModel.selectedEvent?.id ?: 1))
+                    )
             }
+
+                if(eventViewModel.createSelectedImage.path != ""){
+                    AsyncImage(
+                        model = eventViewModel.createSelectedImage,
+                        contentDescription = "Image of ${"event.id"}",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp),
+                    )
+                }else {
+                    Image(
+                        painter = painterResource(R.drawable.photomode_18072025_201346),
+                        contentDescription = "Placeholder",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+
 
             IconButtonType1(
                 onClick = {
@@ -488,14 +511,14 @@ fun createEvent(eventViewModel: EventViewModel = viewModel (), edit: Boolean = f
 
 
 
-            //TODO mettere nel model
-            val context = LocalContext.current
 
             Button(
                 onClick = {
                     eventViewModel.sendEvent(context)
                 },
-                modifier = Modifier.fillMaxWidth().height(80.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp),
                 shape = RoundedCornerShape(20)
             ){
                 Row (verticalAlignment = Alignment.CenterVertically){
@@ -563,14 +586,3 @@ fun TimePickerDialog(
         }
     )
 }
-
-
-
-
-//@Composable
-//@PreviewScreenSizes
-//fun previewButton(){
-//    E20FrontendMobileTheme {
-//        CustomTextField()
-//    }
-//}

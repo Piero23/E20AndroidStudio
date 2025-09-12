@@ -147,7 +147,7 @@ fun ParticipantRow(participant: Ticket) {
             Column(modifier = Modifier.weight(1f)) {
                 participant.nome?.let { Text(it, fontWeight = FontWeight.Medium) }
                 participant.email?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
-                participant.dataNascita?.let { Text(it.split("T")[0], style = MaterialTheme.typography.bodySmall) }
+                participant.data_nascita?.let { Text(it.split("T")[0], style = MaterialTheme.typography.bodySmall) }
             }
             Box(
                 modifier = Modifier

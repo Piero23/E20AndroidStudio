@@ -24,6 +24,7 @@ import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
 import com.example.e20frontendmobile.data.auth.AuthStateStorage
 import com.example.e20frontendmobile.model.Address
 import com.example.e20frontendmobile.model.Location
+import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDateTime
 import java.io.File
 
@@ -157,9 +158,14 @@ class EventViewModel : ViewModel() {
             loading = true
             try {
                 val locationService = LocationService(context)
-                locations=locationService.search(query)
-                locationsAdress = locations.mapNotNull { loc ->
-                    loc.position?.let { locationService.getAddress(it) }
+                if (locationService.search(query).isNotEmpty()){
+                    locations=locationService.search(query)
+                    locationsAdress = locations.mapNotNull { loc ->
+                        loc.position?.let { locationService.getAddress(it) }
+                    }
+                    while(locations.isEmpty()){
+                        delay(100)
+                    }
                 }
             } catch (e: Exception) {
                 locations = emptyList()

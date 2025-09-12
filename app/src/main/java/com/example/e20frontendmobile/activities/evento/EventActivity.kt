@@ -446,7 +446,7 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     eventViewModel.selectedEventLocation!!.nome?.let { Text(it, fontSize = 16.sp) }
-                    Text("${eventViewModel.selectedLocationAddress?.road}, ${eventViewModel.selectedLocationAddress!!.houseNumber}")
+                    eventViewModel.selectedLocationAddress?.road?.let { Text(it, fontSize = 16.sp) }
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     eventViewModel.selectedLocationAddress?.village?.let { Text(it, fontSize = 16.sp) }

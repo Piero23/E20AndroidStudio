@@ -316,8 +316,8 @@ fun NameTicket(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 CustomTextField(
-                    value = (ticket.dataNascita ?: ""),
-                    onValueChange = { onTicketChange(ticket.copy(dataNascita = it)) },
+                    value = (ticket.data_nascita ?: ""),
+                    onValueChange = { onTicketChange(ticket.copy(data_nascita = it)) },
                     placeholder = "Data di nascita",
                     singleLine = true,
                     readOnly = true,
@@ -349,7 +349,7 @@ fun NameTicket(
                         val localDate = Instant.fromEpochMilliseconds(it)
                             .toLocalDateTime(TimeZone.currentSystemDefault())
                             .date
-                        onTicketChange(ticket.copy(dataNascita = localDate.toString()))
+                        onTicketChange(ticket.copy(data_nascita = localDate.toString()))
                     }
                     showDatePicker = false
                 },
@@ -367,7 +367,7 @@ fun checkFields(evento: Event, tickets: List<Ticket>): Boolean {
 
         if (ticket.email.isNullOrBlank()) return false
 
-        if (evento.restricted && ticket.dataNascita.isNullOrBlank()) return false
+        if (evento.restricted && ticket.data_nascita.isNullOrBlank()) return false
     }
     return true
 }

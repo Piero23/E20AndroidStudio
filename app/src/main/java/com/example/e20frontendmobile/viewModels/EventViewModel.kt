@@ -17,6 +17,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.example.e20frontendmobile.R
 import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
+import kotlinx.datetime.LocalDateTime
 
 class EventViewModel : ViewModel() {
 
@@ -160,7 +161,7 @@ class EventViewModel : ViewModel() {
                         1,
                         descrizione,
                         title = titolo,
-                        date = selectedDate + "T" + selectedTime,
+                        date = LocalDateTime.parse(selectedDate+"T"+selectedTime),
                         locationId = location.toLong(),
                         posti = posti.toInt(),
                         prezzo = prezzo.toDouble(),

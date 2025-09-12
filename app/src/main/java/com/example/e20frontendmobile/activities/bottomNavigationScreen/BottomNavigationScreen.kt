@@ -42,6 +42,7 @@ import com.example.e20frontendmobile.activities.bottomNavigationScreen.StandardB
 import com.example.e20frontendmobile.activities.bottomNavigationScreen.bottomNavItems
 import com.example.e20frontendmobile.mainFun
 import com.example.e20frontendmobile.activities.qrScanner.QRCodeScannerWithBottomSheet
+import com.example.e20frontendmobile.activities.user.Orders
 import com.example.e20frontendmobile.activities.user.RegisterScreen
 import com.example.e20frontendmobile.data.auth.AuthActivity
 import com.example.e20frontendmobile.data.auth.AuthStateStorage
@@ -166,7 +167,8 @@ fun BottomNavigationScreen() {
 //                                style = MaterialTheme.typography.bodyLarge
 //                            )
 //                        }
-                        DebugTokenScreen()
+                        //DebugTokenScreen()
+                        Orders()
                     } //ticket
                     4 -> RegisterScreen()
                          //navControllers[4]

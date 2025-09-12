@@ -9,6 +9,7 @@ import com.example.e20frontendmobile.model.Ticket
 import io.ktor.client.call.body
 import io.ktor.client.request.*
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.runBlocking
 import java.util.UUID
@@ -44,14 +45,19 @@ class OrdineService(private val context: Context) : ApiParent()  {
     }
 
     // 🔹 GET all orders by user
-    fun findAllByUtente(utenteId: UUID): List<Ordine>? = runBlocking {
+
+    suspend fun findAllByUtente(utenteId: String?): List<Ordine>? {
         val token = getToken(context)
-        try {
+        return try {
             val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/ordine/utente") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 parameter("utente", utenteId.toString())
             }
-            return@runBlocking if (response.status.value in 200..299) response.body() else null
+
+            return if (response.status.value in 200..299) {
+                val ordini: List<Ordine> = response.body()
+                ordini
+            } else null
         } catch (e: Exception) {
             println("Errore findAllByUtente: ${e.message}")
             null
@@ -59,14 +65,14 @@ class OrdineService(private val context: Context) : ApiParent()  {
     }
 
     // 🔹 GET all tickets by ordine
-    fun findAllBigliettiByOrdine(ordineId: UUID): List<Ticket>? = runBlocking {
+    suspend fun findAllBigliettiByOrdine(ordineId: UUID): List<Ticket>?  {
         val token = getToken(context)
-        try {
+        return try {
             val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/ordine/biglietti") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 parameter("ordine", ordineId.toString())
             }
-            return@runBlocking if (response.status.value in 200..299) response.body() else null
+            return if (response.status.value in 200..299) response.body() else null
         } catch (e: Exception) {
             println("Errore findAllBigliettiByOrdine: ${e.message}")
             null

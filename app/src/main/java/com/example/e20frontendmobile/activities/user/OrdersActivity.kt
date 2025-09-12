@@ -1,5 +1,6 @@
 package com.example.e20frontendmobile.activities.user
 
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -25,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,28 +37,41 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.e20frontendmobile.model.Ordine
+import com.example.e20frontendmobile.model.Ticket
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
+import com.example.e20frontendmobile.viewModels.OrdineViewModel
+
+@Composable
+fun OrdersList(ordineViewModel: OrdineViewModel = viewModel()) {
+    val ordini = ordineViewModel.ordiniUtente
+
+    if (ordini?.isEmpty() ?: true) {
+        Text("Nessun ordine")
+    } else {
+        LazyColumn {
+            items(ordini) { ordine ->
+                ExpandableCard(ordine)
+            }
+        }
+    }
+}
 
 
 @Composable
-fun Orders() {
-    val items = listOf(
-        EventItem(
-            title = "Serata Shots - 5/11",
-            participants = listOf()
-        ),
-        EventItem(
-            title = "Serata Filo Rosso - 10/7",
-            participants = listOf(
-                Participant("Mario Rossi", "mariorossi@pisellopalle.com", "9/11/2003", false),
-                Participant("Paolo Bonolis", "baoloponolis@pisellopalle.com", "9/11/2003", true),
-            )
-        )
-    )
+fun Orders(ordineViewModel: OrdineViewModel = viewModel ()) {
+
+    val context = LocalContext.current
+    LaunchedEffect(true) {
+        ordineViewModel.getOrdini(context)
+    }
+
 
     Column(
 
@@ -71,14 +88,12 @@ fun Orders() {
             textAlign = TextAlign.Center
         )
         Divider()
-        items.forEach { event ->
-            ExpandableCard(event)
-        }
+        OrdersList(ordineViewModel)
     }
 }
 
 @Composable
-fun ExpandableCard(event: EventItem) {
+fun ExpandableCard(ordine: Ordine) {
     var expanded by remember { mutableStateOf(false) }
 
     Card(
@@ -98,7 +113,7 @@ fun ExpandableCard(event: EventItem) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = event.title,
+                    text = "evento ACCAZZo",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.weight(1f)
                 )
@@ -110,7 +125,7 @@ fun ExpandableCard(event: EventItem) {
 
             if (expanded) {
                 Spacer(modifier = Modifier.height(8.dp))
-                event.participants.forEach { participant ->
+                ordine.biglietti.forEach { participant ->
                     Divider()
                     ParticipantRow(participant)
                 }
@@ -120,22 +135,22 @@ fun ExpandableCard(event: EventItem) {
 }
 
 @Composable
-fun ParticipantRow(participant: Participant) {
+fun ParticipantRow(participant: Ticket) {
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(participant.name, fontWeight = FontWeight.Medium)
-                Text(participant.email, style = MaterialTheme.typography.bodySmall)
-                Text(participant.date, style = MaterialTheme.typography.bodySmall)
+                participant.nome?.let { Text(it, fontWeight = FontWeight.Medium) }
+                participant.email?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+                participant.dataNascita?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
             }
             Box(
                 modifier = Modifier
                     .size(16.dp)
                     .clip(CircleShape)
-                    .background(if (participant.status) Color.Green else Color.Red)
+                    .background(if (participant.eValido == true) Color.Green else Color.Red)
             )
         }
     }

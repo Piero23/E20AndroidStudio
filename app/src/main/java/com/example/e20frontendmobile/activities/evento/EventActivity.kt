@@ -182,11 +182,13 @@ fun ShowEvent(navController: NavHostController,
     LaunchedEffect(hasCalendarPermission) {
         if (hasCalendarPermission) {
             val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-            val savedId = prefs.getLong("event_id", -1L)
+            val savedId = prefs.getLong("event_id${eventViewModel.selectedEvent!!.id}", -1L)
             if (savedId != -1L && isEventInCalendar(context, savedId)) {
                 calendarEventId = savedId
                 toggledBell = true
             }
+            else
+                toggledBell = false
         }
     }
 
@@ -282,16 +284,23 @@ fun ShowEvent(navController: NavHostController,
                         IconButton(onClick = {
                             toggledBell = !toggledBell
                             if (toggledBell) {
-                                calendarEventId = addEventToCalendar(context, eventViewModel.selectedEvent!!.title, eventViewModel.selectedEvent!!.date);
+
+                                calendarEventId = addEventToCalendar(context,
+                                    eventViewModel.selectedEvent!!.title,
+                                    eventViewModel.selectedEvent!!.date);
+
                                 saveEventId(context, calendarEventId ?: -1)
                                 calendarEventId?.let {
-                                    context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit().putLong("event_id", it).apply()
+                                    context.getSharedPreferences("app_prefs",
+                                        Context.MODE_PRIVATE).edit()
+                                        .putLong("event_id${eventViewModel.selectedEvent!!.id}", it).apply()
                                 }
                                 Toast.makeText(context, "Evento aggiunto al calendario", Toast.LENGTH_SHORT).show()
                             } else {
                                 calendarEventId?.let {
                                     removeEventFromCalendar(context, it)
-                                    context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit().remove("event_id").apply()
+                                    context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit()
+                                        .remove("event_id${eventViewModel.selectedEvent!!.id}").apply()
                                 }
                                 calendarEventId = null
                                 Toast.makeText(context, "Evento rimosso dal calendario", Toast.LENGTH_SHORT).show()

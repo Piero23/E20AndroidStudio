@@ -50,14 +50,21 @@ class LocationService(private val context: Context) : ApiParent()  {
     suspend fun getAddress(position: String): Address?{
         val lat = position.split(",")[0]
         val lon = position.split(",")[1]
+
         return try {
             val response: HttpResponse = myHttpClient.get("https://nominatim.openstreetmap.org/reverse?lat=$lat&lon=$lon&format=json&addressdetails=1")
             if (response.status.value in 200..299) {
                 val res = response.bodyAsText()
                 val jsonElement = Json.parseToJsonElement(res).jsonObject
-                val addressElement = jsonElement["address"] ?: null
-                Json.decodeFromJsonElement(Address.serializer(), addressElement!!)
-            } else null
+                val addressElement = jsonElement["address"]?.jsonObject
+
+                Address(
+                    addressElement?.get("road").toString().replace("\"",""),
+                    addressElement?.get("village").toString().replace("\"",""),
+                    addressElement?.get("postcode").toString().replace("\"",""))
+            } else {
+                null
+            }
         } catch (e: Exception) {
             println("Errore findById: ${e.message}")
             null

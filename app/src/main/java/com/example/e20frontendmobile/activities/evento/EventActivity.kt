@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.provider.CalendarContract
+import android.util.Log
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -200,7 +201,7 @@ fun ShowEvent(navController: NavHostController,
     LaunchedEffect(eventViewModel.selectedEvent) {
         imageBitmap = eventViewModel.getEventImage(eventViewModel.selectedEvent!!.id , context)
         eventViewModel.spotsLeft(context)
-        locationViewModel.getLocationFromEvent(context, eventViewModel.selectedEvent?.id ?: -1)
+        locationViewModel.getLocationFromEvent(context, eventViewModel.selectedEvent?.locationId ?: -1)
         toggledHeart = utenteViewModel.checkIfPreferito(context,eventViewModel.selectedEvent?.id ?: -1)
     }
 
@@ -397,6 +398,8 @@ fun ShowEvent(navController: NavHostController,
         }
 
         // Location
+        Log.d("Location" , locationViewModel.selectedEventLocation.toString())
+        Log.d("Location" , locationViewModel.selectedLocationAddress.toString())
         location(locationViewModel.selectedEventLocation,locationViewModel.selectedLocationAddress)
 
     }

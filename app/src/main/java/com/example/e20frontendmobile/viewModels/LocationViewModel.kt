@@ -6,11 +6,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.e20frontendmobile.data.apiService.EventoLocation.LocationService
 import com.example.e20frontendmobile.model.Address
 import com.example.e20frontendmobile.model.Location
-import kotlinx.coroutines.launch
 
 class LocationViewModel : ViewModel() {
 
@@ -21,16 +19,13 @@ class LocationViewModel : ViewModel() {
     var selectedLocationAddress: Address? by mutableStateOf(null)
 
 
-    suspend fun getLocationFromEvent(context: Context , eventoId : Long){
+    suspend fun getLocationFromEvent(context: Context , locationId : Long){
 
             loading = true
             try {
                 val locationService = LocationService(context)
-                println(eventoId)
-                selectedEventLocation=locationService.findById(eventoId)
-                Log.d("Location" , selectedEventLocation?.position.toString())
+                selectedEventLocation=locationService.findById(locationId)
                 selectedLocationAddress = locationService.getAddress(selectedEventLocation?.position.toString())
-                Log.d("Location" , selectedLocationAddress.toString())
             } catch (e: Exception) {
                 selectedEventLocation = null
             } finally {

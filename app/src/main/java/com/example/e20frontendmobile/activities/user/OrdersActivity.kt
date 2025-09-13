@@ -63,7 +63,7 @@ fun OrdersList(ordineViewModel: OrdineViewModel = viewModel()) {
                 var nomeEvento: String? by remember {mutableStateOf("")}
 
                 LaunchedEffect(ordine) {
-                    nomeEvento = EventService(context).findName(1)
+                    nomeEvento = EventService(context).findName(ordine.biglietti.first().idEvento!!)
                 }
                 ExpandableCard(ordine , nomeEvento)
             }

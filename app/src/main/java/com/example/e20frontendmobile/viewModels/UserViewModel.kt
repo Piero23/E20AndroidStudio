@@ -15,6 +15,8 @@ import com.example.e20frontendmobile.model.Utente
 import kotlinx.coroutines.launch
 
 class UserViewModel : ViewModel() {
+
+    var selectedUserProfile by mutableStateOf<Utente?>(null)
     var items by mutableStateOf<List<Utente>>(emptyList())
         private set
 
@@ -26,6 +28,10 @@ class UserViewModel : ViewModel() {
 
     var error by mutableStateOf<String?>(null)
         private set
+
+    fun setDisplayableUser(utente: Utente){
+        selectedUserProfile = utente
+    }
 
     fun search(context: Context, newQuery: String) {
         query = newQuery

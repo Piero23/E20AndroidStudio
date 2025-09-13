@@ -29,6 +29,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.e20frontendmobile.apiService.TicketService
+import com.example.e20frontendmobile.model.Ticket
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,6 +45,8 @@ fun QRCodeScannerWithBottomSheet() {
     var scannedCode by remember { mutableStateOf<String?>(null) }
     var isValid by remember { mutableStateOf<Boolean?>(null) }
     var showSheet by remember { mutableStateOf(false) }
+
+    var ticket by remember { mutableStateOf<Ticket?>(null) }
 
     // Stato per permesso fotocamera
     var hasCameraPermission by remember {
@@ -64,6 +69,8 @@ fun QRCodeScannerWithBottomSheet() {
             permissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }
+
+    val coroutine = rememberCoroutineScope()
 
     // Mostra BottomSheet solo se c'è un codice scansionato
     if (showSheet && scannedCode != null) {
@@ -97,7 +104,9 @@ fun QRCodeScannerWithBottomSheet() {
                     showSheet = false
                     scannedCode = null
                     isValid = null
-                }
+                },
+                ticket = ticket,
+                context = context
             )
         }
     }
@@ -119,7 +128,9 @@ fun QRCodeScannerWithBottomSheet() {
                             QRCodeAnalyzer { qrCode ->
                                 if (!showSheet) {
                                     scannedCode = qrCode
-                                    isValid = checkTicket(context, qrCode) // Valida il biglietto
+                                    coroutine.launch {
+                                        ticket = TicketService(context).getById(qrCode)
+                                    }
                                     showSheet = true
                                 }
                             }
@@ -148,9 +159,9 @@ fun QRCodeScannerWithBottomSheet() {
     }
 }
 
-fun checkTicket(context: Context, qrCode: String): Boolean {
 
-    return TicketService(context).validate(qrCode)
+fun validateTicket(context: Context, ticket: String): Boolean{
+    return TicketService(context).validate(ticket)
 }
 
 @Composable
@@ -159,8 +170,11 @@ fun BottomSheetContent(
     isValid: Boolean?,
     onCopy: () -> Unit,
     onShare: () -> Unit,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    context: Context,
+    ticket: Ticket?
 ) {
+    var checkValid = isValid
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -170,32 +184,36 @@ fun BottomSheetContent(
         Text("Biglietto", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(8.dp))
 
-        when (isValid) {
+        when (checkValid) {
             true -> Text("Biglietto valido ✅", textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyLarge)
             false -> Text("Biglietto non valido ❌", textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyLarge)
-            null -> Text(scannedCode ?: "", textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyLarge)
+            null -> {
+                if (ticket?.eValido == true){
+                    Text("""
+                    ${ticket?.nome} ${ticket?.cognome}
+                    ${ticket?.email}
+                    ${ticket?.data_nascita}
+                """.trimIndent())
+                }
+                else{
+                    Text("Biglietto non valido ❌", textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyLarge)
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (isValid == null) {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Button(onClick = onCopy) {
-                    Icon(Icons.Default.Create, contentDescription = "Copy")
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Copy")
-                }
-                Button(onClick = onShare) {
-                    Icon(Icons.Default.Share, contentDescription = "Share")
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Share")
-                }
+        if (ticket?.eValido == true){
+            OutlinedButton(onClick = {
+                checkValid = validateTicket(context, scannedCode!!)
+            }) {
+                Text("Valida")
             }
-            Spacer(modifier = Modifier.height(16.dp))
         }
-
-        OutlinedButton(onClick = onClose) {
-            Text("Close")
+        else{
+            OutlinedButton(onClick = onClose) {
+                Text("Chiudi")
+            }
         }
     }
 }

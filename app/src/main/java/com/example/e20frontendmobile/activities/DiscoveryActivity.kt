@@ -120,7 +120,9 @@ fun ShowDiscovery(
                     key = { it.id }
                 ) { resultItem ->
                     Box(Modifier.padding(top = 25.dp)) {
-                        //TODO creare utente card
+                        userCard(
+                            resultItem,
+                            navController)
                     }
                 }
             }

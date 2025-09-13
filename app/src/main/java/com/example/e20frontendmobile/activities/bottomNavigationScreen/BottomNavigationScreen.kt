@@ -113,7 +113,8 @@ fun BottomNavigationScreen() {
                                 QRCodeScannerWithBottomSheet()
                             }
                             composable ("edit") {
-                                createEvent(eventViewModel, true)
+
+                                createEvent(eventViewModel.selectedEvent)
                             }
                         }
                     }
@@ -145,7 +146,7 @@ fun BottomNavigationScreen() {
                                 QRCodeScannerWithBottomSheet()
                             }
                             composable ("edit") {
-                                createEvent(eventViewModel,true)
+                                createEvent(eventViewModel.selectedEvent)
                             }
                         }
                     }
@@ -161,7 +162,7 @@ fun BottomNavigationScreen() {
                             composable(route = "create"){
                                 //TODO Risolvere Clear Selection
                                 //eventViewModel.clearSelection()
-                                createEvent(eventViewModel)//admin
+                                createEvent(null)//admin
                             }
                         }
                     }

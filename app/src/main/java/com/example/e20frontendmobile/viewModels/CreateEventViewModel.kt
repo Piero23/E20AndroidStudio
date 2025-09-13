@@ -3,23 +3,26 @@ package com.example.e20frontendmobile.viewModels
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
+import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
+import com.example.e20frontendmobile.model.Event
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDateTime
 import java.io.File
 
 class CreateEventViewModel : ViewModel() {
 
 
-    var ciao = "Palle"
     var titolo: String by   mutableStateOf("")
 
-
-
+    var selectedEvent  by mutableStateOf<Event?>(null)
     var location by  mutableStateOf("")
     var posti by   mutableStateOf("")
     var prezzo by   mutableStateOf("")
@@ -65,20 +68,22 @@ class CreateEventViewModel : ViewModel() {
         }
     }
 
-    fun edit(){
-//        titolo = selectedEvent?.title ?: ""
-//        location = selectedEvent?.locationId.toString() ?: ""
-//        posti = selectedEvent?.posti.toString() ?: ""
-//        prezzo = selectedEvent?.prezzo.toString() ?: ""
-//        ageRestricted = selectedEvent?.restricted ?: false
-//        nominativo = selectedEvent?.b_nominativo ?: false
-//        riutilizzabile = selectedEvent?.b_riutilizzabile ?: false
-//        descrizione = selectedEvent?.description ?: ""
-////        //TODO RISOLVERE DATA
-//        selectedDate = selectedEvent?.date.toString() ?: ""
-//        selectedTime = selectedEvent?.date.toString() ?: ""
-//
-//        editing = true
+    var editing by mutableStateOf(false)
+
+    fun edit(evento : Event){
+        titolo = evento.title
+        location = evento.locationId.toString()
+        posti = evento.posti.toString()
+        prezzo = evento.prezzo.toString()
+        ageRestricted = evento.restricted
+        nominativo = evento.b_nominativo
+        riutilizzabile = evento.b_riutilizzabile
+        descrizione = evento.description
+//        //TODO RISOLVERE DATA
+        selectedDate = evento.date.toString()
+        selectedTime = evento.date.toString()
+
+        editing = true
     }
 
 
@@ -91,29 +96,27 @@ class CreateEventViewModel : ViewModel() {
         dataSbagliata = false
         orarioSbagliato = false
 
-//        verify()
+        verify()
         if( !(dataSbagliata || postiSbagliati || prezzoSbagliato || locationSbagliata || nomeSbagliato || orarioSbagliato)) {
             viewModelScope.launch {
-//                selectedEventLocation?.let {
-//                    EventService(context).create(
-//                        Event(
-//                            1,
-//                            descrizione,
-//                            title = titolo,
-//                            date = LocalDateTime.parse(selectedDate+"T"+selectedTime),
-//                            locationId = it.id!!,
-//                            posti = posti.toInt(),
-//                            prezzo = prezzo.toDouble(),
-//                            restricted = ageRestricted,
-//                            organizzatore = UtenteService(context).getUtenteSub() ?: "no",
-//                            b_riutilizzabile = riutilizzabile,
-//                            b_nominativo = nominativo
-//                        )
-//                    )
-//                }
-            }
-            //TODO clear campi
-        }
+                    EventService(context).create(
+                        Event(
+                            1,
+                            descrizione,
+                            title = titolo,
+                            date = LocalDateTime.parse(selectedDate+"T"+selectedTime),
+                            locationId = 1,
+                            posti = posti.toInt(),
+                            prezzo = prezzo.toDouble(),
+                            restricted = ageRestricted,
+                            organizzatore = UtenteService(context).getUtenteSub() ?: "no",
+                            b_riutilizzabile = riutilizzabile,
+                            b_nominativo = nominativo
+                        )
+                    )
+                }
+            }else
+            Toast.makeText(context, "Errore nella creazione", Toast.LENGTH_LONG).show()
     }
 
 

@@ -79,11 +79,14 @@ class CreateEventViewModel : ViewModel() {
         nominativo = evento.b_nominativo
         riutilizzabile = evento.b_riutilizzabile
         descrizione = evento.description
-//        //TODO RISOLVERE DATA
+        
+        
+        
         selectedDate = evento.date.toString()
         selectedTime = evento.date.toString()
 
         editing = true
+        selectedEvent = evento
     }
 
 
@@ -99,40 +102,40 @@ class CreateEventViewModel : ViewModel() {
         verify()
         if( !(dataSbagliata || postiSbagliati || prezzoSbagliato || locationSbagliata || nomeSbagliato || orarioSbagliato)) {
             viewModelScope.launch {
-                    EventService(context).create(
-                        Event(
-                            1,
-                            descrizione,
-                            title = titolo,
-                            date = LocalDateTime.parse(selectedDate+"T"+selectedTime),
-                            locationId = 1,
-                            posti = posti.toInt(),
-                            prezzo = prezzo.toDouble(),
-                            restricted = ageRestricted,
-                            organizzatore = UtenteService(context).getUtenteSub() ?: "no",
-                            b_riutilizzabile = riutilizzabile,
-                            b_nominativo = nominativo
-                        )
+                
+                
+                try {
+                    var evento = Event(
+                        1,
+                        descrizione,
+                        title = titolo,
+                        date = LocalDateTime.parse(selectedDate + "T" + selectedTime),
+                        locationId = location.toLong(),
+                        posti = posti.toInt(),
+                        prezzo = prezzo.toDouble(),
+                        restricted = ageRestricted,
+                        organizzatore = UtenteService(context).getUtenteSub() ?: "no",
+                        b_riutilizzabile = riutilizzabile,
+                        b_nominativo = nominativo
                     )
+
+                    var returningEvent : Event?
+                    if (!editing) {
+                        returningEvent = EventService(context).create(evento)
+                    }else{
+                        evento.id = selectedEvent?.id!!
+                        returningEvent = EventService(context).edit(evento)
+                    }
+
+                    EventService(context).uploadImageEvento(returningEvent?.id ?: 1, uriToFile(context))
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Qualcosa è andato storto", Toast.LENGTH_LONG).show()
                 }
-            }else
+
+            }
+        }else
             Toast.makeText(context, "Errore nella creazione", Toast.LENGTH_LONG).show()
     }
-
-
-    fun clearSelection() {
-        titolo =  ""
-        location =  ""
-        posti =  ""
-        prezzo =  ""
-        ageRestricted =  false
-        nominativo =  false
-        riutilizzabile =  false
-        descrizione = ""
-        selectedDate =  ""
-        selectedTime = ""
-    }
-
     var createSelectedImage by mutableStateOf("".toUri())
 
     fun uriToFile(context: Context): File {

@@ -93,184 +93,13 @@ fun timeDatePicker() {
 }
 
 
-@Composable
-fun setImage(
-    evento: Event?,
-    createEventViewModel: CreateEventViewModel,
-    context: Context,
-    eventViewModel: EventViewModel
-) {
-
-    val pickMedia = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri != null) {
-            createEventViewModel.createSelectedImage = uri
-        } else {
-            Toast.makeText(context, "Errore: ${"Creazione immagine"}", Toast.LENGTH_LONG).show()
-
-        }
-    }
-
-    if (evento != null) {
-
-        LaunchedEffect(evento) {
-            createEventViewModel.createSelectedImage = createEventViewModel.bitmapToUri(
-                context,
-                (eventViewModel.getEventImage(evento.id, context))
-            )
-        }
-    }
-
-    if (createEventViewModel.createSelectedImage.path != "") {
-        AsyncImage(
-            model = createEventViewModel.createSelectedImage,
-            contentDescription = "Image of ${"event.id"}",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp),
-        )
-    } else {
-        Image(
-            painter = painterResource(R.drawable.photomode_18072025_201346),
-            contentDescription = "Placeholder",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp),
-            contentScale = ContentScale.Crop
-        )
-    }
-
-    IconButtonType1(
-        onClick = {
-            pickMedia.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
-        },
-        icon = Icons.Default.Edit,
-        iconDescription = "",
-        iconSize = 20.dp,
-        modifier = Modifier.padding(10.dp)
-    )
-}
-
-
-@Composable
-fun textFieldCreateEvent(titolo: String, controllo: Boolean) {
-
-    Row {
-        Text(
-            titolo,
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.headlineLarge
-        )
-        if (controllo) {
-            Text(
-                "*",
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.Red,
-                modifier = Modifier.padding(10.dp)
-            )
-        }
-    }
-}
-
-@Composable
-fun locationSection(
-    createEventViewModel: CreateEventViewModel, context: Context,
-    locationViewModel: LocationViewModel = viewModel()
-) {
-
-    var showLocationPicker by remember { mutableStateOf(false) }
-    var showSearch by remember { mutableStateOf(false) }
-    if (showLocationPicker) {
-        LocationPickerPopup { showLocationPicker = false }
-    }
-    val coroutineScope = rememberCoroutineScope()
-    var locationName by remember { mutableStateOf("") }
-
-    Column {
-        textFieldCreateEvent("Location", createEventViewModel.locationSbagliata)
-
-        Row {
-            CustomTextField(
-                value = locationName,
-                onValueChange = {
-                    locationName = it
-                    locationViewModel.searchLocations(context, it)
-                    showSearch = true
-                    createEventViewModel.location = ""
-                },
-                placeholder = "Location",
-                singleLine = true,
-                modifier = Modifier.width(300.dp)
-            )
-
-            IconButtonType1(
-                onClick = { showLocationPicker = true },
-                icon = Icons.Default.Place,
-                iconDescription = "",
-                iconSize = 20.dp,
-                modifier = Modifier.padding(10.dp)
-            )
-        }
-
-        if (locationName.isNotEmpty() && showSearch) {
-            Card(
-                modifier = Modifier
-                    .width(300.dp)
-                    .padding(top = 2.dp),
-                shape = RoundedCornerShape(8.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-
-                if (locationViewModel.locations.isNotEmpty()) {
-
-                    LazyColumn(
-                        modifier = Modifier.heightIn(max = 200.dp)
-                    ) {
-                        itemsIndexed(locationViewModel.locations) { index, option ->
-                            val address = locationViewModel.locationsAdress.getOrNull(index)
-
-                            if (address != null) {
-                                Text(
-                                    text = """${option.nome}
-                                                    |${address?.road}
-                                                    |${address?.village}, ${address.postcode}""".trimMargin()
-                                        ?: "",
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            locationName = option.nome ?: ""
-                                            createEventViewModel.location = option.id.toString()
-                                            locationViewModel.clearLocations()
-                                            showSearch = false
-                                        }
-                                        .padding(10.dp)
-                                )
-                                if (index != locationViewModel.locations.size - 1) {
-                                    HorizontalDivider()
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
 fun createEvent(evento: Event?, eventViewModel: EventViewModel = viewModel()) {
+    val context = LocalContext.current
 
     var createEventViewModel: CreateEventViewModel = viewModel()
-
-    //----------------------Edit
-    //TODO mettere nel model
-    val context = LocalContext.current
 
     if (evento != null) {
         LaunchedEffect(evento) {
@@ -527,21 +356,177 @@ fun createEvent(evento: Event?, eventViewModel: EventViewModel = viewModel()) {
             }
         }
     }
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//        }
-//    }
 }
 
+
+@Composable
+fun setImage(
+    evento: Event?,
+    createEventViewModel: CreateEventViewModel,
+    context: Context,
+    eventViewModel: EventViewModel
+) {
+
+    val pickMedia = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            createEventViewModel.createSelectedImage = uri
+        } else {
+            Toast.makeText(context, "Errore: ${"Creazione immagine"}", Toast.LENGTH_LONG).show()
+
+        }
+    }
+
+    if (evento != null) {
+
+        LaunchedEffect(evento) {
+            createEventViewModel.createSelectedImage = createEventViewModel.bitmapToUri(
+                context,
+                (eventViewModel.getEventImage(evento.id, context))
+            )
+        }
+    }
+
+    if (createEventViewModel.createSelectedImage.path != "") {
+        AsyncImage(
+            model = createEventViewModel.createSelectedImage,
+            contentDescription = "Image of ${"event.id"}",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp),
+        )
+    } else {
+        Image(
+            painter = painterResource(R.drawable.photomode_18072025_201346),
+            contentDescription = "Placeholder",
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp),
+            contentScale = ContentScale.Crop
+        )
+    }
+
+    IconButtonType1(
+        onClick = {
+            pickMedia.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+        },
+        icon = Icons.Default.Edit,
+        iconDescription = "",
+        iconSize = 20.dp,
+        modifier = Modifier.padding(10.dp)
+    )
+}
+
+
+@Composable
+fun textFieldCreateEvent(titolo: String, controllo: Boolean) {
+
+    Row {
+        Text(
+            titolo,
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.headlineLarge
+        )
+        if (controllo) {
+            Text(
+                "*",
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Red,
+                modifier = Modifier.padding(10.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun locationSection(
+    createEventViewModel: CreateEventViewModel, context: Context,
+    locationViewModel: LocationViewModel = viewModel()
+) {
+
+    var showLocationPicker by remember { mutableStateOf(false) }
+    var showSearch by remember { mutableStateOf(false) }
+    if (showLocationPicker) {
+        LocationPickerPopup { showLocationPicker = false }
+    }
+    val coroutineScope = rememberCoroutineScope()
+    var locationName by remember { mutableStateOf("") }
+
+    Column {
+        textFieldCreateEvent("Location", createEventViewModel.locationSbagliata)
+
+        Row {
+            CustomTextField(
+                value = locationName,
+                onValueChange = {
+                    locationName = it
+                    locationViewModel.searchLocations(context, it)
+                    showSearch = true
+                    createEventViewModel.location = ""
+                },
+                placeholder = "Location",
+                singleLine = true,
+                modifier = Modifier.width(300.dp)
+            )
+
+            IconButtonType1(
+                onClick = { showLocationPicker = true },
+                icon = Icons.Default.Place,
+                iconDescription = "",
+                iconSize = 20.dp,
+                modifier = Modifier.padding(10.dp)
+            )
+        }
+
+        if (locationName.isNotEmpty() && showSearch) {
+            Card(
+                modifier = Modifier
+                    .width(300.dp)
+                    .padding(top = 2.dp),
+                shape = RoundedCornerShape(8.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+
+                if (locationViewModel.locations.isNotEmpty()) {
+
+                    LazyColumn(
+                        modifier = Modifier.heightIn(max = 200.dp)
+                    ) {
+                        itemsIndexed(locationViewModel.locations) { index, option ->
+                            val address = locationViewModel.locationsAdress.getOrNull(index)
+
+                            if (address != null) {
+                                Text(
+                                    text = """${option.nome}
+                                                    |${address?.road}
+                                                    |${address?.village}, ${address.postcode}""".trimMargin()
+                                        ?: "",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            locationName = option.nome ?: ""
+                                            createEventViewModel.location = option.id.toString()
+                                            locationViewModel.clearLocations()
+                                            showSearch = false
+                                        }
+                                        .padding(10.dp)
+                                )
+                                if (index != locationViewModel.locations.size - 1) {
+                                    HorizontalDivider()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

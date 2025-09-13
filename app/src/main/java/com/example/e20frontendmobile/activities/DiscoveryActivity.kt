@@ -155,10 +155,3 @@ fun NoRippleTab(
         )
     }
 }
-
-@Preview
-@Composable
-fun previ(){
-    val nav=rememberNavController()
-    //ShowDiscovery(nav)
-}

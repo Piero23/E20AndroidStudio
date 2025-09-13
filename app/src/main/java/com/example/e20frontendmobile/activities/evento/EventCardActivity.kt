@@ -47,15 +47,13 @@ fun eventCard(event: Event,
 
     val context: Context = LocalContext.current
 
-    var imageBitmap by remember { mutableStateOf<Bitmap?>(eventViewModel.getCachedImage(event.id)) }
+    var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
+
 
     LaunchedEffect(event.id) {
-        if (imageBitmap == null) {
-            eventViewModel.fetchImage(context, event.id) { bitmap ->
-                imageBitmap = bitmap
-            }
-        }
+        imageBitmap = eventViewModel.getEventImage(event.id , context)
     }
+
 
     Card(
         colors = CardDefaults.cardColors(
@@ -73,31 +71,14 @@ fun eventCard(event: Event,
                 .fillMaxSize(),
             contentAlignment = Alignment.BottomStart
         ) {
-            if (imageBitmap != null) {
-                imageBitmap?.let { bitmap ->
-                    Image(
-                        bitmap = bitmap.asImageBitmap(),
-                        contentDescription = "Event Image",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxSize()
-                    )
-                }
-            } else {
-                Box(
+            if(imageBitmap != null) {
+                Image(
+                    bitmap = imageBitmap!!.asImageBitmap(),
+                    contentDescription = "Event Image",
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row{
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text("Caricamento immagine")
-                    }
-                }
+                        .fillMaxSize()
+                )
             }
 
             Box(

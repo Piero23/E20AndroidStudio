@@ -6,8 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.e20frontendmobile.apiService.PreferitiService
 import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
 import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
+import com.example.e20frontendmobile.data.auth.AuthStateStorage
 import com.example.e20frontendmobile.model.Event
 import com.example.e20frontendmobile.model.Utente
 import kotlinx.coroutines.launch
@@ -41,5 +43,41 @@ class UserViewModel : ViewModel() {
                 loading = false
             }
         }
+    }
+
+
+    fun salvaPreferito(context: Context , eventoId : Long){
+        viewModelScope.launch {
+            PreferitiService(context).aggiungiAiPreferiti(
+                AuthStateStorage(context).getUserInfo()?.sub,
+                eventoId
+            )
+        }
+    }
+
+    fun removePreferiti(context: Context ,  eventoId : Long){
+        viewModelScope.launch {
+            PreferitiService(context).rimuoviDaiPreferiti(
+                AuthStateStorage(context).getUserInfo()?.sub,
+                eventoId
+            )
+        }
+    }
+
+    fun checkIfPreferito(context: Context , eventoId : Long): Boolean {
+
+        val storage =  AuthStateStorage(context)
+        val userInfo = storage.getUserInfo()
+
+        var allpreferiti: List<Event> = listOf()
+        if (userInfo?.sub!=null){
+            viewModelScope.launch {
+                allpreferiti = PreferitiService(context).getAllPreferiti(userInfo?.sub)
+            }
+            for (item in allpreferiti){
+                if (item.id== eventoId) return true
+            }
+        }
+        return false
     }
 }

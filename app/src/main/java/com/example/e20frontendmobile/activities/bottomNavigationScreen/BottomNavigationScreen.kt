@@ -159,7 +159,8 @@ fun BottomNavigationScreen() {
                         )
                         {
                             composable(route = "create"){
-                                eventViewModel.clearSelection()
+                                //TODO Risolvere Clear Selection
+                                //eventViewModel.clearSelection()
                                 createEvent(eventViewModel)//admin
                             }
                         }

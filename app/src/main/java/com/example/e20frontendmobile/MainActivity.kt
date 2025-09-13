@@ -350,11 +350,14 @@ fun mainFun(navController: NavHostController, eventViewModel: EventViewModel){
 
                 Log.d("Carousel" ,items.toString())
 
-                EventCarousel(28.sp,
+                EventCarousel(
                     "Eventi in voga",
                     navController ,
                     eventViewModel,listaEventi)
-                EventCarousel(28.sp, "Partecipano i tuoi amici", navController, eventViewModel , items)
+
+                EventCarousel( "Partecipano i tuoi amici",
+                    navController, eventViewModel ,
+                    items)
             }
         }
 

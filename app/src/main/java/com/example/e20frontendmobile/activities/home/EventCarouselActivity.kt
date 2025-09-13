@@ -44,7 +44,6 @@ import com.example.e20frontendmobile.viewModels.EventViewModel
 
 @Composable
 fun EventCarousel(
-    fontSize: TextUnit,
     carouselText: String,
     navController: NavHostController,
     eventViewModel: EventViewModel,

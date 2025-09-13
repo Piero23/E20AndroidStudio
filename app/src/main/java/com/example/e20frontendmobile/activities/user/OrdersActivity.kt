@@ -1,6 +1,5 @@
 package com.example.e20frontendmobile.activities.user
 
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,11 +42,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
 import com.example.e20frontendmobile.model.Ordine
 import com.example.e20frontendmobile.model.Ticket
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import com.example.e20frontendmobile.viewModels.OrdineViewModel
-import kotlinx.datetime.LocalDateTime
 
 
 //TODO PULIRE TUTTO (controllo errori e qrCode cliccabile)
@@ -60,7 +59,13 @@ fun OrdersList(ordineViewModel: OrdineViewModel = viewModel()) {
     } else {
         LazyColumn {
             items(ordini) { ordine ->
-                ExpandableCard(ordine)
+                var context = LocalContext.current
+                var nomeEvento: String? by remember {mutableStateOf("")}
+
+                LaunchedEffect(ordine) {
+                    nomeEvento = EventService(context).findName(1)
+                }
+                ExpandableCard(ordine , nomeEvento)
             }
         }
     }
@@ -96,7 +101,7 @@ fun Orders(ordineViewModel: OrdineViewModel = viewModel ()) {
 }
 
 @Composable
-fun ExpandableCard(ordine: Ordine) {
+fun ExpandableCard(ordine: Ordine, nomeEvento: String?) {
     var expanded by remember { mutableStateOf(false) }
 
     Card(
@@ -110,16 +115,23 @@ fun ExpandableCard(ordine: Ordine) {
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         border = BorderStroke(3.dp, Color(0xFFFF9800)) // bordo arancione come nell'immagine
     ) {
+
+
+
+
         Column(modifier = Modifier.padding(12.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = "evento ACCAZZo",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.weight(1f)
-                )
+                if (nomeEvento != null) {
+                    Text(
+                        text = nomeEvento ,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
                 Icon(
                     imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = null

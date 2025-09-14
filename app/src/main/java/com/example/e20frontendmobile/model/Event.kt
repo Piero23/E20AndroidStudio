@@ -7,6 +7,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializer
+import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 
 @Serializable
 data class Event(

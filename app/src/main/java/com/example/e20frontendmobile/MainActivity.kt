@@ -348,6 +348,8 @@ fun mainFun(navController: NavHostController, eventViewModel: EventViewModel){
                 var items by  remember { mutableStateOf<List<Event>>(listOf())}
                 var preferiti by  remember { mutableStateOf<List<Event>>(listOf())}
                 var amici by  remember { mutableStateOf<List<Event>>(listOf())}
+                var managed by  remember { mutableStateOf<List<Event>>(listOf())}
+
 
                 var listaEventi = items
 
@@ -363,11 +365,22 @@ fun mainFun(navController: NavHostController, eventViewModel: EventViewModel){
                     for (friend in friends){
                         amici = amici + PreferitiService(context).getAllPreferiti(friend.username)
                     }
+                    amici = amici.shuffled()
                     //TODO testare amici e preferiti (e magari cambiare colore alla box vuota)
+
+                    managed = EventService(context).getFromManager()
+                    println("CIAO")
+                    println(managed)
                     Log.d("Carousel" ,items.toString())
                 }
 
                 Log.d("Carousel" ,items.toString())
+
+                if(managed.isNotEmpty()){
+                    EventCarousel( "Eventi gestiti da te",
+                        navController, eventViewModel ,
+                        managed)
+                }
 
                 EventCarousel(
                     "Eventi in voga",
@@ -399,7 +412,7 @@ fun mainFun(navController: NavHostController, eventViewModel: EventViewModel){
                 if(amici.isNotEmpty()){
                     EventCarousel( "I preferiti dei\n tuoi seguiti",
                         navController, eventViewModel ,
-                        preferiti)
+                        amici)
                 }
                 else{
                     Box(

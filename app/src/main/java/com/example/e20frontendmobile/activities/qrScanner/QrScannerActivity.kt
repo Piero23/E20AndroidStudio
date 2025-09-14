@@ -201,7 +201,6 @@ fun BottomSheetContent(
                     CircularProgressIndicator()
                 }
                 else {
-                    println("MUCCA2")
                     Text(
                         "Biglietto non valido ❌",
                         textAlign = TextAlign.Center,

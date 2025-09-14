@@ -108,7 +108,6 @@ class CreateEventViewModel : ViewModel() {
                 
                 
                 try {
-                    println("MUCCA33")
                     var evento = Event(
                         1,
                         descrizione,

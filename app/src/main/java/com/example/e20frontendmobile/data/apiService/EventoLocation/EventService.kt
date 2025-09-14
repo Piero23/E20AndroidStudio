@@ -24,11 +24,24 @@ import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonIgnoreUnknownKeys
+import kotlinx.serialization.json.boolean
+import kotlinx.serialization.json.double
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.long
 import java.io.File
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.math.log
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 class EventService(private val context: Context) : ApiParent() {
 
@@ -218,24 +231,50 @@ class EventService(private val context: Context) : ApiParent() {
         }
     }
 
-    // 🔹 GET my events (by manager)
-    fun getFromManager(): List<Event>? = runBlocking {
+
+    @OptIn(ExperimentalTime::class)
+    suspend fun getFromManager(): List<Event>{
         val token = getToken(context)
-        try {
+        return try {
             val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/evento/myEvents") {
                 header(HttpHeaders.Authorization, "Bearer $token")
             }
-            return@runBlocking if (response.status.value in 200..299) response.body() else null
+            if (response.status.value in 200..299) {
+                val json = response.bodyAsText()
+                val jsonArray = Json.parseToJsonElement(json).jsonArray
+
+                jsonArray.map { elem ->
+                    val obj = elem.jsonObject
+                    val locationId = obj["location"]?.jsonObject?.get("id")?.jsonPrimitive?.long
+
+                    val rawDate = obj["data"]!!.jsonPrimitive.content
+                    val instant = Instant.parse(rawDate)
+                    val localDateTime = instant.toLocalDateTime(TimeZone.UTC)
+
+                    Event(
+                        id = obj["id"]!!.jsonPrimitive.long,
+                        title = obj["nome"]!!.jsonPrimitive.content,
+                        description = obj["descrizione"]!!.jsonPrimitive.content,
+                        organizzatore = obj["organizzatore"]!!.jsonPrimitive.content,
+                        posti = obj["posti"]!!.jsonPrimitive.int,
+                        b_riutilizzabile = obj["b_riutilizzabile"]!!.jsonPrimitive.boolean,
+                        b_nominativo = obj["b_nominativo"]!!.jsonPrimitive.boolean,
+                        restricted = obj["age_restricted"]!!.jsonPrimitive.boolean,
+                        locationId = locationId ?: -1,
+                        date = localDateTime,
+                        prezzo = obj["prezzo"]!!.jsonPrimitive.double
+                    )
+                }
+            } else listOf()
         } catch (e: Exception) {
             println("Errore getFromManager: ${e.message}")
-            null
+            listOf()
         }
     }
 
     suspend fun search(query: String): List<Event> {
         return withContext(Dispatchers.IO) { // esegue in background
             try {
-                println("Bagio ha sei fuori dal codice")
                 val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/evento/search/$query")
                 if (response.status.value in 200..299) {
                     val jsonString = response.bodyAsText()

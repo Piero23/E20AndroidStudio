@@ -86,4 +86,10 @@ class UserViewModel : ViewModel() {
         }
         return false
     }
+
+    fun followUser(context: Context, username: String) {
+        viewModelScope.launch {
+            UtenteService(context).aggiungiAiSeguiti(username)
+        }
+    }
 }

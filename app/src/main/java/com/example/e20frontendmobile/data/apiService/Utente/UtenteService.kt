@@ -192,6 +192,66 @@ class UtenteService (private val context: Context) : ApiParent() {
         return getSeguiti(user.username)
     }
 
+    suspend fun isInUtenteSeguiti(utente: Utente): Boolean {
+        val seguiti = getSeguitiOfLoggedUser()
+        if (seguiti.contains(utente)) {
+            return false
+        }
+        return true;
+    }
+
+    suspend fun aggiungiAiSeguiti(username: String): Boolean {
+        val user = getLoggedUser() ?: return false
+        val token = getToken(context)
+        return try {
+            val response: HttpResponse = myHttpClient.post("https://$ip:8060/api/utente/${user.username}/seguiti") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                contentType(ContentType.Application.Json)
+                setBody(mapOf("username" to username))
+            }
+            if (response.status.value in 200..299) {
+
+                Log.d("UtenteService", "${user.username} ha iniziato a seguire $username")
+                true
+
+            }
+            else {
+                println("Errore aggiunta ai seguiti: ${response.status.value}")
+                false
+            }
+        }
+        catch (e: Exception) {
+            Log.d("UtenteService", "Errore aggiunta ai seguiti: ${e.message}")
+            false
+        }
+    }
+
+    suspend fun rimuoviDaiSeguiti(username: String): Boolean {
+        val user = getLoggedUser() ?: return false
+        val token = getToken(context)
+        return try {
+            val response: HttpResponse = myHttpClient.delete("https://$ip:8060/api/utente/${user.username}/seguiti") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                contentType(ContentType.Application.Json)
+                setBody(mapOf("username" to username))
+            }
+            if (response.status.value in 200..299) {
+
+                Log.d("UtenteService", "${user.username} ha smesso di seguire $username")
+                true
+
+            }
+            else {
+                println("Errore rimozione dai seguiti: ${response.status.value}")
+                false
+            }
+        }
+        catch (e: Exception) {
+            Log.d("UtenteService", "Errore rimozione di seguiti: ${e.message}")
+            false
+        }
+    }
+
     // Register New User
     suspend fun register(userRegistration: UserRegistration): Boolean = withContext(Dispatchers.IO) {
         try {

@@ -667,7 +667,11 @@ fun MainProfileScreen(
             Spacer(Modifier.height(spaceMedium))
 
             // User Info
-            UserInfo(currentUser.email, currentUser.dataNascita.toString())
+            UserInfo(
+                currentUser.email,
+                currentUser.dataNascita.toString(),
+                modifiable = false
+            )
 
             Spacer(Modifier.height(spaceMedium))
 

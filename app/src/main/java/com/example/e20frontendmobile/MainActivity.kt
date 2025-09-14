@@ -1,6 +1,7 @@
 package com.example.e20frontendmobile
 
 
+import android.R.attr.shape
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -17,14 +18,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
@@ -68,10 +72,16 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.composeuitemplates.presentation.bottomNavigationScreen.BottomNavigationScreen
 import com.example.e20frontendmobile.activities.home.EventCarousel
+import com.example.e20frontendmobile.apiService.PreferitiService
 import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
+import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
+import com.example.e20frontendmobile.data.auth.AuthManager
+import com.example.e20frontendmobile.data.auth.AuthStateStorage
 import com.example.e20frontendmobile.model.Event
+import com.example.e20frontendmobile.model.Utente
 import com.example.e20frontendmobile.ui.theme.BungeeInline
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
+import com.example.e20frontendmobile.ui.theme.backgroundGradient
 import com.example.e20frontendmobile.viewModels.EventViewModel
 
 import kotlinx.coroutines.launch
@@ -336,13 +346,24 @@ fun mainFun(navController: NavHostController, eventViewModel: EventViewModel){
             Column {
 
                 var items by  remember { mutableStateOf<List<Event>>(listOf())}
+                var preferiti by  remember { mutableStateOf<List<Event>>(listOf())}
+                var amici by  remember { mutableStateOf<List<Event>>(listOf())}
 
                 var listaEventi = items
 
                 val context = LocalContext.current
                 LaunchedEffect(context) {
                     items = EventService(context).findAll()
+                    preferiti = PreferitiService(context).getAllPreferiti(UtenteService(context).getUtenteSub())
 
+                    var friends = listOf<Utente>()
+                    if (UtenteService(context).getUtenteSub()!=null) {
+                        friends = UtenteService(context).getSeguaci(UtenteService(context).getUtenteSub()!!)
+                    }
+                    for (friend in friends){
+                        amici = amici + PreferitiService(context).getAllPreferiti(friend.username)
+                    }
+                    //TODO testare amici e preferiti (e magari cambiare colore alla box vuota)
                     Log.d("Carousel" ,items.toString())
                 }
 
@@ -353,9 +374,50 @@ fun mainFun(navController: NavHostController, eventViewModel: EventViewModel){
                     navController ,
                     eventViewModel,listaEventi)
 
-                EventCarousel( "Partecipano i tuoi amici",
-                    navController, eventViewModel ,
-                    items)
+                if(preferiti.isNotEmpty()){
+                    EventCarousel( "I tuoi preferiti",
+                        navController, eventViewModel ,
+                        preferiti)
+                }
+                else{
+                    Box(
+                        Modifier.fillMaxWidth().aspectRatio(1f).padding(40.dp).background(
+                            backgroundGradient(), shape = RoundedCornerShape(20.dp)),
+                        Alignment.Center
+                    ){
+                        Text(
+                            text = """Qui compariranno
+                            |i tuoi preferiti
+                        """.trimMargin(),
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                    }
+                }
+
+                if(amici.isNotEmpty()){
+                    EventCarousel( "I preferiti dei\n tuoi seguiti",
+                        navController, eventViewModel ,
+                        preferiti)
+                }
+                else{
+                    Box(
+                        Modifier.fillMaxWidth().aspectRatio(1f).padding(40.dp).background(
+                            backgroundGradient(), shape = RoundedCornerShape(20.dp)),
+                        Alignment.Center
+                    ){
+                        Text(
+                            text = """Non segui nessuno
+                                |o non hanno preferiti
+                        """.trimMargin(),
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontSize = 22.sp
+                        )
+                    }
+                }
             }
         }
 

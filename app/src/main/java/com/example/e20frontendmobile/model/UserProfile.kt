@@ -10,7 +10,7 @@ data class UserProfile(
     val username: String = "",
 
     val email: String = "",
-    @Serializable(with = JavaLocalDateSerializer::class)
 
+    @Serializable(with = JavaLocalDateSerializer::class)
     @SerialName("dataNascita") val birthDate: LocalDate? = null,
 )

@@ -1,5 +1,10 @@
 package com.example.e20frontendmobile.activities
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
@@ -9,10 +14,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -24,9 +31,13 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -44,12 +55,18 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.e20frontendmobile.activities.evento.DatePickerModal
 import com.example.e20frontendmobile.composables.CustomTextField
 import com.example.e20frontendmobile.composables.IconButtonType1
 import com.example.e20frontendmobile.composables.IconTextButtonType1
+import com.example.e20frontendmobile.data.auth.AuthActivity
 import com.example.e20frontendmobile.model.UserProfile
 import com.example.e20frontendmobile.model.UserRegistration
+import com.example.e20frontendmobile.model.Utente
 import com.example.e20frontendmobile.toJavaLocalDate
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import com.example.e20frontendmobile.ui.theme.backgroundGradient
@@ -62,6 +79,7 @@ import com.example.e20frontendmobile.ui.theme.spaceLarge
 import com.example.e20frontendmobile.ui.theme.spaceMedium
 import com.example.e20frontendmobile.ui.theme.spaceSmall
 import com.example.e20frontendmobile.ui.theme.white
+import com.example.e20frontendmobile.viewModels.LoggedUserViewModel
 import com.example.e20frontendmobile.viewModels.RegistrationViewModel
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -69,61 +87,129 @@ import java.time.LocalDate
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-//TODO redirectare logout a pagina login con navhostcontroller
 @Composable
-fun MainAccessUserPage(navController: NavHostController) {
-//    val navController = rememberNavController()
-//    val user = userViewModel.currentUser
-//
-//    NavHost(
-//        navController = navController,
-//        startDestination = if (user == null) "login" else "profile"
-//    ) {
-//        composable("login") {
-//            LoginScreen(
-//                onLoginSuccess = { loggedUser ->
-//                    userViewModel.login(loggedUser)
-//                    navController.navigate("profile") {
-//                        popUpTo("login") { inclusive = true } // rimuove login dallo stack
-//                    }
-//                }
-//            )
-//        }
-//
-//        composable("profile") {
-//            ProfileScreen(
-//                user = userViewModel.currentUser!!,
-//                onLogout = {
-//                    userViewModel.logout()
-//                    navController.navigate("login") {
-//                        popUpTo("profile") { inclusive = true }
-//                    }
-//                },
-//                onFollowerClick = { followerId ->
-//                    navController.navigate("userDetail/$followerId")
-//                }
-//            )
-//        }
-//
-//        composable(
-//            route = "userDetail/{userId}",
-//            arguments = listOf(navArgument("userId") { type = NavType.StringType })
-//        ) { backStackEntry ->
-//            val userId = backStackEntry.arguments?.getString("userId")
-//            UserDetailScreen(userId = userId ?: "")
-//        }
-//    }
+fun MainAccessUserPage(
+    navController: NavHostController,
+    loggedUserViewModel: LoggedUserViewModel = viewModel()
+) {
+    val context = LocalContext.current
+    val loggedUser by loggedUserViewModel.loggedUser.collectAsState()
+    val onScreenUser by loggedUserViewModel.onScreenUser.collectAsState()
+
+    // 1: Load Logged User Only the first time on the Creation of the Composable
+    LaunchedEffect(Unit) {
+        loggedUserViewModel.loadLoggedUser(context)
+    }
+
+    // 2: AuthActivity Launcher (ActivityResult API)
+    val loginLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            // Non navighiamo qui: ricarichiamo lo user e lasciamo che il LaunchedEffect sotto
+            // reagisca quando loggedUser cambia.
+            Log.d("MainAccessUserPage", "Login in con successo, resultCode = ${result.resultCode}")
+            loggedUserViewModel.loadLoggedUser(context)
+        } else {
+            Log.d("MainAccessUserPage", "Login fallito o annullato")
+        }
+    }
+
+    // 3: Update Logger User Status on Changes
+    LaunchedEffect(loggedUser) {
+        Log.d("MainAccessUserPage", "Redirezione perché loggedUser = $loggedUser")
+
+        if (loggedUser != null) {
+            // Se siamo loggati, vai al profilo (rimuovi register dallo stack)
+            navController.navigate("profile") {
+                popUpTo("register") { inclusive = true }
+            }
+        } else {
+            // Se non siamo loggati, assicurati di andare su register
+            navController.navigate("register") {
+                popUpTo("profile") { inclusive = true }
+            }
+        }
+    }
+
+    // 4: NavHost starting on "register"
+    NavHost(
+        navController = navController,
+        startDestination = "register"
+    ) {
+        // Waiting for Data
+        //composable("loading") { LoadingScreen() }
+
+        composable("register") {
+            RegisterScreen(
+                onLoginRequest = {
+                    // uso il launcher per aprire l'AuthActivity
+                    loginLauncher.launch(Intent(context, AuthActivity::class.java))
+                }
+            )
+        }
+
+        composable("profile") {
+            // Mostra il profilo solo se abbiamo i dati
+            loggedUser?.let { user ->
+                MainProfileScreen(
+                    currentUser = user,
+                    loggedUserViewModel = loggedUserViewModel,
+                    onLogoutCallback = {
+                        loggedUserViewModel.logout()
+                        // logout provoca loggedUser = null -> LaunchedEffect sopra porta a "register"
+                    },
+                    onAnotherUtenteClickCallback = { username ->
+                        navController.navigate("user/$username")
+                    }
+                )
+            } ?: run {
+                // se non abbiamo ancora i dati, mostra un loader (meglio di Register)
+                LoadingScreen()
+            }
+        }
+
+        composable(
+            route = "user/{username}",
+            arguments = listOf(navArgument("username") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val username = backStackEntry.arguments?.getString("username") ?: ""
+
+            // carico l'utente richiesto solo quando cambia il param
+            LaunchedEffect(username) {
+                loggedUserViewModel.loadUser(context, username)
+            }
+
+            when (val user = onScreenUser) {
+                null -> LoadingScreen()
+                else -> UserInfoProfileScreen(user)
+            }
+        }
+    }
 }
 
+
 // Components --------------------------------------------------------------------------------------
+
+@Composable
+fun LoadingScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
+}
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun UserAccordion(
     title: String,
-    users: List<UserProfile>,
+    users: List<Utente>,
+    setVisibility: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    onTitleClick: () -> Unit = { }
+    onTitleClick: () -> Unit = { },
+    onUtenteClickCallback: (String) -> Unit = { },
 ) {
     Box(
         modifier = Modifier
@@ -153,7 +239,7 @@ fun UserAccordion(
             Column(
                 modifier = modifier
                     .fillMaxWidth()
-                    .padding(vertical = spaceMedium)
+                    .padding(top = spaceMedium)
                     .background(white)
                     .wrapContentHeight()
             ) {
@@ -169,11 +255,14 @@ fun UserAccordion(
                 }
 
                Row(
-                   modifier = Modifier.fillMaxWidth().padding(horizontal = spaceMedium, vertical = spaceSmall),
+                   modifier = Modifier
+                       .fillMaxWidth()
+                       .padding(horizontal = spaceMedium, vertical = spaceSmall),
                    verticalAlignment = Alignment.CenterVertically
                ) {
                    Spacer(
-                       Modifier.height(3.dp)
+                       Modifier
+                           .height(3.dp)
                            .weight(1f)
                            .background(color = overlayBlack40, shape = MaterialTheme.shapes.small)
                    )
@@ -203,18 +292,27 @@ fun UserAccordion(
                             IconButtonType1(
                                 icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                 iconDescription = "Mostra di più",
-                                onClick = { }
+                                onClick = { 
+                                    setVisibility(false)
+                                    onUtenteClickCallback(user.username) 
+                                }
                             )
                         }
 
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(spaceSmall),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(spaceSmall),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Spacer(
-                                Modifier.height(3.dp)
+                                Modifier
+                                    .height(3.dp)
                                     .weight(1f)
-                                    .background(color = overlayBlack10, shape = MaterialTheme.shapes.small)
+                                    .background(
+                                        color = overlayBlack10,
+                                        shape = MaterialTheme.shapes.small
+                                    )
                             )
                         }
                     }
@@ -229,8 +327,10 @@ fun UserAccordion(
 fun TitledBox(
     title: String,
     content: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = { }
 ) {
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -337,28 +437,33 @@ fun RegistrationTextField(
     label: String,
     isError: Boolean,
     modifier: Modifier = Modifier,
+    showLabel: Boolean = true,
     placeholder: String? = null,
     errorMessage: String? = null,
-    isPassword: Boolean = false
+    isPassword: Boolean = false,
+    readOnly: Boolean = false
 ) {
     Column(
         modifier = modifier
-            .height(100.dp)
-            .background(white)
+            .wrapContentHeight()
+            .defaultMinSize(minHeight = 115.dp)
+            .background(Color.Transparent)
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onTertiary,
-            modifier = Modifier.padding(start = 10.dp)
-        )
-
+        if (showLabel) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onTertiary,
+                modifier = Modifier.padding(start = 10.dp)
+            )
+        }
         CustomTextField(
             value = value,
             onValueChange = { onValueChange(it) },
             singleLine = true,
             placeholder = placeholder,
-            isPassword = isPassword
+            isPassword = isPassword,
+            readOnly = readOnly
         )
 
         if (isError && errorMessage != null) {
@@ -426,6 +531,7 @@ private fun UserRegistrationBox(
             label = "Password",
             value = userState.password,
             placeholder = "Your Password",
+            isPassword = true,
             onValueChange = onPasswordChange,
             isError = userState.errors["password"]?.isNotEmpty() == true,
             errorMessage = userState.errors["password"]
@@ -451,12 +557,13 @@ private fun UserRegistrationBox(
             modifier = Modifier.fillMaxWidth()
         ) {
             RegistrationTextField(
-                label = "Birth Date",
-                value = userState.birthDate.toString(),
+                label = "Data di Nascita",
+                value = if (userState.birthDate == null) "Select a Date" else userState.birthDate.toString(),
                 placeholder = "Your Birth Date",
-                onValueChange = { }, // Not Editable
+                onValueChange = { },
                 isError = userState.errors["birthDate"]?.isNotEmpty() == true,
                 errorMessage = userState.errors["birthDate"],
+                readOnly = true,
 
                 modifier = Modifier.weight(1f)
             )
@@ -471,24 +578,37 @@ private fun UserRegistrationBox(
                 modifier = Modifier.padding(top = 10.dp)
             )
         }
-
-        Spacer(Modifier.height(spaceMedium))
-
-        IconTextButtonType1(
-            text = "Registrati",
-            onClick = { },
-            modifier = Modifier.fillMaxWidth()
-        )
     }
 }
 
 
 @Composable
 fun MainProfileScreen(
-    username: String
-) {
+    currentUser: Utente,
+    loggedUserViewModel: LoggedUserViewModel,
+    onLogoutCallback: () -> Unit,
+    onAnotherUtenteClickCallback: (String) -> Unit
+    ) {
+    val context = LocalContext.current
+
+    // Accordions
     val (showSeguaciAccordion, setShowSeguaciAccordion) = remember { mutableStateOf(false) }
     val (showSeguitiAccordion, setShowSeguitiAccordion) = remember { mutableStateOf(false) }
+
+    // Seguaci Variables
+    val seguaci by loggedUserViewModel.seguaci.collectAsState()
+    val isLoadingSeguaci by loggedUserViewModel.isLoadingSeguaci.collectAsState()
+    val errorSeguaci by loggedUserViewModel.errorSeguaci.collectAsState()
+
+    // Seguiti Variables
+    val seguiti by loggedUserViewModel.seguiti.collectAsState()
+    val isLoadingSeguiti by loggedUserViewModel.isLoadingSeguiti.collectAsState()
+    val errorSeguiti by loggedUserViewModel.errorSeguiti.collectAsState()
+
+    LaunchedEffect(Unit) {
+        loggedUserViewModel.loadSeguaci(context)
+        loggedUserViewModel.loadSeguiti(context)
+    }
 
     Box {
 
@@ -500,12 +620,12 @@ fun MainProfileScreen(
                 .padding(top = 114.dp, start = 40.dp, bottom = 61.dp, end = 40.dp)
         ) {
             // User Circle with Initial
-            UserImage(username = username)
+            UserImage(username = currentUser.username)
             Spacer(Modifier.height(spaceExtraSmall))
 
             // Username
             Text(
-                text = "@$username",
+                text = "@${currentUser.username}",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onPrimary
             )
@@ -518,15 +638,31 @@ fun MainProfileScreen(
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TitledBox("Seguaci", "123", onClick = { setShowSeguaciAccordion(true) }, modifier = Modifier.weight(1f))
+                TitledBox(
+                    title = "Seguaci",
+                    content = when {
+                        isLoadingSeguaci || !errorSeguaci.isNullOrEmpty() -> "---"
+                        else -> "${seguaci.size}"
+                    },
+                    onClick = { setShowSeguaciAccordion(true) },
+                    modifier = Modifier.weight(1f)
+                )
                 Spacer(Modifier.width(spaceMedium))
-                TitledBox("Seguiti", "456", onClick = { setShowSeguitiAccordion(true) }, modifier = Modifier.weight(1f))
+                TitledBox(
+                    title = "Seguiti",
+                    content = when {
+                        isLoadingSeguiti || !errorSeguiti.isNullOrEmpty()-> "---"
+                        else -> "${seguiti.size}"
+                    },
+                    onClick = { setShowSeguitiAccordion(true) },
+                    modifier = Modifier.weight(1f)
+                )
             }
 
             Spacer(Modifier.height(spaceMedium))
 
             // User Info
-            UserInfo("mario.rossi@gmail.com", "2000-01-01")
+            UserInfo(currentUser.email, currentUser.dataNascita.toString())
 
             Spacer(Modifier.height(spaceMedium))
 
@@ -551,7 +687,7 @@ fun MainProfileScreen(
                 Spacer(Modifier.width(spaceLarge))
 
                 IconTextButtonType1(
-                    onClick = {},
+                    onClick = { onLogoutCallback() },
                     text = "Log Out",
                     withIcon = true,
                     icon = Icons.AutoMirrored.Filled.ExitToApp,
@@ -573,11 +709,10 @@ fun MainProfileScreen(
 
             UserAccordion(
                 title = "Seguaci",
-                users = listOf(
-                    UserProfile("1", "Mario Rossi", "mario@example.com"),
-                    UserProfile("2", "Luigi Bianchi", "luigi@example.com")
-                ),
-                onTitleClick = { setShowSeguaciAccordion(false) }
+                users = seguaci,
+                onTitleClick = { setShowSeguaciAccordion(false) },
+                onUtenteClickCallback = onAnotherUtenteClickCallback,
+                setVisibility = setShowSeguaciAccordion
             )
         }
 
@@ -589,30 +724,72 @@ fun MainProfileScreen(
 
             UserAccordion(
                 title = "Seguiti",
-                users = listOf(
-                    UserProfile("1", "Mario Rossi", "mario@example.com"),
-                    UserProfile("2", "Luigi Bianchi", "luigi@example.com"),
-                    UserProfile("3", "Mario Rossi", "mario@example.com"),
-                    UserProfile("4", "Luigi Bianchi", "luigi@example.com"),
-                    UserProfile("5", "Mario Rossi", "mario@example.com"),
-                    UserProfile("6", "Luigi Bianchi", "luigi@example.com"),
-                    UserProfile("7", "Mario Rossi", "mario@example.com"),
-                    UserProfile("8", "Luigi Bianchi", "luigi@example.com"),
-                    UserProfile("9", "Mario Rossi", "mario@example.com"),
-                    UserProfile("A", "Luigi Bianchi", "luigi@example.com"),
-                    UserProfile("B", "Mario Rossi", "mario@example.com"),
-                    UserProfile("C", "Luigi Bianchi", "luigi@example.com")
-                ),
-                onTitleClick = { setShowSeguitiAccordion(false) }
+                users = seguiti,
+                onTitleClick = { setShowSeguitiAccordion(false) },
+                onUtenteClickCallback = onAnotherUtenteClickCallback,
+                setVisibility = setShowSeguitiAccordion
             )
         }
 
     }
 }
 
+@Composable
+fun UserInfoProfileScreen(
+    currentUser: Utente,
+) {
+//    val (showSeguaciAccordion, setShowSeguaciAccordion) = remember { mutableStateOf(false) }
+//    val (showSeguitiAccordion, setShowSeguitiAccordion) = remember { mutableStateOf(false) }
+
+    Box {
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundGradient())
+                .padding(top = 114.dp, start = 40.dp, bottom = 61.dp, end = 40.dp)
+        ) {
+            // User Circle with Initial
+            UserImage(username = currentUser.username)
+            Spacer(Modifier.height(spaceExtraSmall))
+
+            // Username
+            Text(
+                text = "@${currentUser.username}",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+
+            Spacer(Modifier.height(spaceLarge))
+
+            // Seguaci & Seguiti Box View
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                TitledBox("Preferiti", "Temp", onClick = {  }, modifier = Modifier.weight(1f))
+            }
+
+            Spacer(Modifier.height(spaceMedium))
+
+            // User Info
+            UserInfo(currentUser.email, currentUser.dataNascita.toString())
+
+            Spacer(Modifier.height(spaceMedium))
+
+        }
+    }
+}
+
 
 @Composable
-fun RegisterScreen(registrationViewModel: RegistrationViewModel = viewModel()) {
+fun RegisterScreen(
+    onLoginRequest: () -> Unit,
+    registrationViewModel: RegistrationViewModel = viewModel()
+) {
     val context = LocalContext.current
     val userState = registrationViewModel.registratingUserState
 
@@ -628,19 +805,6 @@ fun RegisterScreen(registrationViewModel: RegistrationViewModel = viewModel()) {
             )
             .padding(all = 40.dp)
     ) {
-        // Title
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = spaceMedium)
-        ) {
-            Text(
-                text = "Registrati",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-        }
         Column(
             modifier = Modifier
                 .blurredDropShadow(
@@ -692,7 +856,7 @@ fun RegisterScreen(registrationViewModel: RegistrationViewModel = viewModel()) {
                 Spacer(Modifier.width(spaceLarge))
 
                 IconTextButtonType1(
-                    onClick = {},
+                    onClick = onLoginRequest,
                     text = "Log In",
                     withIcon = true,
                     icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
@@ -705,26 +869,6 @@ fun RegisterScreen(registrationViewModel: RegistrationViewModel = viewModel()) {
                 )
             }
 
-        // User Registration Box
-        UserRegistrationBox(
-
-            userState = userState,
-            onUsernameChange = { registrationViewModel.onUsernameChange(it) },
-            onPasswordChange = { registrationViewModel.onPasswordChange(it) },
-            onEmailChange = { registrationViewModel.onEmailChange(it) },
-            onBirthDateChange = { registrationViewModel.onBirthDateChange(it) },
-
-        )
-
-        Spacer(Modifier.height(spaceMedium))
-
-        IconTextButtonType1(
-            text = "Registrati",
-            onClick = { registrationViewModel.registerUser(context) },
-            modifier = Modifier.fillMaxWidth()
-        )
-            Spacer(Modifier.height(spaceSmall))
-
             // User Registration Box
             UserRegistrationBox(
                 userState = userState,
@@ -734,27 +878,46 @@ fun RegisterScreen(registrationViewModel: RegistrationViewModel = viewModel()) {
                 onBirthDateChange = { registrationViewModel.onBirthDateChange(it) },
             )
 
+            Spacer(Modifier.height(spaceMedium))
+
+            IconTextButtonType1(
+                text = "Registrati",
+                onClick = { registrationViewModel.registerUser(context) },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
 
 // Previews ----------------------------------------------------------------------------------------
 
-@Preview
+//@Preview
 @Composable
 fun MainScreenPreview() {
     E20FrontendMobileTheme(darkTheme = false) {
+        val loggedUserViewModel: LoggedUserViewModel = viewModel()
+        val loggedUser by loggedUserViewModel.loggedUser.collectAsState()
+
         MainProfileScreen(
-            username = "username"
+            currentUser = Utente("1", "mario.rossi", "mail@gmail.com", null),
+            loggedUserViewModel = loggedUserViewModel,
+            onLogoutCallback = { },
+            onAnotherUtenteClickCallback = {}
         )
     }
 }
 
-//@Preview
+@Preview
 @Composable
 fun RegisterScreenPreview() {
     E20FrontendMobileTheme(darkTheme = false) {
-        RegisterScreen()
+        val context = LocalContext.current
+        RegisterScreen(
+            onLoginRequest = {
+                val intent = Intent(context, AuthActivity::class.java)
+                context.startActivity(intent)
+            }
+        )
     }
 }
 
@@ -818,10 +981,10 @@ fun UserInfoPreview() {
 @Composable
 fun UserAccordionPreview() {
     val users = listOf(
-        UserProfile("1", "mario.rossi", "mail@gmail.com", null),
-        UserProfile("2", "mario.bianchi", "mail@gmail.com", null),
-        UserProfile("3", "mario.verdi", "mail@gmail.com", null),
+        Utente("1", "mario.rossi", "mail@gmail.com", null),
+        Utente("2", "mario.bianchi", "mail@gmail.com", null),
+        Utente("3", "mario.verdi", "mail@gmail.com", null),
     )
 
-    UserAccordion(title = "Seguaci", users = users)
+    UserAccordion(title = "Seguaci", users = users, setVisibility = { })
 }

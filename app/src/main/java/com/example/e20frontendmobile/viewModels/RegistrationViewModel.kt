@@ -6,9 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
 import com.example.e20frontendmobile.model.UserRegistration
 import com.example.e20frontendmobile.model.Utente
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class RegistrationViewModel : ViewModel() {
@@ -115,9 +117,17 @@ class RegistrationViewModel : ViewModel() {
 
 
     fun registerUser(context: Context) {
+        viewModelScope.launch {
+            UtenteService(context).register(registratingUserState)
 
-
-        UtenteService(context).register(registratingUserState)
+            // Cleaning
+            registratingUserState = registratingUserState.copy(
+                username = "",
+                password = "",
+                email = "",
+                birthDate = null
+            )
+        }
     }
 
 }

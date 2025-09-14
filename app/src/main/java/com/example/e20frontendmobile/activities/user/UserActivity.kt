@@ -97,9 +97,9 @@ fun MainAccessUserPage(
     val onScreenUser by loggedUserViewModel.onScreenUser.collectAsState()
 
     // 1: Load Logged User Only the first time on the Creation of the Composable
-    LaunchedEffect(Unit) {
-        loggedUserViewModel.loadLoggedUser(context)
-    }
+//    LaunchedEffect(Unit) {
+//        loggedUserViewModel.loadLoggedUser(context)
+//    }
 
     // 2: AuthActivity Launcher (ActivityResult API)
     val loginLauncher = rememberLauncherForActivityResult(
@@ -700,38 +700,38 @@ fun MainProfileScreen(
                 )
             }
         }
-
-        // Seguaci User Accordion
-        AnimatedVisibility( visible = showSeguaciAccordion )
-        {
-            // For Safety
-            setShowSeguitiAccordion(false)
-
-            UserAccordion(
-                title = "Seguaci",
-                users = seguaci,
-                onTitleClick = { setShowSeguaciAccordion(false) },
-                onUtenteClickCallback = onAnotherUtenteClickCallback,
-                setVisibility = setShowSeguaciAccordion
-            )
-        }
-
-        // Seguiti User Accordion
-        AnimatedVisibility( visible = showSeguitiAccordion )
-        {
-            // For Safety
-            setShowSeguaciAccordion(false)
-
-            UserAccordion(
-                title = "Seguiti",
-                users = seguiti,
-                onTitleClick = { setShowSeguitiAccordion(false) },
-                onUtenteClickCallback = onAnotherUtenteClickCallback,
-                setVisibility = setShowSeguitiAccordion
-            )
-        }
-
     }
+
+    // Seguaci User Accordion
+    AnimatedVisibility( visible = showSeguaciAccordion )
+    {
+        // For Safety
+        setShowSeguitiAccordion(false)
+
+        UserAccordion(
+            title = "Seguaci",
+            users = seguaci,
+            onTitleClick = { setShowSeguaciAccordion(false) },
+            onUtenteClickCallback = onAnotherUtenteClickCallback,
+            setVisibility = setShowSeguaciAccordion
+        )
+    }
+
+    // Seguiti User Accordion
+    AnimatedVisibility( visible = showSeguitiAccordion )
+    {
+        // For Safety
+        setShowSeguaciAccordion(false)
+
+        UserAccordion(
+            title = "Seguiti",
+            users = seguiti,
+            onTitleClick = { setShowSeguitiAccordion(false) },
+            onUtenteClickCallback = onAnotherUtenteClickCallback,
+            setVisibility = setShowSeguitiAccordion
+        )
+    }
+
 }
 
 @Composable

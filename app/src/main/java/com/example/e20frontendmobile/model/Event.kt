@@ -1,21 +1,28 @@
 package com.example.e20frontendmobile.model
 
+import android.R
 import android.graphics.Bitmap
-import androidx.room.Entity
-import kotlinx.datetime.LocalDateTime
+import androidx.compose.runtime.mutableStateOf
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.util.Date
+import kotlinx.datetime.LocalDateTime
+import kotlinx.serialization.Serializer
 
 @Serializable
-class Event(
-    @SerialName("eventId") val id: String,
-    @SerialName("description") val description: String,
-    @SerialName("title") val title: String,
-    @SerialName("date") val date: LocalDateTime,
-    @SerialName("location") var location: String,
-    @SerialName("image") val image: String,
+data class Event(
+    val id: Long,
+    @SerialName("descrizione") val description: String,
+    @SerialName("nome") val title: String,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    @SerialName("data") val date: LocalDateTime,
+    @SerialName("locationId") val locationId: Long,
+    @SerialName("immagine") val image: String? = null,
     @SerialName("posti") val posti: Int,
-    @SerialName("prezzo") val prezzo: Int,
-    @SerialName("restricted") val restricted: Boolean) {
-}
+    @SerialName("prezzo") val prezzo: Double,
+    @SerialName("age_restricted") val restricted: Boolean,
+    val organizzatore: String,
+    val b_riutilizzabile: Boolean,
+    val b_nominativo: Boolean
+)
+
+

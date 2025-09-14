@@ -1,10 +1,14 @@
 package com.example.e20frontendmobile.viewModels
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
+import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
 import com.example.e20frontendmobile.model.UserRegistration
+import com.example.e20frontendmobile.model.Utente
 import java.time.LocalDate
 
 class RegistrationViewModel : ViewModel() {
@@ -110,8 +114,10 @@ class RegistrationViewModel : ViewModel() {
     }
 
 
-    fun registerUser() {
-        // Add Code to Perform User Registration
+    fun registerUser(context: Context) {
+
+
+        UtenteService(context).register(registratingUserState)
     }
 
 }

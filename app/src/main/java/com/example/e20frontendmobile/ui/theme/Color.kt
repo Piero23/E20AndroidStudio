@@ -34,13 +34,13 @@ val buttonGradientType1LastLight = Color(0xFFC74F00)
 
 
 // Color Palette - Dark Theme - Basic
-val primaryDark = Color(0xFFE57926); val onPrimaryDark = Color(0xFFFFFFFF)
-val secondaryDark = Color(0xFF8F250C); val onSecondaryDark = Color(0xFFFFFFFF)
+val primaryDark = Color(0xFFB05B1E); val onPrimaryDark = Color(0xFF000000)
+val secondaryDark = Color(0xFFBB4826); val onSecondaryDark = Color(0xFF000000)
 val ternaryDark = Color(0xFFFBBA72); val onTernaryDark = Color(0xFF691E06)
-val errorDark = Color(0xFFB41C1B); val onErrorDark = Color(0xFFFFFFFF)
-val backgroundPlainDark = Color(0xFFFFFFFF); val onBackgroundDark = Color(0xFF000000)
-val backgroundPlainLightestDark = Color(0xFFECD5CD)
-val backgroundPlainLightDark = Color(0xFFFFB596)
+val errorDark = Color(0xFF911D1D); val onErrorDark = Color(0xFF000000)
+val backgroundPlainDark = Color(0xFF000000); val onBackgroundDark = Color(0xFFFFFFFF)
+val backgroundPlainLightestDark = Color(0xFF4F4644)
+val backgroundPlainLightDark = Color(0xFF81594B)
 
 
 // Color Palette - Dark Theme - Gradients

@@ -7,6 +7,11 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -29,7 +34,7 @@
             android:theme="@style/Theme.E20FrontendMobile" />
 
         <activity
-            android:name=".auth.AuthActivity"
+            android:name=".data.auth.AuthActivity"
             android:exported="true">
         </activity>
 

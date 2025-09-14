@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,12 +35,14 @@ import com.example.e20frontendmobile.ui.theme.linearGradient
 
 @Composable
 fun CustomTextField(
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     modifier: Modifier = Modifier,
     placeholder: String? = null,
     singleLine: Boolean = false,
     onValueChange: (String) -> Unit,
     value: String,
-    isPassword: Boolean = false
+    isPassword: Boolean = false,
+    readOnly: Boolean = false
 ) {
     var height by remember { mutableStateOf(10.dp) }
     var width by remember { mutableStateOf(10.dp) }
@@ -53,6 +56,8 @@ fun CustomTextField(
         contentAlignment = Alignment.TopEnd
     ) {
         BasicTextField(
+            keyboardOptions = keyboardOptions,
+            enabled = !readOnly,
             value = value,
             onValueChange = onValueChange,
             cursorBrush = linearGradient(listOf(buttonGradientType1FirstLight, buttonGradientType1LastLight)),
@@ -60,7 +65,8 @@ fun CustomTextField(
                 .fillMaxWidth()
                 .onFocusChanged { focusState ->
                     isFocused = focusState.isFocused
-                },
+                }
+                .background(MaterialTheme.colorScheme.background),
             textStyle = MaterialTheme.typography.bodyMedium,
             singleLine = singleLine,
             visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
@@ -100,7 +106,7 @@ fun CustomTextField(
                     Brush.horizontalGradient(
                         colorStops = arrayOf(
                             0.5f to Color.Transparent,
-                            0.51f to Color.White
+                            0.51f to MaterialTheme.colorScheme.background
                         )
                     ),
                     shape = RoundedCornerShape(11.dp)
@@ -114,7 +120,7 @@ fun CustomTextField(
                 .background(
                     Brush.verticalGradient(
                         colorStops = arrayOf(
-                            0.5f to Color.White,
+                            0.5f to MaterialTheme.colorScheme.background,
                             0.51f to Color.Transparent
                         )
                     ),

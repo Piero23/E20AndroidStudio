@@ -47,6 +47,10 @@ class LoggedUserViewModel : ViewModel() {
     private val _onScreenUser = MutableStateFlow<Utente?>(null)
     val onScreenUser: StateFlow<Utente?> = _onScreenUser
 
+    private val _isOnScreenUserSeguito = MutableStateFlow<Boolean?>(null)
+    val isOnScreenUserSeguito: StateFlow<Boolean?> = _isOnScreenUserSeguito
+
+
     fun loadUser(context: Context, username: String) {
         if (_onScreenUser.value?.username == username) return
 
@@ -57,6 +61,36 @@ class LoggedUserViewModel : ViewModel() {
             if (currentUser != null) _onScreenUser.value = currentUser
             Log.d("LoggedUserViewModel", "_onScreenUser.value: ${_onScreenUser.value}")
 
+            if (currentUser != null) {
+                val seguitiCorrenti = getService(context).getSeguitiOfLoggedUser()
+                _isOnScreenUserSeguito.value = seguitiCorrenti.any { it.id == currentUser.id }
+            }
+
+        }
+    }
+
+    fun toggleOnScreenUserSeguito(context: Context, utente: Utente) {
+        viewModelScope.launch {
+            try {
+                val seguitiCorrenti = getService(context).getSeguitiOfLoggedUser()
+
+                if (seguitiCorrenti.contains(utente)) {
+
+                    getService(context).rimuoviDaiSeguiti(utente.username)
+                    _seguiti.value = seguitiCorrenti.filter { it.id != utente.id }
+                    _isOnScreenUserSeguito.value = false
+                }
+                else {
+
+                    getService(context).aggiungiAiSeguiti(utente.username)
+                    _seguiti.value = seguitiCorrenti + utente
+                    _isOnScreenUserSeguito.value = true
+                }
+            }
+            catch (e: Exception) {
+                _errorSeguiti.value = "Errore toggle seguito: ${e.message}"
+                _isOnScreenUserSeguito.value = null
+            }
         }
     }
 
@@ -125,8 +159,16 @@ class LoggedUserViewModel : ViewModel() {
 
 
     // Utils
-    fun smettiDiSeguire(username: String) {
+    fun smettiDiSeguire(context: Context, username: String) {
+        viewModelScope.launch {
+            getService(context).rimuoviDaiSeguiti(username)
+        }
+    }
 
+    fun iniziaASeguire(context: Context, username: String) {
+        viewModelScope.launch {
+            getService(context).aggiungiAiSeguiti(username)
+        }
     }
 
 }

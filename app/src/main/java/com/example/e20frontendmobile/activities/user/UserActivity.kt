@@ -181,7 +181,10 @@ fun MainAccessUserPage(
 
             when (val user = onScreenUser) {
                 null -> LoadingScreen()
-                else -> UserInfoProfileScreen(user)
+                else -> UserInfoProfileScreen(
+                    currentUser = user,
+                    loggedUserViewModel = loggedUserViewModel
+                )
             }
         }
     }
@@ -678,7 +681,7 @@ fun MainProfileScreen(
                     text = "Cambia Password",
                     textAlign = TextAlign.Start,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .8f),
+                    color = Color.Transparent, //MaterialTheme.colorScheme.onPrimary.copy(alpha = .8f),
 
                     overflow = TextOverflow.Visible,
                     modifier = Modifier
@@ -739,9 +742,10 @@ fun MainProfileScreen(
 @Composable
 fun UserInfoProfileScreen(
     currentUser: Utente,
+    loggedUserViewModel: LoggedUserViewModel
 ) {
-//    val (showSeguaciAccordion, setShowSeguaciAccordion) = remember { mutableStateOf(false) }
-//    val (showSeguitiAccordion, setShowSeguitiAccordion) = remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val isCurrentlyFollowing by loggedUserViewModel.isOnScreenUserSeguito.collectAsState()
 
     Box {
 
@@ -771,8 +775,16 @@ fun UserInfoProfileScreen(
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
-                TitledBox("Preferiti", "Temp", onClick = {  }, modifier = Modifier.weight(1f))
+                TitledBox(
+                    title = when (isCurrentlyFollowing) {
+                        true -> "Smetti di"
+                        false -> "Inizia a"
+                        null -> "Non puoi"
+                    },
+                    content = "Seguire",
+                    onClick = { loggedUserViewModel.toggleOnScreenUserSeguito(context, currentUser)},
+                    modifier = Modifier.weight(1f)
+                )
             }
 
             Spacer(Modifier.height(spaceMedium))
@@ -831,13 +843,6 @@ fun RegisterScreen(
                     .fillMaxWidth()
                     .padding(bottom = spaceMedium)
             ) {
-                TitledBox(
-                    title = "Smetti di",
-                    content = "Seguire",
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(Modifier.width(spaceMedium))
                 Text(
                     text = "Registrati",
                     style = MaterialTheme.typography.titleMedium,

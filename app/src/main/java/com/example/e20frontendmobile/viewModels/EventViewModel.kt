@@ -94,14 +94,14 @@ class EventViewModel : ViewModel() {
     private val mappaImmagini: MutableMap<Long, Bitmap> = mutableMapOf()
 
     suspend fun getEventImage(eventoId : Long , context: Context): Bitmap? {
-        // se in cache lo prendo subito
+
         if (mappaImmagini.containsKey(eventoId)) {
             return mappaImmagini[eventoId]!!
         }
 
         val eventService = EventService(context)
         val bitmap = eventService.getImage(eventoId)
-            ?: BitmapFactory.decodeResource(context.resources, R.drawable.images)
+            ?: BitmapFactory.decodeResource(context.resources, R.drawable.noimage)
 
         addToMappaImmagini(eventoId, bitmap)
         return bitmap

@@ -1,6 +1,7 @@
 package com.example.e20frontendmobile
 
 
+import android.R.attr.shape
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -17,13 +18,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
@@ -45,6 +50,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -66,10 +72,16 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.composeuitemplates.presentation.bottomNavigationScreen.BottomNavigationScreen
 import com.example.e20frontendmobile.activities.home.EventCarousel
+import com.example.e20frontendmobile.apiService.PreferitiService
 import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
+import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
+import com.example.e20frontendmobile.data.auth.AuthManager
+import com.example.e20frontendmobile.data.auth.AuthStateStorage
 import com.example.e20frontendmobile.model.Event
+import com.example.e20frontendmobile.model.Utente
 import com.example.e20frontendmobile.ui.theme.BungeeInline
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
+import com.example.e20frontendmobile.ui.theme.backgroundGradient
 import com.example.e20frontendmobile.viewModels.EventViewModel
 
 import kotlinx.coroutines.launch
@@ -205,7 +217,7 @@ fun MainLogo() {
 
 
 @Composable
-fun CaroselloInfinito() {
+fun CaroselloInfinito(items: List<Int>) {
     val listState = rememberLazyListState()
 
     val infiniteTransition = rememberInfiniteTransition()
@@ -222,7 +234,7 @@ fun CaroselloInfinito() {
     )
 
     val scope = rememberCoroutineScope()
-    val itemCount = 5
+    val itemCount = items.size
     val itemWidthPx = with(LocalDensity.current) {300.dp.toPx()} // larghezza + padding
 
     // Aggiorna lo scroll in base all'animazione
@@ -244,10 +256,11 @@ fun CaroselloInfinito() {
                     .width(300.dp)
             ) {
                 Image(
-                    painter = painterResource(R.drawable.photomode_18072025_201346),
-                    contentDescription = "Contact profile picture",
+                    painter = painterResource(items[index]),
+                    contentDescription = "Carousel",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxWidth()
+                        .height(350.dp)
                 )
             }
         }
@@ -255,13 +268,6 @@ fun CaroselloInfinito() {
 
 }
 
-
-
-@Composable
-@Preview
-fun cia(){
-    CaroselloInfinito()
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -288,8 +294,13 @@ fun mainFun(navController: NavHostController, eventViewModel: EventViewModel){
             Box {
                 //Carosello
                 Column {
-                    CaroselloInfinito()
-                    CaroselloInfinito()
+                    CaroselloInfinito(listOf(R.drawable.images2,
+                        R.drawable.stock_vector_night_dance_party_music_night_poster_template_electro_style_concert_disco_club_party_event_flyer_741157993,
+                        R.drawable.techno_party_flyer_170832, R.drawable.download))
+                    CaroselloInfinito(listOf(R.drawable.d385c8ed5c1a2d71d7298f8693aabda2,
+                        R.drawable.color_festival_powder_partyevent_poster_template_de51e43782d312549d6a8021e848a257_screen,
+                        R.drawable.ce21765b01256e5c454799156979c8ab,
+                        R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a))
                 }
 
                 //Overlay
@@ -335,26 +346,91 @@ fun mainFun(navController: NavHostController, eventViewModel: EventViewModel){
             Column {
 
                 var items by  remember { mutableStateOf<List<Event>>(listOf())}
+                var preferiti by  remember { mutableStateOf<List<Event>>(listOf())}
+                var amici by  remember { mutableStateOf<List<Event>>(listOf())}
+                var managed by  remember { mutableStateOf<List<Event>>(listOf())}
+
 
                 var listaEventi = items
 
                 val context = LocalContext.current
                 LaunchedEffect(context) {
                     items = EventService(context).findAll()
+                    preferiti = PreferitiService(context).getAllPreferiti(AuthStateStorage(context).getUserInfo()?.sub)
 
+                    var friends = listOf<Utente>()
+                    if (UtenteService(context).getUtenteSub()!=null) {
+                        friends = UtenteService(context).getSeguaci(AuthStateStorage(context).getUserInfo()?.sub!!)
+                    }
+                    for (friend in friends){
+                        amici = amici + PreferitiService(context).getAllPreferiti(friend.username)
+                    }
+                    amici = amici.shuffled()
+                    //TODO testare amici e preferiti (e magari cambiare colore alla box vuota)
+
+                    managed = EventService(context).getFromManager()
+                    println("CIAO")
+                    println(managed)
                     Log.d("Carousel" ,items.toString())
                 }
 
                 Log.d("Carousel" ,items.toString())
+
+                if(managed.isNotEmpty()){
+                    EventCarousel( "Eventi gestiti da te",
+                        navController, eventViewModel ,
+                        managed)
+                }
 
                 EventCarousel(
                     "Eventi in voga",
                     navController ,
                     eventViewModel,listaEventi)
 
-                EventCarousel( "Partecipano i tuoi amici",
-                    navController, eventViewModel ,
-                    items)
+                if(preferiti.isNotEmpty()){
+                    EventCarousel( "I tuoi preferiti",
+                        navController, eventViewModel ,
+                        preferiti)
+                }
+                else{
+                    Box(
+                        Modifier.fillMaxWidth().aspectRatio(1f).padding(40.dp).background(
+                            backgroundGradient(), shape = RoundedCornerShape(20.dp)),
+                        Alignment.Center
+                    ){
+                        Text(
+                            text = """Qui compariranno
+                            |i tuoi preferiti
+                        """.trimMargin(),
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                    }
+                }
+
+                if(amici.isNotEmpty()){
+                    EventCarousel( "I preferiti dei\n tuoi seguiti",
+                        navController, eventViewModel ,
+                        amici)
+                }
+                else{
+                    Box(
+                        Modifier.fillMaxWidth().aspectRatio(1f).padding(40.dp).background(
+                            backgroundGradient(), shape = RoundedCornerShape(20.dp)),
+                        Alignment.Center
+                    ){
+                        Text(
+                            text = """Non segui nessuno
+                                |o non hanno preferiti
+                        """.trimMargin(),
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontSize = 22.sp
+                        )
+                    }
+                }
             }
         }
 

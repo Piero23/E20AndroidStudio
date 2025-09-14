@@ -187,10 +187,13 @@ fun createEvent(evento: Event?, navController: NavHostController, eventViewModel
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.SpaceBetween
 
                 ) {
 
-                Column {
+                Column(
+                    modifier = Modifier.weight(.5f)
+                ) {
                     textFieldCreateEvent("Data", createEventViewModel.dataSbagliata)
                     CustomTextField(
                         value = createEventViewModel.selectedDate ?: "",
@@ -209,7 +212,9 @@ fun createEvent(evento: Event?, navController: NavHostController, eventViewModel
                     modifier = Modifier.padding(10.dp)
                 )
 
-                Column {
+                Column(
+                    modifier = Modifier.weight(.5f)
+                ) {
                     textFieldCreateEvent("Ora", createEventViewModel.orarioSbagliato)
                     CustomTextField(
                         value = createEventViewModel.selectedTime ?: "",
@@ -220,15 +225,15 @@ fun createEvent(evento: Event?, navController: NavHostController, eventViewModel
                         readOnly = true
                     )
                 }
-                //TODO fix
                 IconButtonType1(
                     onClick = { showTimePicker = true },
-                    icon = Icons.Filled.ShoppingCart,
+                    icon = Icons.Filled.AccessTime,
                     iconDescription = "",
                     iconSize = 20.dp,
                     modifier = Modifier.padding(10.dp)
                 )
             }
+            Spacer(modifier = Modifier.padding(vertical = 10.dp))
 
             locationSection(createEventViewModel, context)
 
@@ -241,6 +246,7 @@ fun createEvent(evento: Event?, navController: NavHostController, eventViewModel
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.SpaceEvenly
 
                 ) {
 
@@ -276,8 +282,10 @@ fun createEvent(evento: Event?, navController: NavHostController, eventViewModel
                     )
                 }
 
-                Spacer(modifier = Modifier.padding(horizontal = 5.dp))
             }
+
+            Spacer(modifier = Modifier.padding(vertical = 15.dp))
+
             Column (verticalArrangement = Arrangement.Top ){
                 Row (verticalAlignment = Alignment.CenterVertically) {
                     Text(
@@ -401,7 +409,7 @@ fun setImage(
         )
     } else {
         Image(
-            painter = painterResource(R.drawable.photomode_18072025_201346),
+            painter = painterResource(R.drawable.noimage),
             contentDescription = "Placeholder",
             modifier = Modifier
                 .fillMaxWidth()
@@ -462,7 +470,9 @@ fun locationSection(
     Column {
         textFieldCreateEvent("Location", createEventViewModel.locationSbagliata)
 
-        Row {
+        Row (
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             CustomTextField(
                 value = locationName,
                 onValueChange = {
@@ -473,7 +483,7 @@ fun locationSection(
                 },
                 placeholder = "Location",
                 singleLine = true,
-                modifier = Modifier.width(300.dp)
+                modifier = Modifier.width(300.dp).weight(1f)
             )
 
             IconButtonType1(

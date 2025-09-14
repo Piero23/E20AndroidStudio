@@ -123,4 +123,10 @@ class LoggedUserViewModel : ViewModel() {
         }
     }
 
+
+    // Utils
+    fun smettiDiSeguire(username: String) {
+
+    }
+
 }

@@ -64,7 +64,6 @@ import com.example.e20frontendmobile.composables.CustomTextField
 import com.example.e20frontendmobile.composables.IconButtonType1
 import com.example.e20frontendmobile.composables.IconTextButtonType1
 import com.example.e20frontendmobile.data.auth.AuthActivity
-import com.example.e20frontendmobile.model.UserProfile
 import com.example.e20frontendmobile.model.UserRegistration
 import com.example.e20frontendmobile.model.Utente
 import com.example.e20frontendmobile.toJavaLocalDate
@@ -194,10 +193,10 @@ fun MainAccessUserPage(
 @Composable
 fun LoadingScreen() {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
-        CircularProgressIndicator()
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
     }
 }
 
@@ -383,7 +382,9 @@ fun UserImage(
 fun UserInfo(
     email: String,
     birthDate: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    modifiable: Boolean = true,
+    onModifyUserInfo: () -> Unit = { }
 ) {
     Box(
         contentAlignment = Alignment.TopEnd,
@@ -420,13 +421,14 @@ fun UserInfo(
                 color = MaterialTheme.colorScheme.onTertiary
             )
         }
-        IconButtonType1(
-            onClick = { },
-            icon = Icons.Default.Edit,
-            iconDescription = "",
-            iconSize = 20.dp,
-            //modifier = Modifier.size(60.dp),
-        )
+        if (modifiable) {
+            IconButtonType1(
+                onClick = onModifyUserInfo,
+                icon = Icons.Default.Edit,
+                iconDescription = "",
+                iconSize = 20.dp
+            )
+        }
     }
 }
 
@@ -776,9 +778,11 @@ fun UserInfoProfileScreen(
             Spacer(Modifier.height(spaceMedium))
 
             // User Info
-            UserInfo(currentUser.email, currentUser.dataNascita.toString())
-
-            Spacer(Modifier.height(spaceMedium))
+            UserInfo(
+                currentUser.email,
+                currentUser.dataNascita.toString(),
+                modifiable = false
+            )
 
         }
     }
@@ -827,6 +831,13 @@ fun RegisterScreen(
                     .fillMaxWidth()
                     .padding(bottom = spaceMedium)
             ) {
+                TitledBox(
+                    title = "Smetti di",
+                    content = "Seguire",
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(Modifier.width(spaceMedium))
                 Text(
                     text = "Registrati",
                     style = MaterialTheme.typography.titleMedium,

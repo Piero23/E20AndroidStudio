@@ -92,4 +92,26 @@ class UserViewModel : ViewModel() {
             UtenteService(context).aggiungiAiSeguiti(username)
         }
     }
+
+    fun unfollowUser(context: Context, username: String) {
+        viewModelScope.launch {
+            UtenteService(context).rimuoviDaiSeguiti(username)
+        }
+    }
+
+    fun checkIfFollowed(context: Context, username: String) : Boolean {
+        val storage =  AuthStateStorage(context)
+        val userInfo = storage.getUserInfo()
+
+        var seguiti: List<Utente> = listOf()
+        if (userInfo?.sub!=null){
+            viewModelScope.launch {
+                seguiti = UtenteService(context).getSeguitiOfLoggedUser()
+            }
+            for (user in seguiti){
+                if (user.username == username) return true
+            }
+        }
+        return false
+    }
 }

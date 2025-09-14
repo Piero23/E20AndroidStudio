@@ -37,6 +37,7 @@ import androidx.navigation.navArgument
 import com.example.e20frontendmobile.activities.MainAccessUserPage
 import com.example.e20frontendmobile.activities.evento.ShowCheckout
 import com.example.e20frontendmobile.activities.ShowDiscovery
+import com.example.e20frontendmobile.activities.UserInfoProfileScreen
 import com.example.e20frontendmobile.activities.evento.ShowEvent
 import com.example.e20frontendmobile.activities.evento.createEvent
 import com.example.e20frontendmobile.activities.bottomNavigationScreen.StandardBottomNavigation
@@ -124,6 +125,9 @@ fun BottomNavigationScreen() {
 
                                 createEvent(eventViewModel.selectedEvent, navControllers[0])
                             }
+                            composable("userCard") {
+                                if ( utenteViewModel.selectedUserProfile != null){ UserInfoProfileScreen(utenteViewModel.selectedUserProfile!!) }
+                            }
                         }
                     }
                     1 -> {
@@ -155,6 +159,11 @@ fun BottomNavigationScreen() {
                             }
                             composable ("edit") {
                                 createEvent(eventViewModel.selectedEvent, navControllers[1])
+                            }
+
+                            // TODO FIX PAGINA BIANCA
+                            composable("userCard") {
+                                if ( utenteViewModel.selectedUserProfile != null){ UserInfoProfileScreen(utenteViewModel.selectedUserProfile!!) }
                             }
                         }
                     }

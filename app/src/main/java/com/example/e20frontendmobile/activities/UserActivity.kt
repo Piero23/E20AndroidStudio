@@ -1,10 +1,9 @@
 package com.example.e20frontendmobile.activities
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,21 +15,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,22 +40,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.e20frontendmobile.composables.CustomTextField
 import com.example.e20frontendmobile.composables.IconButtonType1
 import com.example.e20frontendmobile.composables.IconTextButtonType1
+import com.example.e20frontendmobile.model.UserProfile
 import com.example.e20frontendmobile.model.UserRegistration
 import com.example.e20frontendmobile.toJavaLocalDate
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import com.example.e20frontendmobile.ui.theme.backgroundGradient
 import com.example.e20frontendmobile.ui.theme.backgroundLinearGradient
 import com.example.e20frontendmobile.ui.theme.blurredDropShadow
-import com.example.e20frontendmobile.ui.theme.iconSizeSmall
+import com.example.e20frontendmobile.ui.theme.overlayBlack10
+import com.example.e20frontendmobile.ui.theme.overlayBlack40
 import com.example.e20frontendmobile.ui.theme.spaceExtraSmall
-import com.example.e20frontendmobile.ui.theme.spaceSmall
 import com.example.e20frontendmobile.ui.theme.spaceLarge
 import com.example.e20frontendmobile.ui.theme.spaceMedium
+import com.example.e20frontendmobile.ui.theme.spaceSmall
 import com.example.e20frontendmobile.ui.theme.white
 import com.example.e20frontendmobile.viewModels.RegistrationViewModel
 import kotlinx.datetime.TimeZone
@@ -112,12 +114,123 @@ fun MainAccessUserPage(navController: NavHostController) {
 }
 
 // Components --------------------------------------------------------------------------------------
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun UserAccordion(
+    title: String,
+    users: List<UserProfile>,
+    modifier: Modifier = Modifier,
+    onTitleClick: () -> Unit = { }
+) {
+    Box(
+        modifier = Modifier
+            .zIndex(10f)
+            .fillMaxSize()
+            .background(overlayBlack40)
+            .clickable { onTitleClick() }
+    ) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 100.dp)
+                .background(Color.Transparent)
+        ) {
+
+            // Top Rounding
+            Box(
+                Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                        shape = MaterialTheme.shapes.medium
+                    )
+                    .fillMaxWidth()
+                    .height(30.dp)
+            ) {}
+
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(vertical = spaceMedium)
+                    .background(white)
+                    .wrapContentHeight()
+            ) {
+                // Header cliccabile
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onTitleClick() }
+                        .padding(spaceMedium)
+                ) {
+                    Text(text = title, style = MaterialTheme.typography.titleLarge)
+                }
+
+               Row(
+                   modifier = Modifier.fillMaxWidth().padding(horizontal = spaceMedium, vertical = spaceSmall),
+                   verticalAlignment = Alignment.CenterVertically
+               ) {
+                   Spacer(
+                       Modifier.height(3.dp)
+                           .weight(1f)
+                           .background(color = overlayBlack40, shape = MaterialTheme.shapes.small)
+                   )
+               }
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .background(color = Color.Transparent, shape = MaterialTheme.shapes.large)
+                        .padding(start = spaceMedium, end = spaceMedium, bottom = spaceSmall)
+                ) {
+                    items(users) { user ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = spaceMedium, horizontal = spaceLarge)
+                        ) {
+                            Text(
+                                text = user.username,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+
+                            Spacer(Modifier.weight(1f))
+
+                            IconButtonType1(
+                                icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                iconDescription = "Mostra di più",
+                                onClick = { }
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(spaceSmall),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Spacer(
+                                Modifier.height(3.dp)
+                                    .weight(1f)
+                                    .background(color = overlayBlack10, shape = MaterialTheme.shapes.small)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 @Composable
 fun TitledBox(
     title: String,
     content: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = { }
 ) {
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -130,6 +243,7 @@ fun TitledBox(
                 color = MaterialTheme.colorScheme.surfaceDim,
                 shape = MaterialTheme.shapes.medium
             )
+            .clickable { onClick() }
             .padding(top = 14.dp, start = 20.dp, bottom = 4.dp, end = 20.dp)
 
     ) {
@@ -272,17 +386,6 @@ private fun UserRegistrationBox(
     Column(
         horizontalAlignment = Alignment.Start,
         modifier = modifier
-            .blurredDropShadow(
-                shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
-                offset = Offset(10f, 10f),
-                blurRadius = 10f,
-            )
-            .fillMaxWidth()
-            .background(
-                color = MaterialTheme.colorScheme.background,
-                shape = MaterialTheme.shapes.medium
-            )
-            .padding(spaceMedium)
 
     ) {
         // User Info
@@ -384,77 +487,126 @@ private fun UserRegistrationBox(
 fun MainProfileScreen(
     username: String
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundGradient())
-            .padding(top = 114.dp, start = 40.dp, bottom = 61.dp, end = 40.dp)
-    ) {
-        // User Circle with Initial
-        UserImage(username = username)
-        Spacer(Modifier.height(spaceExtraSmall))
+    val (showSeguaciAccordion, setShowSeguaciAccordion) = remember { mutableStateOf(false) }
+    val (showSeguitiAccordion, setShowSeguitiAccordion) = remember { mutableStateOf(false) }
 
-        // Username
-        Text(
-            text = "@$username",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onPrimary
-        )
+    Box {
 
-        Spacer(Modifier.height(spaceLarge))
-
-        // Seguaci & Seguiti Box View
-        Row(
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .background(backgroundGradient())
+                .padding(top = 114.dp, start = 40.dp, bottom = 61.dp, end = 40.dp)
         ) {
-            TitledBox("Seguaci", "123", Modifier.weight(1f))
-            Spacer(Modifier.width(spaceMedium))
-            TitledBox("Seguiti", "456", Modifier.weight(1f))
-        }
+            // User Circle with Initial
+            UserImage(username = username)
+            Spacer(Modifier.height(spaceExtraSmall))
 
-        Spacer(Modifier.height(spaceMedium))
-
-        // User Info
-        UserInfo("mario.rossi@gmail.com", "2000-01-01")
-
-        Spacer(Modifier.height(spaceMedium))
-
-        // Log Out Button & Change Password
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Transparent)
-        ) {
+            // Username
             Text(
-                text = "Cambia Password",
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .8f),
-
-                overflow = TextOverflow.Visible,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 20.dp, 0.dp, 0.dp, 0.dp)
+                text = "@$username",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimary
             )
 
-            Spacer(Modifier.width(spaceLarge))
+            Spacer(Modifier.height(spaceLarge))
 
-            IconTextButtonType1(
-                onClick = {},
-                text = "Log Out",
-                withIcon = true,
-                icon = Icons.AutoMirrored.Filled.ExitToApp,
+            // Seguaci & Seguiti Box View
+            Row(
                 modifier = Modifier
-                    .blurredDropShadow(
-                        shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
-                        offset = Offset(10f,10f),
-                        blurRadius = 10f,
-                    )
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TitledBox("Seguaci", "123", onClick = { setShowSeguaciAccordion(true) }, modifier = Modifier.weight(1f))
+                Spacer(Modifier.width(spaceMedium))
+                TitledBox("Seguiti", "456", onClick = { setShowSeguitiAccordion(true) }, modifier = Modifier.weight(1f))
+            }
+
+            Spacer(Modifier.height(spaceMedium))
+
+            // User Info
+            UserInfo("mario.rossi@gmail.com", "2000-01-01")
+
+            Spacer(Modifier.height(spaceMedium))
+
+            // Log Out Button & Change Password
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent)
+            ) {
+                Text(
+                    text = "Cambia Password",
+                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .8f),
+
+                    overflow = TextOverflow.Visible,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 20.dp, 0.dp, 0.dp, 0.dp)
+                )
+
+                Spacer(Modifier.width(spaceLarge))
+
+                IconTextButtonType1(
+                    onClick = {},
+                    text = "Log Out",
+                    withIcon = true,
+                    icon = Icons.AutoMirrored.Filled.ExitToApp,
+                    modifier = Modifier
+                        .blurredDropShadow(
+                            shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
+                            offset = Offset(10f,10f),
+                            blurRadius = 10f,
+                        )
+                )
+            }
+        }
+
+        // Seguaci User Accordion
+        AnimatedVisibility( visible = showSeguaciAccordion )
+        {
+            // For Safety
+            setShowSeguitiAccordion(false)
+
+            UserAccordion(
+                title = "Seguaci",
+                users = listOf(
+                    UserProfile("1", "Mario Rossi", "mario@example.com"),
+                    UserProfile("2", "Luigi Bianchi", "luigi@example.com")
+                ),
+                onTitleClick = { setShowSeguaciAccordion(false) }
             )
         }
+
+        // Seguiti User Accordion
+        AnimatedVisibility( visible = showSeguitiAccordion )
+        {
+            // For Safety
+            setShowSeguaciAccordion(false)
+
+            UserAccordion(
+                title = "Seguiti",
+                users = listOf(
+                    UserProfile("1", "Mario Rossi", "mario@example.com"),
+                    UserProfile("2", "Luigi Bianchi", "luigi@example.com"),
+                    UserProfile("3", "Mario Rossi", "mario@example.com"),
+                    UserProfile("4", "Luigi Bianchi", "luigi@example.com"),
+                    UserProfile("5", "Mario Rossi", "mario@example.com"),
+                    UserProfile("6", "Luigi Bianchi", "luigi@example.com"),
+                    UserProfile("7", "Mario Rossi", "mario@example.com"),
+                    UserProfile("8", "Luigi Bianchi", "luigi@example.com"),
+                    UserProfile("9", "Mario Rossi", "mario@example.com"),
+                    UserProfile("A", "Luigi Bianchi", "luigi@example.com"),
+                    UserProfile("B", "Mario Rossi", "mario@example.com"),
+                    UserProfile("C", "Luigi Bianchi", "luigi@example.com")
+                ),
+                onTitleClick = { setShowSeguitiAccordion(false) }
+            )
+        }
+
     }
 }
 
@@ -476,61 +628,82 @@ fun RegisterScreen(registrationViewModel: RegistrationViewModel = viewModel()) {
             )
             .padding(all = 40.dp)
     ) {
-        // Title
-        Row(
-            horizontalArrangement = Arrangement.Center,
+        Column(
             modifier = Modifier
+                .blurredDropShadow(
+                    shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
+                    offset = Offset(10f, 10f),
+                    blurRadius = 10f,
+                )
                 .fillMaxWidth()
-                .padding(bottom = spaceMedium)
+                .background(
+                    color = MaterialTheme.colorScheme.background,
+                    shape = MaterialTheme.shapes.medium
+                )
+                .padding(spaceLarge)
         ) {
-            Text(
-                text = "Registrati",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
 
-        // Log In Access
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Transparent)
-        ) {
-            Text(
-                text = "Got already an account?",
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onTertiary,
-
-                overflow = TextOverflow.Visible,
+            // Title
+            Row(
+                horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
-                    .weight(1f)
-            )
+                    .fillMaxWidth()
+                    .padding(bottom = spaceMedium)
+            ) {
+                Text(
+                    text = "Registrati",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
 
-            Spacer(Modifier.width(spaceLarge))
+            Spacer(Modifier.height(spaceSmall))
 
-            IconTextButtonType1(
-                onClick = {},
-                text = "Log In",
-                withIcon = true,
-                icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            // Log In Access
+            Row(
                 modifier = Modifier
-                    .blurredDropShadow(
-                        shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
-                        offset = Offset(10f,10f),
-                        blurRadius = 10f,
-                    )
-            )
-        }
+                    .fillMaxWidth()
+                    .background(Color.Transparent)
+            ) {
+                Text(
+                    text = "Got already an account?",
+                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onTertiary,
 
-        // User Registration Box
-        UserRegistrationBox(
-            userState = userState,
-            onUsernameChange = { registrationViewModel.onUsernameChange(it) },
-            onPasswordChange = { registrationViewModel.onPasswordChange(it) },
-            onEmailChange = { registrationViewModel.onEmailChange(it) },
-            onBirthDateChange = { registrationViewModel.onBirthDateChange(it) },
-        )
+                    overflow = TextOverflow.Visible,
+                    modifier = Modifier
+                        .weight(1f)
+                )
+
+                Spacer(Modifier.width(spaceLarge))
+
+                IconTextButtonType1(
+                    onClick = {},
+                    text = "Log In",
+                    withIcon = true,
+                    icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    modifier = Modifier
+                        .blurredDropShadow(
+                            shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
+                            offset = Offset(10f,10f),
+                            blurRadius = 10f,
+                        )
+                )
+            }
+
+            Spacer(Modifier.height(spaceSmall))
+
+            // User Registration Box
+            UserRegistrationBox(
+                userState = userState,
+                onUsernameChange = { registrationViewModel.onUsernameChange(it) },
+                onPasswordChange = { registrationViewModel.onPasswordChange(it) },
+                onEmailChange = { registrationViewModel.onEmailChange(it) },
+                onBirthDateChange = { registrationViewModel.onBirthDateChange(it) },
+            )
+
+        }
     }
 }
 
@@ -546,7 +719,7 @@ fun MainScreenPreview() {
     }
 }
 
-@Preview
+//@Preview
 @Composable
 fun RegisterScreenPreview() {
     E20FrontendMobileTheme(darkTheme = false) {
@@ -608,4 +781,16 @@ fun UserInfoPreview() {
     E20FrontendMobileTheme {
         UserInfo("mario.rossi@gmail.com", "2000-01-01")
     }
+}
+
+//@Preview
+@Composable
+fun UserAccordionPreview() {
+    val users = listOf(
+        UserProfile("1", "mario.rossi", "mail@gmail.com", null),
+        UserProfile("2", "mario.bianchi", "mail@gmail.com", null),
+        UserProfile("3", "mario.verdi", "mail@gmail.com", null),
+    )
+
+    UserAccordion(title = "Seguaci", users = users)
 }

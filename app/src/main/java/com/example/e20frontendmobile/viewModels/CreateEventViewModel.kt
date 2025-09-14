@@ -82,8 +82,8 @@ class CreateEventViewModel : ViewModel() {
         
         
         
-        selectedDate = evento.date.toString()
-        selectedTime = evento.date.toString()
+        selectedDate = evento.date.toString().split("T")[0]
+        selectedTime = evento.date.toString().split("T")[1]
 
         editing = true
         selectedEvent = evento
@@ -105,6 +105,7 @@ class CreateEventViewModel : ViewModel() {
                 
                 
                 try {
+                    println("MUCCA33")
                     var evento = Event(
                         1,
                         descrizione,
@@ -119,12 +120,18 @@ class CreateEventViewModel : ViewModel() {
                         b_nominativo = nominativo
                     )
 
+                    println(evento.toString())
+
                     var returningEvent : Event?
                     if (!editing) {
                         returningEvent = EventService(context).create(evento)
                     }else{
+                        println("CINA")
+                        println(selectedEvent.toString())
+                        println(evento.toString())
                         evento.id = selectedEvent?.id!!
                         returningEvent = EventService(context).edit(evento)
+                        println(returningEvent.toString())
                     }
 
                     EventService(context).uploadImageEvento(returningEvent?.id ?: 1, uriToFile(context))

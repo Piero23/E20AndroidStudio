@@ -7,7 +7,9 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.runtime.Composable
 
+@Composable
 fun bottomNavItems(isAdmin: Boolean): List<BottomNavItem> {
     return if (isAdmin) {
         listOf(

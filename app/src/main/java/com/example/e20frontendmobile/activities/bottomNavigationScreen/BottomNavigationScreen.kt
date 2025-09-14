@@ -18,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -53,7 +54,8 @@ import com.example.e20frontendmobile.viewModels.UserViewModel
 fun BottomNavigationScreen() {
     Surface(color = Color.LightGray) {
         val selectedIndex = remember { mutableIntStateOf(0) }
-        var isAdmin: Boolean = true
+        val context = LocalContext.current
+        var isAdmin by remember {mutableStateOf(false)}
 
         val navControllers = listOf(
             rememberNavController(), // per tab 0
@@ -62,6 +64,11 @@ fun BottomNavigationScreen() {
             rememberNavController(), // per tab 3
             rememberNavController()  // per tab 4
         )
+
+        LaunchedEffect(Unit) {
+            val updatedRoles = AuthStateStorage(context).getUserInfo()?.roles
+            isAdmin = updatedRoles?.contains("MANAGER") ?: false
+        }
 
         val eventViewModel: EventViewModel = viewModel()
         val utenteViewModel: UserViewModel = viewModel()

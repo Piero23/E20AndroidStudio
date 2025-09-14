@@ -41,6 +41,19 @@ class TicketService(private val context: Context) : ApiParent() {
         }
     }
 
+    suspend fun getById(id: String): Ticket? {
+        val token = getToken(context)
+        return try {
+            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/biglietto/$id") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
+            if (response.status.value in 200..299) response.body() else null
+        } catch (e: Exception) {
+            println("Errore getAllBiglietti: ${e.message}")
+            null
+        }
+    }
+
     fun validate(id: String): Boolean = runBlocking {
         val token = getToken(context) ?: return@runBlocking false
 

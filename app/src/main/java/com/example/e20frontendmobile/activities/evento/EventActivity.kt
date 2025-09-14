@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.provider.CalendarContract
+import android.util.Log
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -73,16 +74,24 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.e20frontendmobile.R
 import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
 import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
+import com.example.e20frontendmobile.data.auth.AuthStateStorage
+import com.example.e20frontendmobile.model.Address
 import com.example.e20frontendmobile.model.Event
+import com.example.e20frontendmobile.model.Location
+import com.example.e20frontendmobile.model.Preferiti
 import com.example.e20frontendmobile.viewModels.EventViewModel
+import com.example.e20frontendmobile.viewModels.LocationViewModel
+import com.example.e20frontendmobile.viewModels.UserViewModel
 import io.ktor.http.content.LastModifiedVersion
 import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toInstant
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -93,35 +102,72 @@ import kotlin.time.ExperimentalTime
 
 
 @Composable
-fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel: EventViewModel) {
+fun data(event : Event){
+    Row (
+        verticalAlignment = Alignment.CenterVertically
+    ){
+        Box(
+            Modifier
+                .clip(RoundedCornerShape(15.dp))
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            Color(255, 157, 71, 255),
+                            Color(199, 79, 0, 255)
+                        )
+                    )
+                )
+                .height(40.dp)
+                .wrapContentWidth(),
+            contentAlignment = Alignment.Center
+        ) {
 
-    var toggledBell by rememberSaveable { mutableStateOf(false) }
-    var toggledHeart by rememberSaveable { mutableStateOf(false) }
+            TextWithShadow(
+                modifier = Modifier.padding(horizontal=10.dp),
+                text = "${event.date.dayOfMonth}-" +
+                        "${event.date.month.number}-${event.date.year} " +
+                        "- ${event.date.hour}:${event.date.minute}"
+            )
+        }
 
-    var calendarEventId by remember { mutableStateOf<Long?>(null) }
+        if (event.restricted) {
+            Spacer(modifier = Modifier.size(10.dp))
+            Text(
+                text = "18+",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+    }
+}
 
-    val context = LocalContext.current
 
-    val event = eventViewModel.selectedEvent
+@Composable
+fun ShowEvent(navController: NavHostController,
+              isAdmin: Boolean,
+              eventViewModel: EventViewModel ,
+              locationViewModel : LocationViewModel = viewModel(),
+              utenteViewModel: UserViewModel = viewModel ()
+              )
+{
+    if (eventViewModel.selectedEvent == null) {
 
-    if (event == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Seleziona un evento")
+            Text("Qualcosa è andato storto")
         }
         return
     }
 
-    var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
 
+    val context = LocalContext.current
 
-    LaunchedEffect(event.id) {
-        val service = EventService(context)
-        imageBitmap = service.getImage(event.id)
-        eventViewModel.spotsLeft(context)
-        eventViewModel.getLocationFromEvent(context)
-        toggledHeart = eventViewModel.checkIfPreferito(context)
-    }
+    var toggledBell by rememberSaveable { mutableStateOf(false) }
+    var toggledHeart by rememberSaveable { mutableStateOf(false) }
+    var calendarEventId by remember { mutableStateOf<Long?>(null) }
+
+
+    //Permessi
 
     var hasCalendarPermission by remember { mutableStateOf(false) }
 
@@ -145,20 +191,35 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
     LaunchedEffect(hasCalendarPermission) {
         if (hasCalendarPermission) {
             val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-            val savedId = prefs.getLong("event_id", -1L)
+            val savedId = prefs.getLong("event_id${eventViewModel.selectedEvent!!.id}", -1L)
             if (savedId != -1L && isEventInCalendar(context, savedId)) {
                 calendarEventId = savedId
                 toggledBell = true
             }
+            else
+                toggledBell = false
         }
     }
 
+    //Immagine
 
+    var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+
+    LaunchedEffect(eventViewModel.selectedEvent) {
+        imageBitmap = eventViewModel.getEventImage(eventViewModel.selectedEvent!!.id , context)
+        eventViewModel.spotsLeft(context)
+        locationViewModel.getLocationFromEvent(context, eventViewModel.selectedEvent?.locationId ?: -1)
+        toggledHeart = utenteViewModel.checkIfPreferito(context,eventViewModel.selectedEvent?.id ?: -1)
+    }
+
+
+    //Composable
     Column(modifier = Modifier.verticalScroll(
         enabled = true,
         state = ScrollState(0)
     )) {
-        // Immagine
+
         if (imageBitmap != null) {
             Image(
                 bitmap = imageBitmap!!.asImageBitmap(),
@@ -197,42 +258,17 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Text(
-                        event.title,
+                        eventViewModel.selectedEvent!!.title,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.headlineLarge
                     )
 
-                    Row {
-                        Box(
-                            Modifier
-                                .clip(RoundedCornerShape(15.dp))
-                                .background(
-                                    Brush.horizontalGradient(
-                                        colors = listOf(
-                                            Color(255, 157, 71, 255),
-                                            Color(199, 79, 0, 255)
-                                        )
-                                    )
-                                )
-                                .height(40.dp)
-                                .wrapContentWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            TextWithShadow(
-                                modifier = Modifier.padding(horizontal=10.dp),
-                                text = "${event.date.month.name.take(3).capitalize()} ${event.date.dayOfMonth}, ${event.date.year} - ${event.date.hour}.${event.date.minute}"
-                            )
-                        }
-
-                        if (event.restricted) {
-                            Spacer(modifier = Modifier.size(10.dp))
-                            // TODO icona restricted
-                        }
-                    }
+                    data(eventViewModel.selectedEvent!!)
                 }
 
                 Column(Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp)) {
                     if (isAdmin && eventViewModel.checkEventManager(context)) {
+
                         IconButton(onClick = {
                             navController.navigate("edit")
                         }) {
@@ -243,6 +279,7 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                                 tint = Color.Black
                             )
                         }
+
                         IconButton(onClick = { navController.navigate("scanner") }) {
                             Icon(
                                 Icons.Filled.QrCode,
@@ -251,20 +288,28 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                                 tint = Color.Black
                             )
                         }
+
                     } else {
                         IconButton(onClick = {
                             toggledBell = !toggledBell
                             if (toggledBell) {
-                                calendarEventId = addEventToCalendar(context, event.title, event.date);
+
+                                calendarEventId = addEventToCalendar(context,
+                                    eventViewModel.selectedEvent!!.title,
+                                    eventViewModel.selectedEvent!!.date);
+
                                 saveEventId(context, calendarEventId ?: -1)
                                 calendarEventId?.let {
-                                    context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit().putLong("event_id", it).apply()
+                                    context.getSharedPreferences("app_prefs",
+                                        Context.MODE_PRIVATE).edit()
+                                        .putLong("event_id${eventViewModel.selectedEvent!!.id}", it).apply()
                                 }
                                 Toast.makeText(context, "Evento aggiunto al calendario", Toast.LENGTH_SHORT).show()
                             } else {
                                 calendarEventId?.let {
                                     removeEventFromCalendar(context, it)
-                                    context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit().remove("event_id").apply()
+                                    context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit()
+                                        .remove("event_id${eventViewModel.selectedEvent!!.id}").apply()
                                 }
                                 calendarEventId = null
                                 Toast.makeText(context, "Evento rimosso dal calendario", Toast.LENGTH_SHORT).show()
@@ -278,26 +323,34 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                             )
                         }
                         IconButton(onClick = {
-                            if (UtenteService(context).getUtenteSub()!="no"){
+                            if (AuthStateStorage(context).getUserInfo()?.roles!=null){
                                 toggledHeart = !toggledHeart
                                 if (toggledHeart) {
-                                    eventViewModel.salvaPreferito(context)
+
+                                    utenteViewModel.salvaPreferito(context,
+                                        eventViewModel.selectedEvent!!.id)
                                     Toast.makeText(context, "Evento aggiunto ai preferiti", Toast.LENGTH_SHORT).show()
+
                                 } else {
-                                    eventViewModel.removePreferiti(context)
+
+                                    utenteViewModel.removePreferiti(context,
+                                        eventViewModel.selectedEvent!!.id)
                                     Toast.makeText(context, "Evento rimosso dai preferiti", Toast.LENGTH_SHORT).show()
+
                                 }
                             }
                             else{
-                                Toast.makeText(context, "Devi essere registrato", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Devi essere registrato per avere dei preferiti", Toast.LENGTH_LONG).show()
                             }
                         }) {
+
                             Icon(
                                 Icons.Filled.FavoriteBorder,
                                 contentDescription = "Salva",
                                 modifier = Modifier.size(50.dp),
                                 tint = if (toggledHeart) Color.Red else Color.Black
                             )
+
                         }
                     }
                 }
@@ -311,7 +364,7 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
                     style = MaterialTheme.typography.headlineMedium
                 )
                 Text(
-                    text = event.description,
+                    text = eventViewModel.selectedEvent!!.description,
                     modifier = Modifier.padding(2.dp, 5.dp, 0.dp, 0.dp),
                     style = MaterialTheme.typography.bodyLarge
                 )
@@ -347,142 +400,153 @@ fun ShowEvent(navController: NavHostController, isAdmin: Boolean, eventViewModel
             }
 
             // Ticket box
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                Box(modifier = Modifier.width(280.dp)) {
-                    Image(
-                        painter = painterResource(id = R.drawable.image),
-                        contentDescription = "Ticket",
-                        modifier = Modifier.matchParentSize(),
-                        contentScale = ContentScale.FillWidth
-                    )
-                    Column(modifier = Modifier.padding(80.dp, 20.dp, 0.dp, 0.dp)) {
-                        Text(
-                            "1 Biglietto",
-                            color = Color.White,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Row(modifier = Modifier.offset(0.dp, (-8).dp)) {
-                            Text(
-                                modifier = Modifier.alignBy(LastBaseline),
-                                color = Color(106, 51, 0, 255),
-                                text = event.prezzo.toString(),
-                                style = MaterialTheme.typography.headlineLarge,
-                                fontSize = 40.sp
-                            )
-                            Text(
-                                "€",
-                                modifier = Modifier.alignBy(LastBaseline),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontSize = 20.sp,
-                                color = Color(182, 97, 17, 255)
-                            )
-                        }
-                    }
-                }
-            }
+            ticketBox(eventViewModel.selectedEvent!!.prezzo.toString())
 
-            // Compra ora
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(0.dp, 15.dp, 22.dp, 80.dp),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextButton(onClick = { navController.navigate("checkout") }) {
-                    Text(
-                        "Compra Ora",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Icon(
-                        Icons.Filled.ArrowForward,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .graphicsLayer(alpha = 0.99f)
-                            .drawWithCache {
-                                val brush = Brush.horizontalGradient(
-                                    listOf(Color(255, 157, 71, 255), Color(199, 79, 0, 255))
-                                )
-                                onDrawWithContent {
-                                    drawContent()
-                                    drawRect(brush, blendMode = BlendMode.SrcAtop)
-                                }
-                            }
-                    )
-                }
-            }
+            compraOra(navController)
         }
 
         // Location
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            Text(
-                "Location",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
+        Log.d("Location" , locationViewModel.selectedEventLocation.toString())
+        Log.d("Location" , locationViewModel.selectedLocationAddress.toString())
+        location(locationViewModel.selectedEventLocation,locationViewModel.selectedLocationAddress)
+
+    }
+}
+
+
+@Composable
+fun location(location: Location? , address: Address?){
+
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+        Text(
+            "Location",
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+    }
+
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 15.dp, end = 15.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                location?.nome?.let { Text(it, fontSize = 16.sp) }
+                address?.road?.let { Text(it, fontSize = 16.sp) }
+            }
+            Column(horizontalAlignment = Alignment.End) {
+                address?.village?.let { Text(it, fontSize = 16.sp) }
+                address?.postcode?.let { Text(it, fontSize = 16.sp) }
+            }
         }
-        if (eventViewModel.selectedEventLocation==null || eventViewModel.selectedLocationAddress==null){
+
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(400.dp)
+            .padding(15.dp, 10.dp, 15.dp, 50.dp)
+            .clipToBounds()
+    ) {
+        if (location!=null){
+            val lat = location.position.toString().split(",")[0].toDouble()
+            val lon = location.position.toString().split(",")[1].toDouble()
+            MapScreen(lat, lon)
+        }
+        else{
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxWidth()
+                    .height(400.dp)
+                    .padding(15.dp, 10.dp, 15.dp, 50.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Row{
                     CircularProgressIndicator()
-                    Text("Caricamento")
-                }
-            }
-        }
-        else{
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 15.dp, end = 15.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    eventViewModel.selectedEventLocation!!.nome?.let { Text(it, fontSize = 16.sp) }
-                    eventViewModel.selectedLocationAddress?.road?.let { Text(it, fontSize = 16.sp) }
-                }
-                Column(horizontalAlignment = Alignment.End) {
-                    eventViewModel.selectedLocationAddress?.village?.let { Text(it, fontSize = 16.sp) }
-                    eventViewModel.selectedLocationAddress?.postcode?.let { Text(it, fontSize = 16.sp) }
-                }
-            }
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(400.dp)
-                .padding(15.dp, 10.dp, 15.dp, 50.dp)
-                .clipToBounds()
-        ) {
-            if (eventViewModel.selectedEventLocation!=null){
-                val lat = eventViewModel.selectedEventLocation?.position.toString().split(",")[0].toDouble()
-                val lon = eventViewModel.selectedEventLocation?.position.toString().split(",")[1].toDouble()
-                MapScreen(lat, lon)
-            }
-            else{
-                Box(
-                    modifier = Modifier.fillMaxWidth()
-                        .height(400.dp)
-                        .padding(15.dp, 10.dp, 15.dp, 50.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row{
-                        CircularProgressIndicator()
-                        Text("Caricamento mappa")
-                    }
+                    Text("Caricamento mappa")
                 }
             }
         }
     }
 }
+
+@Composable
+fun ticketBox(prezzo : String){
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+        Box(modifier = Modifier.width(280.dp)) {
+            Image(
+                painter = painterResource(id = R.drawable.image),
+                contentDescription = "Ticket",
+                modifier = Modifier.matchParentSize(),
+                contentScale = ContentScale.FillWidth
+            )
+            Column(modifier = Modifier.padding(80.dp, 20.dp, 0.dp, 0.dp)) {
+                Text(
+                    "1 Biglietto",
+                    color = Color.White,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Row(modifier = Modifier.offset(0.dp, (-8).dp)) {
+                    Text(
+                        modifier = Modifier.alignBy(LastBaseline),
+                        color = Color(106, 51, 0, 255),
+                        text = prezzo,
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontSize = 40.sp
+                    )
+                    Text(
+                        "€",
+                        modifier = Modifier.alignBy(LastBaseline),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontSize = 20.sp,
+                        color = Color(182, 97, 17, 255)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun compraOra(navController : NavHostController){
+    // Compra ora
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(0.dp, 15.dp, 22.dp, 80.dp),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TextButton(onClick = { navController.navigate("checkout") }) {
+            Text(
+                "Compra Ora",
+                style = MaterialTheme.typography.titleMedium,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium
+            )
+            Icon(
+                Icons.Filled.ArrowForward,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(30.dp)
+                    .graphicsLayer(alpha = 0.99f)
+                    .drawWithCache {
+                        val brush = Brush.horizontalGradient(
+                            listOf(Color(255, 157, 71, 255), Color(199, 79, 0, 255))
+                        )
+                        onDrawWithContent {
+                            drawContent()
+                            drawRect(brush, blendMode = BlendMode.SrcAtop)
+                        }
+                    }
+            )
+        }
+    }
+}
+
 
 @Composable
 fun TextWithShadow(

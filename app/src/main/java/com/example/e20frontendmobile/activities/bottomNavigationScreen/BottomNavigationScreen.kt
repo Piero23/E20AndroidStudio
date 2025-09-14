@@ -18,6 +18,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -46,6 +48,7 @@ import com.example.e20frontendmobile.activities.user.Orders
 import com.example.e20frontendmobile.data.auth.AuthActivity
 import com.example.e20frontendmobile.data.auth.AuthStateStorage
 import com.example.e20frontendmobile.viewModels.EventViewModel
+import com.example.e20frontendmobile.viewModels.LoggedUserViewModel
 import com.example.e20frontendmobile.viewModels.UserViewModel
 
 
@@ -54,7 +57,16 @@ import com.example.e20frontendmobile.viewModels.UserViewModel
 fun BottomNavigationScreen() {
     Surface(color = Color.LightGray) {
         val selectedIndex = remember { mutableIntStateOf(0) }
-        var isAdmin: Boolean = true
+        val context = LocalContext.current
+        var isAdmin by remember {mutableStateOf(false)}
+
+
+        val eventViewModel: EventViewModel = viewModel()
+        val utenteViewModel: UserViewModel = viewModel()
+        val loggedUserViewModel: LoggedUserViewModel = viewModel()
+
+        val loggedUser by loggedUserViewModel.loggedUser.collectAsState()
+
 
         val navControllers = listOf(
             rememberNavController(), // per tab 0
@@ -64,8 +76,15 @@ fun BottomNavigationScreen() {
             rememberNavController()  // per tab 4
         )
 
-        val eventViewModel: EventViewModel = viewModel()
-        val utenteViewModel: UserViewModel = viewModel()
+        LaunchedEffect(Unit) {
+            loggedUserViewModel.loadLoggedUser(context)
+        }
+
+        LaunchedEffect(loggedUser) {
+            val updatedRoles = AuthStateStorage(context).getUserInfo()?.roles
+            isAdmin = updatedRoles?.contains("MANAGER") ?: false
+        }
+
 
         Scaffold(
             bottomBar = {
@@ -75,7 +94,6 @@ fun BottomNavigationScreen() {
                     navControllers = navControllers
                 )
             }
-            //TODO evitare che scoppia se clicchi 2 volte la stessa tab
         ) { innerPadding ->
             Box(Modifier.padding(innerPadding)) {
                 when(selectedIndex.intValue) {
@@ -114,7 +132,8 @@ fun BottomNavigationScreen() {
                                 QRCodeScannerWithBottomSheet()
                             }
                             composable ("edit") {
-                                createEvent(eventViewModel, true)
+
+                                createEvent(eventViewModel.selectedEvent, navControllers[0])
                             }
                         }
                     }
@@ -146,7 +165,7 @@ fun BottomNavigationScreen() {
                                 QRCodeScannerWithBottomSheet()
                             }
                             composable ("edit") {
-                                createEvent(eventViewModel,true)
+                                createEvent(eventViewModel.selectedEvent, navControllers[1])
                             }
                         }
                     }
@@ -160,27 +179,28 @@ fun BottomNavigationScreen() {
                         )
                         {
                             composable(route = "create"){
-                                eventViewModel.clearSelection()
-                                createEvent(eventViewModel)//admin
+                                //TODO Risolvere Clear Selection
+                                //eventViewModel.clearSelection()
+                                createEvent(null, navControllers[2])//admin
                             }
                         }
                     }
                     3 -> {
                         @OptIn(ExperimentalAnimationApi::class)
                         NavHost(
-                            navController = navControllers[3],
+                            navController = navControllers[4],
                             startDestination = "orders",
                             enterTransition = { EnterTransition.None },
                             exitTransition = { ExitTransition.None }
                         )
                         {
                             composable(route = "orders") {
-                                DebugTokenScreen()
+                                Orders()
                             }
                         }
                     } //TODO rimpiazzare con gli ordini
                     4 -> {
-                        MainAccessUserPage(navControllers[3])
+                        MainAccessUserPage(navControllers[3], loggedUserViewModel)
 //                        @OptIn(ExperimentalAnimationApi::class)
 //                        NavHost(
 //                            navController = navControllers[3],
@@ -190,7 +210,7 @@ fun BottomNavigationScreen() {
 //                        )
 //                        {
 //                            composable(route = "profile") {
-//                                DebugTokenScreen()//RegisterScreen() //TODO gestire nav tra profilo, login e registra
+//                                DebugTokenScreen()//RegisterScreen()
 //                            }
 //                        }
                     }
@@ -228,7 +248,6 @@ fun DebugTokenScreen() {
         }
 
         Button(onClick = {
-            //println("MAAAAAAAMMAAAAA"+getMe(context))
         }) {
             Text("Testa")
         }

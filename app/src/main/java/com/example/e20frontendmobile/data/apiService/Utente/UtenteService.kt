@@ -48,7 +48,6 @@ class UtenteService (private val context: Context) : ApiParent() {
     suspend fun search(query: String): List<Utente> {
         return withContext(Dispatchers.IO) {
             try {
-                println("Bagio ha sei fuori dal codice")
                 val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/utente/search/$query")
                 if (response.status.value in 200..299) {
                     val jsonString = response.bodyAsText()

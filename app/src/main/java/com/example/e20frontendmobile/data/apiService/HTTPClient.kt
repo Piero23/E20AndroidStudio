@@ -50,6 +50,7 @@ val myHttpClient = HttpClient(Android) {
 }
 
 
+//TODO fix refresh
 fun getToken(context: Context): String? = runBlocking {
     val storage = AuthStateStorage(context)
     val authManager = AuthManager(context)

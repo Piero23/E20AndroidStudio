@@ -29,13 +29,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.e20frontendmobile.activities.evento.eventCard
+import com.example.e20frontendmobile.activities.user.userCard
 import com.example.e20frontendmobile.composables.CustomizableSearchBar
-import com.example.e20frontendmobile.model.Event
 import com.example.e20frontendmobile.viewModels.EventViewModel
 import com.example.e20frontendmobile.viewModels.UserViewModel
 
@@ -120,7 +118,10 @@ fun ShowDiscovery(
                     key = { it.id }
                 ) { resultItem ->
                     Box(Modifier.padding(top = 25.dp)) {
-                        //TODO creare utente card
+                        userCard(
+                            resultItem,
+                            navController
+                        )
                     }
                 }
             }
@@ -154,11 +155,4 @@ fun NoRippleTab(
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
         )
     }
-}
-
-@Preview
-@Composable
-fun previ(){
-    val nav=rememberNavController()
-    //ShowDiscovery(nav)
 }

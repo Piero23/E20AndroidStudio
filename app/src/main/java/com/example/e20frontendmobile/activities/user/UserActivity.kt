@@ -90,7 +90,7 @@ import kotlin.time.Instant
 @Composable
 fun MainAccessUserPage(
     navController: NavHostController,
-    loggedUserViewModel: LoggedUserViewModel = viewModel()
+    loggedUserViewModel: LoggedUserViewModel
 ) {
     val context = LocalContext.current
     val loggedUser by loggedUserViewModel.loggedUser.collectAsState()

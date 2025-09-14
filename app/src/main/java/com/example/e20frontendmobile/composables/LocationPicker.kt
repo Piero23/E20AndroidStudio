@@ -52,7 +52,7 @@ fun LocationPickerPopup(
     var geocodedLocation by remember { mutableStateOf<GeoPoint?>(null) }
 
     var nome by remember { mutableStateOf("") }
-    var descrizione by remember { mutableStateOf("") }
+    var descrizione by remember { mutableStateOf("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") }
     var alChiuso by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
@@ -87,18 +87,13 @@ fun LocationPickerPopup(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Box(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        "Nuova Location",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
 
+
+
+                Box(modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.CenterEnd) {
                     IconButton(
                         onClick = { onDismiss() },
-                        modifier = Modifier.align(Alignment.TopEnd)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
@@ -106,18 +101,15 @@ fun LocationPickerPopup(
                         )
                     }
                 }
+                Text(
+                    "Nuova Location",
+                    style = MaterialTheme.typography.titleLarge,
+    )
 
                 CustomTextField(
                     value = nome,
                     onValueChange = { nome = it },
                     placeholder = "Nome",
-                    singleLine = true
-                )
-
-                CustomTextField(
-                    value = descrizione,
-                    onValueChange = { descrizione = it },
-                    placeholder = "Descrizione",
                     singleLine = true
                 )
 

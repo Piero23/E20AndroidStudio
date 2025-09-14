@@ -7,6 +7,7 @@ import android.util.Log
 import com.example.e20frontendmobile.data.apiService.ApiParent
 import com.example.e20frontendmobile.data.apiService.getToken
 import com.example.e20frontendmobile.data.apiService.myHttpClient
+import com.example.e20frontendmobile.model.Address
 import com.example.e20frontendmobile.model.Event
 import io.ktor.client.call.body
 import io.ktor.client.request.*
@@ -32,13 +33,35 @@ import kotlin.math.log
 class EventService(private val context: Context) : ApiParent() {
 
     // 🔹 GET Event by ID
-    fun findById(idEvento: Long): Event? = runBlocking {
-        val token = getToken(context)
-        try {
-            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/evento/$idEvento") {
-                header(HttpHeaders.Authorization, "Bearer $token")
+    suspend fun findById(idEvento: Long): Event? {
+
+        return try {
+            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/evento/$idEvento")
+
+            if (response.status.value in 200..299) response.body() else null
+        } catch (e: Exception) {
+            println("Errore findById: ${e.message}")
+            null
+        }
+    }
+
+    suspend fun findName(idEvento: Long): String? {
+
+        return try {
+            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/evento/$idEvento")
+
+            if (response.status.value in 200..299) {
+                val res = response.bodyAsText()
+//                val jsonElement = Json.parseToJsonElement(res).jsonObject
+//                val addressElement = jsonElement["nome"]?.jsonObject
+
+                Log.d("EventService",res)
+                res.split(":")[2].split(",")[0].replace("\"", "")
+            } else {
+                Log.d("EventService","Errore nella funzione "+ response.bodyAsText())
+                null
             }
-            return@runBlocking if (response.status.value in 200..299) response.body() else null
+
         } catch (e: Exception) {
             println("Errore findById: ${e.message}")
             null
@@ -46,26 +69,28 @@ class EventService(private val context: Context) : ApiParent() {
     }
 
     // 🔹 GET all events
-    fun findAll(): List<Event>? = runBlocking {
-        val token = getToken(context)
+    fun findAll(): List<Event> = runBlocking {
         try {
-            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/evento/") {
-                header(HttpHeaders.Authorization, "Bearer $token")
+            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/evento")
+            if (response.status.value in 200..299) {
+                val jsonString = response.bodyAsText()
+                val jsonElement = Json.parseToJsonElement(jsonString).jsonObject
+                val contentJson = jsonElement["content"]?.toString() ?: "[]"
+                Json.decodeFromString(ListSerializer(Event.serializer()), contentJson)
+            } else {
+                println("Errore server: ${response.status.value}")
+                emptyList()
             }
-            return@runBlocking if (response.status.value in 200..299) response.body() else null
         } catch (e: Exception) {
             println("Errore findAll: ${e.message}")
-            null
+            listOf()
         }
     }
 
     suspend fun getImage(id: Long): Bitmap? {
-        val token = getToken(context)
         return try {
             withContext(Dispatchers.IO) {
-                val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/evento/$id/image") {
-                    if (token != null) header(HttpHeaders.Authorization, "Bearer $token")
-                }
+                val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/evento/$id/image")
 
                 if (response.status.value in 200..299) {
                     val bytes = response.body<ByteArray>()
@@ -133,10 +158,10 @@ class EventService(private val context: Context) : ApiParent() {
         }
     }
 
-    fun edit(id: Long, event: Event): Event? = runBlocking {
+    fun edit(event: Event): Event? = runBlocking {
         val token = getToken(context)
         try {
-            val response: HttpResponse = myHttpClient.put("https://$ip:8060/api/evento/$id") {
+            val response: HttpResponse = myHttpClient.put("https://$ip:8060/api/evento/${event.id}") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
                 setBody(event)

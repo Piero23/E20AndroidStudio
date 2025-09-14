@@ -133,7 +133,12 @@ class CreateEventViewModel : ViewModel() {
                         returningEvent = EventService(context).edit(evento)
                     }
 
-                    //EventService(context).uploadImageEvento(returningEvent?.id ?: 1, uriToFile(context)) //TODO fixare che creaevento non mette immagine di default
+                    if (createSelectedImage.path!="") {
+                        EventService(context).uploadImageEvento(
+                            returningEvent?.id ?: 1,
+                            uriToFile(context)
+                        )
+                    }
                     Toast.makeText(context, "Evento creato correttamente", Toast.LENGTH_LONG).show()
                     status = true
                 } catch (e: Exception) {

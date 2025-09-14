@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
@@ -23,7 +24,7 @@ class CreateEventViewModel : ViewModel() {
     var titolo: String by   mutableStateOf("")
 
     var selectedEvent  by mutableStateOf<Event?>(null)
-    var location by  mutableStateOf("")
+    var location by  mutableLongStateOf(-1)
     var posti by   mutableStateOf("")
     var prezzo by   mutableStateOf("")
     var ageRestricted by mutableStateOf(false)
@@ -48,7 +49,7 @@ class CreateEventViewModel : ViewModel() {
             nomeSbagliato = true
         }
 
-        if (location == "") {
+        if (location == -1L) {
             locationSbagliata = true
         }
 
@@ -72,7 +73,7 @@ class CreateEventViewModel : ViewModel() {
 
     fun edit(evento : Event){
         titolo = evento.title
-        location = evento.locationId.toString()
+        location = evento.locationId
         posti = evento.posti.toString()
         prezzo = evento.prezzo.toString()
         ageRestricted = evento.restricted
@@ -91,13 +92,15 @@ class CreateEventViewModel : ViewModel() {
 
 
 
-    fun sendEvent(context : Context) {
+    fun sendEvent(context : Context): Boolean {
         nomeSbagliato = false
         locationSbagliata = false
         prezzoSbagliato = false
         postiSbagliati = false
         dataSbagliata = false
         orarioSbagliato = false
+
+        var status = false
 
         verify()
         if( !(dataSbagliata || postiSbagliati || prezzoSbagliato || locationSbagliata || nomeSbagliato || orarioSbagliato)) {
@@ -111,7 +114,7 @@ class CreateEventViewModel : ViewModel() {
                         descrizione,
                         title = titolo,
                         date = LocalDateTime.parse(selectedDate + "T" + selectedTime),
-                        locationId = location.toLong(),
+                        locationId = location,
                         posti = posti.toInt(),
                         prezzo = prezzo.toDouble(),
                         restricted = ageRestricted,
@@ -126,15 +129,13 @@ class CreateEventViewModel : ViewModel() {
                     if (!editing) {
                         returningEvent = EventService(context).create(evento)
                     }else{
-                        println("CINA")
-                        println(selectedEvent.toString())
-                        println(evento.toString())
                         evento.id = selectedEvent?.id!!
                         returningEvent = EventService(context).edit(evento)
-                        println(returningEvent.toString())
                     }
 
-                    EventService(context).uploadImageEvento(returningEvent?.id ?: 1, uriToFile(context))
+                    //EventService(context).uploadImageEvento(returningEvent?.id ?: 1, uriToFile(context)) //TODO fixare che creaevento non mette immagine di default
+                    Toast.makeText(context, "Evento creato correttamente", Toast.LENGTH_LONG).show()
+                    status = true
                 } catch (e: Exception) {
                     Toast.makeText(context, "Qualcosa è andato storto", Toast.LENGTH_LONG).show()
                 }
@@ -142,6 +143,7 @@ class CreateEventViewModel : ViewModel() {
             }
         }else
             Toast.makeText(context, "Errore nella creazione", Toast.LENGTH_LONG).show()
+        return status
     }
     var createSelectedImage by mutableStateOf("".toUri())
 

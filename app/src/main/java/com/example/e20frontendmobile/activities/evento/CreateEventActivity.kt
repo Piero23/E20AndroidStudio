@@ -69,6 +69,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.e20frontendmobile.composables.LocationPickerPopup
 import com.example.e20frontendmobile.model.Event
@@ -96,7 +98,7 @@ fun timeDatePicker() {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
-fun createEvent(evento: Event?, eventViewModel: EventViewModel = viewModel()) {
+fun createEvent(evento: Event?, navController: NavHostController, eventViewModel: EventViewModel = viewModel()) {
     val context = LocalContext.current
 
     var createEventViewModel: CreateEventViewModel = viewModel()
@@ -334,7 +336,7 @@ fun createEvent(evento: Event?, eventViewModel: EventViewModel = viewModel()) {
 
                 Button(
                 onClick = {
-                    createEventViewModel.sendEvent(context)
+                    if (createEventViewModel.sendEvent(context) && createEventViewModel.editing) navController.popBackStack()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -467,7 +469,7 @@ fun locationSection(
                     locationName = it
                     locationViewModel.searchLocations(context, it)
                     showSearch = true
-                    createEventViewModel.location = ""
+                    createEventViewModel.location = -1
                 },
                 placeholder = "Location",
                 singleLine = true,
@@ -510,7 +512,7 @@ fun locationSection(
                                         .fillMaxWidth()
                                         .clickable {
                                             locationName = option.nome ?: ""
-                                            createEventViewModel.location = option.id.toString()
+                                            createEventViewModel.location = option.id!!
                                             locationViewModel.clearLocations()
                                             showSearch = false
                                         }

@@ -101,9 +101,10 @@ fun userCard(
             }
 
             IconButton(onClick = {
-                // SE L'UTENTE È LOGGATO E NON LO SEGUE
+                // SE L'UTENTE È LOGGATO
                 if (AuthStateStorage(context).getUserInfo()?.roles != null) {
                     toggledHeart = !toggledHeart
+                    // SE L'UTENTE È LOGGATO E NON LO SEGUE
                     if (toggledHeart) {
                         // userViewModel.segui(utente)
                         Toast.makeText(

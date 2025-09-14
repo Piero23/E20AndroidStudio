@@ -53,7 +53,6 @@ class UtenteService (private val context: Context) : ApiParent() {
                     val jsonString = response.bodyAsText()
                     val jsonElement = Json.parseToJsonElement(jsonString).jsonObject
                     val contentJson = jsonElement["content"]?.toString() ?: "[]"
-                    //TODO usando LocalDateTime da problemi di serializzazione quindi ora nell'utente la date è una stringa
                     Json.decodeFromString(ListSerializer(Utente.serializer()), contentJson)
                 } else {
                     println("Errore server: ${response.status.value}")

@@ -68,9 +68,9 @@ class EventService(private val context: Context) : ApiParent() {
         }
     }
 
-    // 🔹 GET all events
-    fun findAll(): List<Event> = runBlocking {
-        try {
+    // GET all events
+    suspend fun findAll(): List<Event> {
+        return try {
             val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/evento")
             if (response.status.value in 200..299) {
                 val jsonString = response.bodyAsText()

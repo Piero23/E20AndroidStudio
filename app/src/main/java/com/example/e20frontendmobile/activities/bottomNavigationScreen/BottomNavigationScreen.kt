@@ -101,9 +101,7 @@ fun BottomNavigationScreen() {
                         @OptIn(ExperimentalAnimationApi::class)
                         NavHost(
                             navController = navControllers[0],
-                            startDestination = "home",
-                            enterTransition = { EnterTransition.None },
-                            exitTransition = { ExitTransition.None }
+                            startDestination = "home"
                             ) {
                             composable("home") {
                                 mainFun(navControllers[0] , eventViewModel )
@@ -141,9 +139,7 @@ fun BottomNavigationScreen() {
                         @OptIn(ExperimentalAnimationApi::class)
                         NavHost(
                             navController = navControllers[1],
-                            startDestination = "discovery",
-                            enterTransition = { EnterTransition.None },
-                            exitTransition = { ExitTransition.None }
+                            startDestination = "discovery"
                         ) {
                             composable("discovery") {
                                 ShowDiscovery(navControllers[1], eventViewModel = eventViewModel, userViewModel = utenteViewModel)
@@ -173,9 +169,7 @@ fun BottomNavigationScreen() {
                         @OptIn(ExperimentalAnimationApi::class)
                         NavHost(
                             navController = navControllers[2],
-                            startDestination = "create",
-                            enterTransition = { EnterTransition.None },
-                            exitTransition = { ExitTransition.None }
+                            startDestination = "create"
                         )
                         {
                             composable(route = "create"){
@@ -189,9 +183,7 @@ fun BottomNavigationScreen() {
                         @OptIn(ExperimentalAnimationApi::class)
                         NavHost(
                             navController = navControllers[4],
-                            startDestination = "orders",
-                            enterTransition = { EnterTransition.None },
-                            exitTransition = { ExitTransition.None }
+                            startDestination = "orders"
                         )
                         {
                             composable(route = "orders") {

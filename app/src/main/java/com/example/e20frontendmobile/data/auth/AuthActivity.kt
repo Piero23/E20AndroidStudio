@@ -1,7 +1,9 @@
 package com.example.e20frontendmobile.data.auth
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import net.openid.appauth.AuthState
 import net.openid.appauth.TokenResponse
@@ -26,7 +28,7 @@ class AuthActivity : ComponentActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-
+        Log.d("AuthActivity", "requestCode: $requestCode, resultCode: $resultCode, data: $data")
 
         if (resultCode == RESULT_OK || data != null) {
             authManager.handleAuthResponse(
@@ -44,19 +46,32 @@ class AuthActivity : ComponentActivity() {
                     val storage = AuthStateStorage(this)
                     storage.writeAuthState(state)
 
+
+                    //  Return Success + optional data
+                    val resultIntent = Intent().apply {
+                        putExtra("access_token", tokenResponse.accessToken)
+                        putExtra("id_token", tokenResponse.idToken)
+                    }
+
+                    //  Return Success to the Caller via Intent
+                    Log.d("AuthActivity", "Returning RESULT_OK")
+                    setResult(Activity.RESULT_OK, resultIntent)
+                    finish()
+
                     finish()
                 },
                 onError = { ex ->
-                    println("Errore autenticazione: ${ex?.errorDescription}")
+                    Log.e("AuthActivity", "Errore autenticazione: ${ex?.errorDescription}")
+                    setResult(Activity.RESULT_CANCELED)
                     finish()
                 }
             )
         }
 
         authState?.lastTokenResponse?.let {
-            println("Access Token: ${it.accessToken?.take(10)}...")
+            Log.w("AuthActivity", "Access Token: ${it.accessToken?.take(10)}...")
+            setResult(Activity.RESULT_CANCELED)
+            finish()
         }
-
-        finish()
     }
 }

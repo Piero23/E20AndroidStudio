@@ -79,6 +79,7 @@ import androidx.navigation.NavHostController
 import com.example.e20frontendmobile.R
 import com.example.e20frontendmobile.data.apiService.EventoLocation.EventService
 import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
+import com.example.e20frontendmobile.data.auth.AuthStateStorage
 import com.example.e20frontendmobile.model.Address
 import com.example.e20frontendmobile.model.Event
 import com.example.e20frontendmobile.model.Location
@@ -322,7 +323,7 @@ fun ShowEvent(navController: NavHostController,
                             )
                         }
                         IconButton(onClick = {
-                            if (UtenteService(context).getUtenteSub()!="no"){
+                            if (AuthStateStorage(context).getUserInfo()?.roles!=null){
                                 toggledHeart = !toggledHeart
                                 if (toggledHeart) {
 
@@ -339,7 +340,7 @@ fun ShowEvent(navController: NavHostController,
                                 }
                             }
                             else{
-                                Toast.makeText(context, "Devi essere registrato", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Devi essere registrato per avere dei preferiti", Toast.LENGTH_LONG).show()
                             }
                         }) {
 

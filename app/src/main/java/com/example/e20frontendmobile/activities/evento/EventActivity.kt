@@ -90,6 +90,7 @@ import io.ktor.http.content.LastModifiedVersion
 import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toInstant
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -101,7 +102,9 @@ import kotlin.time.ExperimentalTime
 
 @Composable
 fun data(event : Event){
-    Row {
+    Row (
+        verticalAlignment = Alignment.CenterVertically
+    ){
         Box(
             Modifier
                 .clip(RoundedCornerShape(15.dp))
@@ -120,15 +123,19 @@ fun data(event : Event){
 
             TextWithShadow(
                 modifier = Modifier.padding(horizontal=10.dp),
-                text = "${event.date.dayOfMonth}" +
-                        "${event.date.month} ${event.date.year} " +
+                text = "${event.date.dayOfMonth}-" +
+                        "${event.date.month.number}-${event.date.year} " +
                         "- ${event.date.hour}:${event.date.minute}"
             )
         }
 
         if (event.restricted) {
             Spacer(modifier = Modifier.size(10.dp))
-            // TODO icona restricted
+            Text(
+                text = "18+",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.error
+            )
         }
     }
 }

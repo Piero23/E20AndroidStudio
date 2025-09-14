@@ -158,10 +158,10 @@ class EventService(private val context: Context) : ApiParent() {
         }
     }
 
-    fun edit(id: Long, event: Event): Event? = runBlocking {
+    fun edit(event: Event): Event? = runBlocking {
         val token = getToken(context)
         try {
-            val response: HttpResponse = myHttpClient.put("https://$ip:8060/api/evento/$id") {
+            val response: HttpResponse = myHttpClient.put("https://$ip:8060/api/evento/${event.id}") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 contentType(ContentType.Application.Json)
                 setBody(event)

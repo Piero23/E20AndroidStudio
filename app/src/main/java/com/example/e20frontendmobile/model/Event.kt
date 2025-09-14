@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializer
 
 @Serializable
 data class Event(
-    val id: Long,
+    var id: Long,
     @SerialName("descrizione") val description: String,
     @SerialName("nome") val title: String,
     @Serializable(with = LocalDateTimeSerializer::class)

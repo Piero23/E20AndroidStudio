@@ -252,6 +252,7 @@ class UtenteService (private val context: Context) : ApiParent() {
         }
     }
 
+
     // Register New User
     suspend fun register(userRegistration: UserRegistration): Boolean = withContext(Dispatchers.IO) {
         try {

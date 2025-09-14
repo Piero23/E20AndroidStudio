@@ -23,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
 import com.example.e20frontendmobile.data.auth.AuthStateStorage
 import com.example.e20frontendmobile.model.Utente
 import com.example.e20frontendmobile.viewModels.UserViewModel
@@ -49,7 +51,9 @@ fun userCard(
 
     val context: Context = LocalContext.current
     var toggledHeart by rememberSaveable { mutableStateOf(false) }
-
+    LaunchedEffect(Unit) {
+        toggledHeart = userViewModel.checkIfFollowed(context,utente.username)
+    }
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -99,42 +103,48 @@ fun userCard(
                     style = MaterialTheme.typography.titleSmall
                 )
             }
+            if (AuthStateStorage(context).getUserInfo()?.sub != utente.username) {
+                IconButton(onClick = {
+                    // SE L'UTENTE È LOGGATO
+                    if (AuthStateStorage(context).getUserInfo()?.roles != null) {
+                        toggledHeart = !toggledHeart
+                        if (toggledHeart) {
+                            userViewModel.followUser(
+                                context,
+                                utente.username
+                            )
+                            Toast.makeText(
+                                context,
+                                "Hai iniziato a seguire " + utente.username,
+                                Toast.LENGTH_SHORT
+                            ).show()
 
-            IconButton(onClick = {
-                // SE L'UTENTE È LOGGATO
-                if (AuthStateStorage(context).getUserInfo()?.roles != null) {
-                    toggledHeart = !toggledHeart
-                    // SE L'UTENTE È LOGGATO E NON LO SEGUE
-                    if (toggledHeart) {
-                        // userViewModel.segui(utente)
-                        Toast.makeText(
-                            context,
-                            "Stai seguendo " + utente.username,
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        } else {
+                            userViewModel.unfollowUser(context, utente.username)
+                            Toast.makeText(
+                                context,
+                                "Hai smesso di seguire " + utente.username,
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                        }
                     } else {
-                        // userViewModel.smettiDiSeguire(context)
                         Toast.makeText(
                             context,
-                            "Hai smesso di seguire " + utente.username,
-                            Toast.LENGTH_SHORT
+                            "Devi essere registrato per seguire un utente",
+                            Toast.LENGTH_LONG
                         ).show()
                     }
+
+                }) {
+                    Icon(
+                        Icons.Filled.FavoriteBorder,
+                        contentDescription = "Salva",
+                        modifier = Modifier.size(50.dp),
+                        tint = if (toggledHeart) Color.Red else Color.Black
+                    )
+
                 }
-                // TODO
-                // else if (username == utente.username) {
-                // Toast.makeText(context, "Non puoi seguire te stesso", Toast.LENGTH_LONG).show()
-                // }
-                else {
-                    Toast.makeText(context, "Devi essere autenticato per seguire un utente", Toast.LENGTH_LONG).show()
-                }
-            }) {
-                Icon(
-                    Icons.Filled.FavoriteBorder,
-                    contentDescription = "Salva",
-                    modifier = Modifier.size(50.dp),
-                    tint = if (toggledHeart) Color.Red else Color.Black
-                )
             }
         }
     }

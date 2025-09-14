@@ -356,11 +356,11 @@ fun mainFun(navController: NavHostController, eventViewModel: EventViewModel){
                 val context = LocalContext.current
                 LaunchedEffect(context) {
                     items = EventService(context).findAll()
-                    preferiti = PreferitiService(context).getAllPreferiti(UtenteService(context).getUtenteSub())
+                    preferiti = PreferitiService(context).getAllPreferiti(AuthStateStorage(context).getUserInfo()?.sub)
 
                     var friends = listOf<Utente>()
                     if (UtenteService(context).getUtenteSub()!=null) {
-                        friends = UtenteService(context).getSeguaci(UtenteService(context).getUtenteSub()!!)
+                        friends = UtenteService(context).getSeguaci(AuthStateStorage(context).getUserInfo()?.sub!!)
                     }
                     for (friend in friends){
                         amici = amici + PreferitiService(context).getAllPreferiti(friend.username)

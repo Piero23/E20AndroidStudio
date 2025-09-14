@@ -1,8 +1,7 @@
 package com.example.e20frontendmobile.model
 
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
-import java.util.UUID
 
 @Serializable
 data class Utente(
@@ -13,7 +12,5 @@ data class Utente(
 
     val email: String,
 
-    val dataNascita: String
-
-    //TODO seguiti e seguaci vanno qui?
+    val dataNascita: LocalDate?
 )

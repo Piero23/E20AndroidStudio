@@ -34,6 +34,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.e20frontendmobile.activities.MainAccessUserPage
 import com.example.e20frontendmobile.activities.evento.ShowCheckout
 import com.example.e20frontendmobile.activities.ShowDiscovery
 import com.example.e20frontendmobile.activities.evento.ShowEvent
@@ -188,18 +189,19 @@ fun BottomNavigationScreen() {
                         }
                     } //TODO rimpiazzare con gli ordini
                     4 -> {
-                        @OptIn(ExperimentalAnimationApi::class)
-                        NavHost(
-                            navController = navControllers[3],
-                            startDestination = "profile",
-                            enterTransition = { EnterTransition.None },
-                            exitTransition = { ExitTransition.None }
-                        )
-                        {
-                            composable(route = "profile") {
-                                DebugTokenScreen()//RegisterScreen() //TODO gestire nav tra profilo, login e registra
-                            }
-                        }
+                        MainAccessUserPage(navControllers[3])
+//                        @OptIn(ExperimentalAnimationApi::class)
+//                        NavHost(
+//                            navController = navControllers[3],
+//                            startDestination = "profile",
+//                            enterTransition = { EnterTransition.None },
+//                            exitTransition = { ExitTransition.None }
+//                        )
+//                        {
+//                            composable(route = "profile") {
+//                                DebugTokenScreen()//RegisterScreen() //TODO gestire nav tra profilo, login e registra
+//                            }
+//                        }
                     }
                 }
             }

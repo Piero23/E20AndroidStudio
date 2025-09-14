@@ -1,21 +1,21 @@
 package com.example.e20frontendmobile.data.apiService.Utente
 
+
 import android.content.Context
-import androidx.compose.animation.scaleOut
+import android.util.Log
 import com.example.e20frontendmobile.data.apiService.ApiParent
 import com.example.e20frontendmobile.data.apiService.getToken
 import com.example.e20frontendmobile.data.apiService.myHttpClient
-import com.example.e20frontendmobile.model.Event
-import com.example.e20frontendmobile.model.Ticket
-import com.example.e20frontendmobile.model.UserRegistration
 import com.example.e20frontendmobile.model.Utente
+import com.example.e20frontendmobile.model.UserRegistration
 import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.client.request.setBody
+import io.ktor.client.request.*
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -67,29 +67,153 @@ class UtenteService (private val context: Context) : ApiParent() {
         }
     }
 
-    fun register(userRegistration: UserRegistration) = runBlocking {
 
-        println("LIIIIII")
 
-        println("LIIIIII"+userRegistration.toString())
+    /// Suspend Functions
 
-        println("LIIIIII")
-
+    // Get Current Logged User
+    suspend fun getLoggedUser(): Utente? = withContext(Dispatchers.IO) {
+        val token = getToken(context) ?: return@withContext null
         try {
-            val response: HttpResponse = myHttpClient.get("https://$ip:8060/auth/register") {
-                setBody(userRegistration)
+            val response = myHttpClient.get("https://$ip:8060/api/utente/me") {
+                header(HttpHeaders.Authorization, "Bearer $token")
             }
-            return@runBlocking if (response.status.value in 200..299) {
-                val bodyString = response.bodyAsText()
 
-                val json = org.json.JSONObject(bodyString)
-                val sub = json.getString("id")
+            if (response.status.value in 200..299) {
+                Log.d("UtenteService", "Loading logged user: ${response.bodyAsText()}")
+                val jsonString = response.bodyAsText()
 
-                sub
-            } else null
-        } catch (e: Exception) {
-            println("Errore getUtente: ${e.message}")
+                val user = Json.decodeFromString(Utente.serializer(), jsonString)
+                //Log.d("UtenteService", "Loading unserialized user: ${user}")
+                user
+
+            }
+            else null
+
+        }
+        catch (e: Exception) {
+            Log.d("UtenteService", "Errore getLoggedUser: ${e.message}")
             null
         }
+
     }
+
+    // Get  User
+    suspend fun getUtente(username: String): Utente? = withContext(Dispatchers.IO) {
+        val token = getToken(context) ?: return@withContext null
+        try {
+            val response = myHttpClient.get("https://$ip:8060/api/utente/$username") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
+
+            if (response.status.value in 200..299) {
+                Log.d("UtenteService", "Loading common user: ${response.bodyAsText()}")
+                val jsonString = response.bodyAsText()
+
+                val user = Json.decodeFromString(Utente.serializer(), jsonString)
+                Log.d("UtenteService", "Loading unserialized common user: ${user}")
+                user
+
+            }
+            else null
+
+        }
+        catch (e: Exception) {
+            Log.d("UtenteService", "Errore getUtente: ${e.message}")
+            null
+        }
+
+    }
+
+    // Get Seguaci (Followers) of a Given User
+    suspend fun getSeguaci(username: String): List<Utente> = withContext(Dispatchers.IO) {
+        try {
+            val token = getToken(context)
+            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/utente/$username/seguaci") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
+
+            if (response.status.value in 200..299) {
+                Log.d("UtenteService", "Loading Seguaci of $username: ${response.bodyAsText()}")
+                val jsonString = response.bodyAsText()
+
+                val users = Json.decodeFromString(ListSerializer(Utente.serializer()), jsonString)
+                //Log.d("UtenteService", "Loading unserialized Seguaci of $username: ${users}")
+                users
+
+            }
+            else {
+                println("Errore getSeguaci: ${response.status.value}")
+                emptyList()
+            }
+        }
+        catch (e: Exception) {
+            Log.d("UtenteService", "Errore getSeguaci: ${e.message}")
+            emptyList()
+        }
+    }
+
+    // Get Seguiti (Following) of a Given User
+    suspend fun getSeguiti(username: String): List<Utente> = withContext(Dispatchers.IO) {
+        try {
+            val token = getToken(context)
+            val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/utente/$username/seguiti") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
+
+            if (response.status.value in 200..299) {
+
+                Log.d("UtenteService", "Loading Seguiti of $username: ${response.bodyAsText()}")
+                val jsonString = response.bodyAsText()
+
+                val users = Json.decodeFromString(ListSerializer(Utente.serializer()), jsonString)
+                //Log.d("UtenteService", "Loading unserialized Seguiti of $username: ${users}")
+                users
+
+            }
+            else {
+                println("Errore getSeguiti: ${response.status.value}")
+                emptyList()
+            }
+        }
+        catch (e: Exception) {
+            Log.d("UtenteService", "Errore getSeguiti: ${e.message}")
+            emptyList()
+        }
+    }
+
+    // Get Seguaci & Seguiti of the Logged User
+    suspend fun getSeguaciOfLoggedUser(): List<Utente> {
+        val user = getLoggedUser() ?: return emptyList()
+        return getSeguaci(user.username)
+    }
+
+    suspend fun getSeguitiOfLoggedUser(): List<Utente> {
+        val user = getLoggedUser() ?: return emptyList()
+        return getSeguiti(user.username)
+    }
+
+    // Register New User
+    suspend fun register(userRegistration: UserRegistration): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val response: HttpResponse = myHttpClient.post("https://$ip:8060/auth/register") {
+                contentType(ContentType.Application.Json)
+                setBody(userRegistration)
+            }
+
+            if (response.status == HttpStatusCode.Created || response.status == HttpStatusCode.OK) {
+
+                true
+            }
+            else {
+                println("Errore server: ${response.status.value}")
+                false
+            }
+        }
+        catch (e: Exception) {
+            println("Errore register: ${e.message}")
+            false
+        }
+    }
+
 }

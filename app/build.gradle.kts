@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.kotlinx.datetime)
 
     implementation(libs.appauth)
+    implementation("net.openid:appauth:0.11.1")
 
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
@@ -100,6 +101,7 @@ dependencies {
     implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.material3)
     implementation(libs.firebase.crashlytics.buildtools)
+    implementation(libs.androidx.animation)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

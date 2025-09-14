@@ -1,5 +1,12 @@
-package com.example.e20frontendmobile.activities.user
+package com.example.e20frontendmobile.activities
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -7,27 +14,33 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,24 +52,34 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.e20frontendmobile.activities.evento.DatePickerModal
 import com.example.e20frontendmobile.composables.CustomTextField
 import com.example.e20frontendmobile.composables.IconButtonType1
 import com.example.e20frontendmobile.composables.IconTextButtonType1
+import com.example.e20frontendmobile.data.auth.AuthActivity
+import com.example.e20frontendmobile.model.UserProfile
 import com.example.e20frontendmobile.model.UserRegistration
+import com.example.e20frontendmobile.model.Utente
 import com.example.e20frontendmobile.toJavaLocalDate
 import com.example.e20frontendmobile.ui.theme.E20FrontendMobileTheme
 import com.example.e20frontendmobile.ui.theme.backgroundGradient
 import com.example.e20frontendmobile.ui.theme.backgroundLinearGradient
 import com.example.e20frontendmobile.ui.theme.blurredDropShadow
-import com.example.e20frontendmobile.ui.theme.iconSizeSmall
+import com.example.e20frontendmobile.ui.theme.overlayBlack10
+import com.example.e20frontendmobile.ui.theme.overlayBlack40
 import com.example.e20frontendmobile.ui.theme.spaceExtraSmall
-import com.example.e20frontendmobile.ui.theme.spaceSmall
 import com.example.e20frontendmobile.ui.theme.spaceLarge
 import com.example.e20frontendmobile.ui.theme.spaceMedium
+import com.example.e20frontendmobile.ui.theme.spaceSmall
 import com.example.e20frontendmobile.ui.theme.white
+import com.example.e20frontendmobile.viewModels.LoggedUserViewModel
 import com.example.e20frontendmobile.viewModels.RegistrationViewModel
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -64,59 +87,250 @@ import java.time.LocalDate
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-//TODO redirectare logout a pagina login con navhostcontroller
 @Composable
-fun MainAccessUserPage(navController: NavHostController) {
-//    val navController = rememberNavController()
-//    val user = userViewModel.currentUser
-//
-//    NavHost(
-//        navController = navController,
-//        startDestination = if (user == null) "login" else "profile"
-//    ) {
-//        composable("login") {
-//            LoginScreen(
-//                onLoginSuccess = { loggedUser ->
-//                    userViewModel.login(loggedUser)
-//                    navController.navigate("profile") {
-//                        popUpTo("login") { inclusive = true } // rimuove login dallo stack
-//                    }
-//                }
-//            )
-//        }
-//
-//        composable("profile") {
-//            ProfileScreen(
-//                user = userViewModel.currentUser!!,
-//                onLogout = {
-//                    userViewModel.logout()
-//                    navController.navigate("login") {
-//                        popUpTo("profile") { inclusive = true }
-//                    }
-//                },
-//                onFollowerClick = { followerId ->
-//                    navController.navigate("userDetail/$followerId")
-//                }
-//            )
-//        }
-//
-//        composable(
-//            route = "userDetail/{userId}",
-//            arguments = listOf(navArgument("userId") { type = NavType.StringType })
-//        ) { backStackEntry ->
-//            val userId = backStackEntry.arguments?.getString("userId")
-//            UserDetailScreen(userId = userId ?: "")
-//        }
-//    }
+fun MainAccessUserPage(
+    navController: NavHostController,
+    loggedUserViewModel: LoggedUserViewModel = viewModel()
+) {
+    val context = LocalContext.current
+    val loggedUser by loggedUserViewModel.loggedUser.collectAsState()
+    val onScreenUser by loggedUserViewModel.onScreenUser.collectAsState()
+
+    // 1: Load Logged User Only the first time on the Creation of the Composable
+    LaunchedEffect(Unit) {
+        loggedUserViewModel.loadLoggedUser(context)
+    }
+
+    // 2: AuthActivity Launcher (ActivityResult API)
+    val loginLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            // Non navighiamo qui: ricarichiamo lo user e lasciamo che il LaunchedEffect sotto
+            // reagisca quando loggedUser cambia.
+            Log.d("MainAccessUserPage", "Login in con successo, resultCode = ${result.resultCode}")
+            loggedUserViewModel.loadLoggedUser(context)
+        } else {
+            Log.d("MainAccessUserPage", "Login fallito o annullato")
+        }
+    }
+
+    // 3: Update Logger User Status on Changes
+    LaunchedEffect(loggedUser) {
+        Log.d("MainAccessUserPage", "Redirezione perché loggedUser = $loggedUser")
+
+        if (loggedUser != null) {
+            // Se siamo loggati, vai al profilo (rimuovi register dallo stack)
+            navController.navigate("profile") {
+                popUpTo("register") { inclusive = true }
+            }
+        } else {
+            // Se non siamo loggati, assicurati di andare su register
+            navController.navigate("register") {
+                popUpTo("profile") { inclusive = true }
+            }
+        }
+    }
+
+    // 4: NavHost starting on "register"
+    NavHost(
+        navController = navController,
+        startDestination = "register"
+    ) {
+        // Waiting for Data
+        //composable("loading") { LoadingScreen() }
+
+        composable("register") {
+            RegisterScreen(
+                onLoginRequest = {
+                    // uso il launcher per aprire l'AuthActivity
+                    loginLauncher.launch(Intent(context, AuthActivity::class.java))
+                }
+            )
+        }
+
+        composable("profile") {
+            // Mostra il profilo solo se abbiamo i dati
+            loggedUser?.let { user ->
+                MainProfileScreen(
+                    currentUser = user,
+                    loggedUserViewModel = loggedUserViewModel,
+                    onLogoutCallback = {
+                        loggedUserViewModel.logout()
+                        // logout provoca loggedUser = null -> LaunchedEffect sopra porta a "register"
+                    },
+                    onAnotherUtenteClickCallback = { username ->
+                        navController.navigate("user/$username")
+                    }
+                )
+            } ?: run {
+                // se non abbiamo ancora i dati, mostra un loader (meglio di Register)
+                LoadingScreen()
+            }
+        }
+
+        composable(
+            route = "user/{username}",
+            arguments = listOf(navArgument("username") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val username = backStackEntry.arguments?.getString("username") ?: ""
+
+            // carico l'utente richiesto solo quando cambia il param
+            LaunchedEffect(username) {
+                loggedUserViewModel.loadUser(context, username)
+            }
+
+            when (val user = onScreenUser) {
+                null -> LoadingScreen()
+                else -> UserInfoProfileScreen(user)
+            }
+        }
+    }
 }
 
+
 // Components --------------------------------------------------------------------------------------
+
+@Composable
+fun LoadingScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun UserAccordion(
+    title: String,
+    users: List<Utente>,
+    setVisibility: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    onTitleClick: () -> Unit = { },
+    onUtenteClickCallback: (String) -> Unit = { },
+) {
+    Box(
+        modifier = Modifier
+            .zIndex(10f)
+            .fillMaxSize()
+            .background(overlayBlack40)
+            .clickable { onTitleClick() }
+    ) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 100.dp)
+                .background(Color.Transparent)
+        ) {
+
+            // Top Rounding
+            Box(
+                Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                        shape = MaterialTheme.shapes.medium
+                    )
+                    .fillMaxWidth()
+                    .height(30.dp)
+            ) {}
+
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(top = spaceMedium)
+                    .background(white)
+                    .wrapContentHeight()
+            ) {
+                // Header cliccabile
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onTitleClick() }
+                        .padding(spaceMedium)
+                ) {
+                    Text(text = title, style = MaterialTheme.typography.titleLarge)
+                }
+
+               Row(
+                   modifier = Modifier
+                       .fillMaxWidth()
+                       .padding(horizontal = spaceMedium, vertical = spaceSmall),
+                   verticalAlignment = Alignment.CenterVertically
+               ) {
+                   Spacer(
+                       Modifier
+                           .height(3.dp)
+                           .weight(1f)
+                           .background(color = overlayBlack40, shape = MaterialTheme.shapes.small)
+                   )
+               }
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .background(color = Color.Transparent, shape = MaterialTheme.shapes.large)
+                        .padding(start = spaceMedium, end = spaceMedium, bottom = spaceSmall)
+                ) {
+                    items(users) { user ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = spaceMedium, horizontal = spaceLarge)
+                        ) {
+                            Text(
+                                text = user.username,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+
+                            Spacer(Modifier.weight(1f))
+
+                            IconButtonType1(
+                                icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                iconDescription = "Mostra di più",
+                                onClick = { 
+                                    setVisibility(false)
+                                    onUtenteClickCallback(user.username) 
+                                }
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(spaceSmall),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Spacer(
+                                Modifier
+                                    .height(3.dp)
+                                    .weight(1f)
+                                    .background(
+                                        color = overlayBlack10,
+                                        shape = MaterialTheme.shapes.small
+                                    )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 @Composable
 fun TitledBox(
     title: String,
     content: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = { }
 ) {
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -129,6 +343,7 @@ fun TitledBox(
                 color = MaterialTheme.colorScheme.surfaceDim,
                 shape = MaterialTheme.shapes.medium
             )
+            .clickable { onClick() }
             .padding(top = 14.dp, start = 20.dp, bottom = 4.dp, end = 20.dp)
 
     ) {
@@ -222,28 +437,33 @@ fun RegistrationTextField(
     label: String,
     isError: Boolean,
     modifier: Modifier = Modifier,
+    showLabel: Boolean = true,
     placeholder: String? = null,
     errorMessage: String? = null,
-    isPassword: Boolean = false
+    isPassword: Boolean = false,
+    readOnly: Boolean = false
 ) {
     Column(
         modifier = modifier
-            .height(100.dp)
-            .background(white)
+            .wrapContentHeight()
+            .defaultMinSize(minHeight = 115.dp)
+            .background(Color.Transparent)
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onTertiary,
-            modifier = Modifier.padding(start = 10.dp)
-        )
-
+        if (showLabel) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onTertiary,
+                modifier = Modifier.padding(start = 10.dp)
+            )
+        }
         CustomTextField(
             value = value,
             onValueChange = { onValueChange(it) },
             singleLine = true,
             placeholder = placeholder,
-            isPassword = isPassword
+            isPassword = isPassword,
+            readOnly = readOnly
         )
 
         if (isError && errorMessage != null) {
@@ -268,58 +488,11 @@ private fun UserRegistrationBox(
     onBirthDateChange: (LocalDate) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
-
-
     Column(
         horizontalAlignment = Alignment.Start,
         modifier = modifier
-            .blurredDropShadow(
-                shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
-                offset = Offset(10f, 10f),
-                blurRadius = 10f,
-            )
-            .fillMaxWidth()
-            .background(
-                color = MaterialTheme.colorScheme.background,
-                shape = MaterialTheme.shapes.medium
-            )
-            .padding(spaceMedium)
 
     ) {
-
-        // Log In Access
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Transparent)
-        ) {
-            Text(
-                text = "Got already an account?",
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onTertiary,
-
-                overflow = TextOverflow.Visible,
-                modifier = Modifier
-                    .weight(1f)
-            )
-
-            Spacer(Modifier.width(spaceLarge))
-
-            IconTextButtonType1(
-                onClick = {},
-                text = "Log In",
-                withIcon = true,
-                icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                modifier = Modifier
-                    .blurredDropShadow(
-                        shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
-                        offset = Offset(10f,10f),
-                        blurRadius = 10f,
-                    )
-            )
-        }
         // User Info
 
         val (showDatePicker, setShowDatePicker) = rememberSaveable { mutableStateOf(false) }
@@ -358,6 +531,7 @@ private fun UserRegistrationBox(
             label = "Password",
             value = userState.password,
             placeholder = "Your Password",
+            isPassword = true,
             onValueChange = onPasswordChange,
             isError = userState.errors["password"]?.isNotEmpty() == true,
             errorMessage = userState.errors["password"]
@@ -383,12 +557,13 @@ private fun UserRegistrationBox(
             modifier = Modifier.fillMaxWidth()
         ) {
             RegistrationTextField(
-                label = "Birth Date",
-                value = userState.birthDate.toString(),
+                label = "Data di Nascita",
+                value = if (userState.birthDate == null) "Select a Date" else userState.birthDate.toString(),
                 placeholder = "Your Birth Date",
-                onValueChange = { }, // Not Editable
+                onValueChange = { },
                 isError = userState.errors["birthDate"]?.isNotEmpty() == true,
                 errorMessage = userState.errors["birthDate"],
+                readOnly = true,
 
                 modifier = Modifier.weight(1f)
             )
@@ -403,93 +578,218 @@ private fun UserRegistrationBox(
                 modifier = Modifier.padding(top = 10.dp)
             )
         }
-
-
     }
 }
 
 
 @Composable
 fun MainProfileScreen(
-    username: String
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundGradient())
-            .padding(top = 114.dp, start = 40.dp, bottom = 61.dp, end = 40.dp)
+    currentUser: Utente,
+    loggedUserViewModel: LoggedUserViewModel,
+    onLogoutCallback: () -> Unit,
+    onAnotherUtenteClickCallback: (String) -> Unit
     ) {
-        // User Circle with Initial
-        UserImage(username = username)
-        Spacer(Modifier.height(spaceExtraSmall))
+    val context = LocalContext.current
 
-        // Username
-        Text(
-            text = "@$username",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onPrimary
-        )
+    // Accordions
+    val (showSeguaciAccordion, setShowSeguaciAccordion) = remember { mutableStateOf(false) }
+    val (showSeguitiAccordion, setShowSeguitiAccordion) = remember { mutableStateOf(false) }
 
-        Spacer(Modifier.height(spaceLarge))
+    // Seguaci Variables
+    val seguaci by loggedUserViewModel.seguaci.collectAsState()
+    val isLoadingSeguaci by loggedUserViewModel.isLoadingSeguaci.collectAsState()
+    val errorSeguaci by loggedUserViewModel.errorSeguaci.collectAsState()
 
-        // Seguaci & Seguiti Box View
-        Row(
+    // Seguiti Variables
+    val seguiti by loggedUserViewModel.seguiti.collectAsState()
+    val isLoadingSeguiti by loggedUserViewModel.isLoadingSeguiti.collectAsState()
+    val errorSeguiti by loggedUserViewModel.errorSeguiti.collectAsState()
+
+    LaunchedEffect(Unit) {
+        loggedUserViewModel.loadSeguaci(context)
+        loggedUserViewModel.loadSeguiti(context)
+    }
+
+    Box {
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .background(backgroundGradient())
+                .padding(top = 114.dp, start = 40.dp, bottom = 61.dp, end = 40.dp)
         ) {
-            TitledBox("Seguaci", "123", Modifier.weight(1f))
-            Spacer(Modifier.width(spaceMedium))
-            TitledBox("Seguiti", "456", Modifier.weight(1f))
+            // User Circle with Initial
+            UserImage(username = currentUser.username)
+            Spacer(Modifier.height(spaceExtraSmall))
+
+            // Username
+            Text(
+                text = "@${currentUser.username}",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+
+            Spacer(Modifier.height(spaceLarge))
+
+            // Seguaci & Seguiti Box View
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TitledBox(
+                    title = "Seguaci",
+                    content = when {
+                        isLoadingSeguaci || !errorSeguaci.isNullOrEmpty() -> "---"
+                        else -> "${seguaci.size}"
+                    },
+                    onClick = { setShowSeguaciAccordion(true) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(Modifier.width(spaceMedium))
+                TitledBox(
+                    title = "Seguiti",
+                    content = when {
+                        isLoadingSeguiti || !errorSeguiti.isNullOrEmpty()-> "---"
+                        else -> "${seguiti.size}"
+                    },
+                    onClick = { setShowSeguitiAccordion(true) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(Modifier.height(spaceMedium))
+
+            // User Info
+            UserInfo(currentUser.email, currentUser.dataNascita.toString())
+
+            Spacer(Modifier.height(spaceMedium))
+
+            // Log Out Button & Change Password
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent)
+            ) {
+                Text(
+                    text = "Cambia Password",
+                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .8f),
+
+                    overflow = TextOverflow.Visible,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 20.dp, 0.dp, 0.dp, 0.dp)
+                )
+
+                Spacer(Modifier.width(spaceLarge))
+
+                IconTextButtonType1(
+                    onClick = { onLogoutCallback() },
+                    text = "Log Out",
+                    withIcon = true,
+                    icon = Icons.AutoMirrored.Filled.ExitToApp,
+                    modifier = Modifier
+                        .blurredDropShadow(
+                            shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
+                            offset = Offset(10f,10f),
+                            blurRadius = 10f,
+                        )
+                )
+            }
         }
 
-        Spacer(Modifier.height(spaceMedium))
+        // Seguaci User Accordion
+        AnimatedVisibility( visible = showSeguaciAccordion )
+        {
+            // For Safety
+            setShowSeguitiAccordion(false)
 
-        // User Info
-        UserInfo("mario.rossi@gmail.com", "2000-01-01")
+            UserAccordion(
+                title = "Seguaci",
+                users = seguaci,
+                onTitleClick = { setShowSeguaciAccordion(false) },
+                onUtenteClickCallback = onAnotherUtenteClickCallback,
+                setVisibility = setShowSeguaciAccordion
+            )
+        }
 
-        Spacer(Modifier.height(spaceMedium))
+        // Seguiti User Accordion
+        AnimatedVisibility( visible = showSeguitiAccordion )
+        {
+            // For Safety
+            setShowSeguaciAccordion(false)
 
-        // Log Out Button & Change Password
-        Row(
+            UserAccordion(
+                title = "Seguiti",
+                users = seguiti,
+                onTitleClick = { setShowSeguitiAccordion(false) },
+                onUtenteClickCallback = onAnotherUtenteClickCallback,
+                setVisibility = setShowSeguitiAccordion
+            )
+        }
+
+    }
+}
+
+@Composable
+fun UserInfoProfileScreen(
+    currentUser: Utente,
+) {
+//    val (showSeguaciAccordion, setShowSeguaciAccordion) = remember { mutableStateOf(false) }
+//    val (showSeguitiAccordion, setShowSeguitiAccordion) = remember { mutableStateOf(false) }
+
+    Box {
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Transparent)
+                .fillMaxSize()
+                .background(backgroundGradient())
+                .padding(top = 114.dp, start = 40.dp, bottom = 61.dp, end = 40.dp)
         ) {
+            // User Circle with Initial
+            UserImage(username = currentUser.username)
+            Spacer(Modifier.height(spaceExtraSmall))
+
+            // Username
             Text(
-                text = "Cambia Password",
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = .8f),
-
-                overflow = TextOverflow.Visible,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 20.dp, 0.dp, 0.dp, 0.dp)
+                text = "@${currentUser.username}",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimary
             )
 
-            Spacer(Modifier.width(spaceLarge))
+            Spacer(Modifier.height(spaceLarge))
 
-            IconTextButtonType1(
-                onClick = {},
-                text = "Log Out",
-                withIcon = true,
-                icon = Icons.AutoMirrored.Filled.ExitToApp,
+            // Seguaci & Seguiti Box View
+            Row(
                 modifier = Modifier
-                    .blurredDropShadow(
-                        shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
-                        offset = Offset(10f,10f),
-                        blurRadius = 10f,
-                    )
-            )
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                TitledBox("Preferiti", "Temp", onClick = {  }, modifier = Modifier.weight(1f))
+            }
+
+            Spacer(Modifier.height(spaceMedium))
+
+            // User Info
+            UserInfo(currentUser.email, currentUser.dataNascita.toString())
+
+            Spacer(Modifier.height(spaceMedium))
+
         }
     }
 }
 
 
 @Composable
-fun RegisterScreen(registrationViewModel: RegistrationViewModel = viewModel()) {
+fun RegisterScreen(
+    onLoginRequest: () -> Unit,
+    registrationViewModel: RegistrationViewModel = viewModel()
+) {
     val context = LocalContext.current
     val userState = registrationViewModel.registratingUserState
 
@@ -505,51 +805,104 @@ fun RegisterScreen(registrationViewModel: RegistrationViewModel = viewModel()) {
             )
             .padding(all = 40.dp)
     ) {
-        // Title
-        Row(
-            horizontalArrangement = Arrangement.Center,
+        Column(
             modifier = Modifier
+                .blurredDropShadow(
+                    shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
+                    offset = Offset(10f, 10f),
+                    blurRadius = 10f,
+                )
                 .fillMaxWidth()
-                .padding(bottom = spaceMedium)
+                .background(
+                    color = MaterialTheme.colorScheme.background,
+                    shape = MaterialTheme.shapes.medium
+                )
+                .padding(spaceLarge)
         ) {
-            Text(
+
+            // Title
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = spaceMedium)
+            ) {
+                Text(
+                    text = "Registrati",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
+            Spacer(Modifier.height(spaceSmall))
+
+            // Log In Access
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent)
+            ) {
+                Text(
+                    text = "Got already an account?",
+                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onTertiary,
+
+                    overflow = TextOverflow.Visible,
+                    modifier = Modifier
+                        .weight(1f)
+                )
+
+                Spacer(Modifier.width(spaceLarge))
+
+                IconTextButtonType1(
+                    onClick = onLoginRequest,
+                    text = "Log In",
+                    withIcon = true,
+                    icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    modifier = Modifier
+                        .blurredDropShadow(
+                            shadowColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.25f),
+                            offset = Offset(10f,10f),
+                            blurRadius = 10f,
+                        )
+                )
+            }
+
+            // User Registration Box
+            UserRegistrationBox(
+                userState = userState,
+                onUsernameChange = { registrationViewModel.onUsernameChange(it) },
+                onPasswordChange = { registrationViewModel.onPasswordChange(it) },
+                onEmailChange = { registrationViewModel.onEmailChange(it) },
+                onBirthDateChange = { registrationViewModel.onBirthDateChange(it) },
+            )
+
+            Spacer(Modifier.height(spaceMedium))
+
+            IconTextButtonType1(
                 text = "Registrati",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onBackground,
+                onClick = { registrationViewModel.registerUser(context) },
+                modifier = Modifier.fillMaxWidth()
             )
         }
-
-
-
-        // User Registration Box
-        UserRegistrationBox(
-
-            userState = userState,
-            onUsernameChange = { registrationViewModel.onUsernameChange(it) },
-            onPasswordChange = { registrationViewModel.onPasswordChange(it) },
-            onEmailChange = { registrationViewModel.onEmailChange(it) },
-            onBirthDateChange = { registrationViewModel.onBirthDateChange(it) },
-
-        )
-
-        Spacer(Modifier.height(spaceMedium))
-
-        IconTextButtonType1(
-            text = "Registrati",
-            onClick = { registrationViewModel.registerUser(context) },
-            modifier = Modifier.fillMaxWidth()
-        )
     }
 }
 
 // Previews ----------------------------------------------------------------------------------------
 
-@Preview
+//@Preview
 @Composable
 fun MainScreenPreview() {
     E20FrontendMobileTheme(darkTheme = false) {
+        val loggedUserViewModel: LoggedUserViewModel = viewModel()
+        val loggedUser by loggedUserViewModel.loggedUser.collectAsState()
+
         MainProfileScreen(
-            username = "username"
+            currentUser = Utente("1", "mario.rossi", "mail@gmail.com", null),
+            loggedUserViewModel = loggedUserViewModel,
+            onLogoutCallback = { },
+            onAnotherUtenteClickCallback = {}
         )
     }
 }
@@ -558,7 +911,13 @@ fun MainScreenPreview() {
 @Composable
 fun RegisterScreenPreview() {
     E20FrontendMobileTheme(darkTheme = false) {
-        RegisterScreen()
+        val context = LocalContext.current
+        RegisterScreen(
+            onLoginRequest = {
+                val intent = Intent(context, AuthActivity::class.java)
+                context.startActivity(intent)
+            }
+        )
     }
 }
 
@@ -616,4 +975,16 @@ fun UserInfoPreview() {
     E20FrontendMobileTheme {
         UserInfo("mario.rossi@gmail.com", "2000-01-01")
     }
+}
+
+//@Preview
+@Composable
+fun UserAccordionPreview() {
+    val users = listOf(
+        Utente("1", "mario.rossi", "mail@gmail.com", null),
+        Utente("2", "mario.bianchi", "mail@gmail.com", null),
+        Utente("3", "mario.verdi", "mail@gmail.com", null),
+    )
+
+    UserAccordion(title = "Seguaci", users = users, setVisibility = { })
 }

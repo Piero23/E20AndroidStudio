@@ -174,7 +174,7 @@ fun BottomSheetContent(
     context: Context,
     ticket: Ticket?
 ) {
-    var checkValid = isValid
+    var checkValid by remember { mutableStateOf(isValid)}
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -184,33 +184,43 @@ fun BottomSheetContent(
         Text("Biglietto", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(8.dp))
 
+
         when (checkValid) {
             true -> Text("Biglietto valido ✅", textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyLarge)
             false -> Text("Biglietto non valido ❌", textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyLarge)
             null -> {
-                if (ticket?.eValido == true){
-                    Text("""
-                    ${ticket?.nome} ${ticket?.cognome}
-                    ${ticket?.email}
-                    ${ticket?.data_nascita}
-                """.trimIndent())
+                if (ticket?.eValido == true) {
+                    Text(
+                        """
+                ${ticket?.nome} ${ticket?.cognome}
+                ${ticket?.email}
+                ${ticket?.data_nascita}
+            """.trimIndent()
+                    )
+                } else if (ticket?.eValido == null) {
+                    CircularProgressIndicator()
                 }
-                else{
-                    Text("Biglietto non valido ❌", textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyLarge)
+                else {
+                    println("MUCCA2")
+                    Text(
+                        "Biglietto non valido ❌",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (ticket?.eValido == true){
+        if (ticket?.eValido == true && checkValid == null){
             OutlinedButton(onClick = {
                 checkValid = validateTicket(context, scannedCode!!)
             }) {
                 Text("Valida")
             }
         }
-        else{
+        else {
             OutlinedButton(onClick = onClose) {
                 Text("Chiudi")
             }

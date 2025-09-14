@@ -13,7 +13,7 @@ data class Utente(
 
     val email: String,
 
-    val dataNascita: LocalDateTime
+    val dataNascita: String
 
     //TODO seguiti e seguaci vanno qui?
 )

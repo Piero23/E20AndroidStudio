@@ -48,12 +48,12 @@ class UtenteService (private val context: Context) : ApiParent() {
     suspend fun search(query: String): List<Utente> {
         return withContext(Dispatchers.IO) {
             try {
-                println("Bagio ha sei fuori dal codice")
                 val response: HttpResponse = myHttpClient.get("https://$ip:8060/api/utente/search/$query")
                 if (response.status.value in 200..299) {
                     val jsonString = response.bodyAsText()
                     val jsonElement = Json.parseToJsonElement(jsonString).jsonObject
                     val contentJson = jsonElement["content"]?.toString() ?: "[]"
+                    //TODO usando LocalDateTime da problemi di serializzazione quindi ora nell'utente la date è una stringa
                     Json.decodeFromString(ListSerializer(Utente.serializer()), contentJson)
                 } else {
                     println("Errore server: ${response.status.value}")

@@ -1,9 +1,6 @@
-package com.example.e20frontendmobile.activities
+package com.example.e20frontendmobile.activities.user
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,32 +22,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.e20frontendmobile.data.apiService.Utente.UtenteService
-import com.example.e20frontendmobile.model.Event
 import com.example.e20frontendmobile.model.Utente
-import com.example.e20frontendmobile.ui.theme.backgroundGradient
-import com.example.e20frontendmobile.viewModels.EventViewModel
 import com.example.e20frontendmobile.viewModels.UserViewModel
-import kotlinx.datetime.LocalDateTime
 
 @Composable
 fun userCard(utente: Utente,
@@ -100,13 +81,13 @@ fun userCard(utente: Utente,
                 modifier = Modifier.padding(start = 10.dp)
                     .weight(1f),
                 horizontalAlignment = Alignment.Start
-            ){
+            ) {
                 Text(
-                    utente.username,
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold
+                    "@${utente.username}",
+                    style = MaterialTheme.typography.titleSmall
                 )
             }
+
             IconButton(onClick = {
 
             }) {

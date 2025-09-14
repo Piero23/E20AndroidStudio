@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -45,6 +46,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -205,7 +207,7 @@ fun MainLogo() {
 
 
 @Composable
-fun CaroselloInfinito() {
+fun CaroselloInfinito(items: List<Int>) {
     val listState = rememberLazyListState()
 
     val infiniteTransition = rememberInfiniteTransition()
@@ -222,7 +224,7 @@ fun CaroselloInfinito() {
     )
 
     val scope = rememberCoroutineScope()
-    val itemCount = 5
+    val itemCount = items.size
     val itemWidthPx = with(LocalDensity.current) {300.dp.toPx()} // larghezza + padding
 
     // Aggiorna lo scroll in base all'animazione
@@ -244,10 +246,11 @@ fun CaroselloInfinito() {
                     .width(300.dp)
             ) {
                 Image(
-                    painter = painterResource(R.drawable.photomode_18072025_201346),
-                    contentDescription = "Contact profile picture",
+                    painter = painterResource(items[index]),
+                    contentDescription = "Carousel",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxWidth()
+                        .height(350.dp)
                 )
             }
         }
@@ -255,13 +258,6 @@ fun CaroselloInfinito() {
 
 }
 
-
-
-@Composable
-@Preview
-fun cia(){
-    CaroselloInfinito()
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -288,8 +284,13 @@ fun mainFun(navController: NavHostController, eventViewModel: EventViewModel){
             Box {
                 //Carosello
                 Column {
-                    CaroselloInfinito()
-                    CaroselloInfinito()
+                    CaroselloInfinito(listOf(R.drawable.images2,
+                        R.drawable.stock_vector_night_dance_party_music_night_poster_template_electro_style_concert_disco_club_party_event_flyer_741157993,
+                        R.drawable.techno_party_flyer_170832, R.drawable.download))
+                    CaroselloInfinito(listOf(R.drawable.d385c8ed5c1a2d71d7298f8693aabda2,
+                        R.drawable.color_festival_powder_partyevent_poster_template_de51e43782d312549d6a8021e848a257_screen,
+                        R.drawable.ce21765b01256e5c454799156979c8ab,
+                        R.drawable._c16eafedcecc5b7dcc7cab70aaf1a3a))
                 }
 
                 //Overlay

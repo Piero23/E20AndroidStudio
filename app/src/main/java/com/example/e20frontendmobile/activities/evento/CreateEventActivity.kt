@@ -401,7 +401,7 @@ fun setImage(
         )
     } else {
         Image(
-            painter = painterResource(R.drawable.photomode_18072025_201346),
+            painter = painterResource(R.drawable.noimage),
             contentDescription = "Placeholder",
             modifier = Modifier
                 .fillMaxWidth()

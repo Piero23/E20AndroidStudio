@@ -86,6 +86,7 @@ import com.example.e20frontendmobile.model.Location
 import com.example.e20frontendmobile.model.Preferiti
 import com.example.e20frontendmobile.viewModels.EventViewModel
 import com.example.e20frontendmobile.viewModels.LocationViewModel
+import com.example.e20frontendmobile.viewModels.LoggedUserViewModel
 import com.example.e20frontendmobile.viewModels.UserViewModel
 import io.ktor.http.content.LastModifiedVersion
 import kotlinx.coroutines.delay
@@ -147,7 +148,7 @@ fun ShowEvent(navController: NavHostController,
               isAdmin: Boolean,
               eventViewModel: EventViewModel ,
               locationViewModel : LocationViewModel = viewModel(),
-              utenteViewModel: UserViewModel = viewModel ()
+              utenteViewModel: LoggedUserViewModel = viewModel ()
               )
 {
     if (eventViewModel.selectedEvent == null) {

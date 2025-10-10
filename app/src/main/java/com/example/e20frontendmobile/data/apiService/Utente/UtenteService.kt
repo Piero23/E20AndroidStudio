@@ -3,6 +3,7 @@ package com.example.e20frontendmobile.data.apiService.Utente
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.animation.scaleOut
 import com.example.e20frontendmobile.data.apiService.ApiParent
 import com.example.e20frontendmobile.data.apiService.getToken
 import com.example.e20frontendmobile.data.apiService.myHttpClient
@@ -211,6 +212,36 @@ class UtenteService (private val context: Context) : ApiParent() {
         }
         catch (e: Exception) {
             println("Errore register: ${e.message}")
+            false
+        }
+    }
+
+    suspend fun follow(seguace: String, seguito: String): Boolean {
+        val token = getToken(context)
+        return try {
+            val response: HttpResponse = myHttpClient.post("https://$ip:8060/api/utente/$seguace/seguiti") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                contentType(ContentType.Application.Json)
+                setBody(mapOf("username" to seguito))
+            }
+            response.status.value in 200..299
+        } catch (e: Exception) {
+            println("Errore aggiunta ai seguiti: ${e.message}")
+            false
+        }
+    }
+
+    suspend fun unfollow(seguace: String, seguito: String): Boolean {
+        val token = getToken(context)
+        return try {
+            val response: HttpResponse = myHttpClient.delete("https://$ip:8060/api/utente/$seguace/seguiti") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                contentType(ContentType.Application.Json)
+                setBody(mapOf("username" to seguito))
+            }
+            response.status.value in 200..299
+        } catch (e: Exception) {
+            println("Errore aggiunta ai seguiti: ${e.message}")
             false
         }
     }

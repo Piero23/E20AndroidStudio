@@ -1,6 +1,7 @@
 package com.example.e20frontendmobile.activities.user
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -31,16 +38,37 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.e20frontendmobile.data.auth.AuthStateStorage
 import com.example.e20frontendmobile.model.Utente
-import com.example.e20frontendmobile.viewModels.UserViewModel
+import com.example.e20frontendmobile.viewModels.LoggedUserViewModel
 
 @Composable
 fun userCard(utente: Utente,
              navController: NavHostController,
-             userViewModel: UserViewModel = viewModel()
+             userViewModel: LoggedUserViewModel
     ) {
 
     val context: Context = LocalContext.current
+    val seguiti by userViewModel.seguiti.collectAsState()
+    val seguaci by userViewModel.seguaci.collectAsState()
+    var toggledHeart by rememberSaveable { mutableStateOf(false) }
+    var followTwoWay by rememberSaveable { mutableStateOf(false) }
+
+    val loggedUser by userViewModel.loggedUser.collectAsState()
+
+    LaunchedEffect(Unit) {
+        userViewModel.loadSeguiti(context)
+        userViewModel.loadSeguaci(context)
+    }
+
+    LaunchedEffect(seguiti) {
+        toggledHeart = seguiti.any { it.username == utente.username }
+    }
+
+    LaunchedEffect(toggledHeart) {
+        followTwoWay = toggledHeart && seguaci.any { it.username == utente.username }
+    }
+
 
     Card(
         colors = CardDefaults.cardColors(
@@ -50,7 +78,22 @@ fun userCard(utente: Utente,
             .height(100.dp),
         onClick = {
             userViewModel.setDisplayableUser(utente)
-            navController.navigate("userCard")
+            if (AuthStateStorage(context).getUserInfo()?.roles!=null){
+                if (utente.username==loggedUser?.username){
+                    navController.navigate("me")
+                }
+                else if (followTwoWay){
+                    userViewModel.selectedUserProfile=utente
+                    navController.navigate("userProfile")
+                }
+                else{
+                    Toast.makeText(context, "Dovete seguirvi a vicenda per poter visualizzare il profilo", Toast.LENGTH_LONG).show()
+                }
+            }
+            else{
+                Toast.makeText(context, "Devi essere registrato per visualizzare degli utenti", Toast.LENGTH_LONG).show()
+            }
+
         }
     ) {
         Row(
@@ -88,16 +131,34 @@ fun userCard(utente: Utente,
                 )
             }
 
-            IconButton(onClick = {
+            if(utente.username!=loggedUser?.username){
+                IconButton(onClick = {
+                    if (AuthStateStorage(context).getUserInfo()?.roles!=null){
+                        toggledHeart = !toggledHeart
+                        if (toggledHeart) {
 
-            }) {
-                Icon(
-                    Icons.Filled.FavoriteBorder,
-                    contentDescription = "Salva",
-                    modifier = Modifier.size(50.dp),
-                    tint = Color.Black
-                )
+                            userViewModel.followUser(context, utente.username)
+                            Toast.makeText(context, "Utente aggiunto ai seguiti", Toast.LENGTH_SHORT).show()
 
+                        } else {
+
+                            userViewModel.unfollowUser(context, utente.username)
+                            Toast.makeText(context, "Utente rimosso dai seguiti", Toast.LENGTH_SHORT).show()
+
+                        }
+                    }
+                    else{
+                        Toast.makeText(context, "Devi essere registrato per seguire degli utenti", Toast.LENGTH_LONG).show()
+                    }
+                }) {
+                    Icon(
+                        Icons.Filled.FavoriteBorder,
+                        contentDescription = "Salva",
+                        modifier = Modifier.size(50.dp),
+                        tint = if (toggledHeart) Color.Red else Color.Black
+                    )
+
+                }
             }
 
         }

@@ -38,6 +38,7 @@ import androidx.navigation.navArgument
 import com.example.e20frontendmobile.activities.MainAccessUserPage
 import com.example.e20frontendmobile.activities.evento.ShowCheckout
 import com.example.e20frontendmobile.activities.ShowDiscovery
+import com.example.e20frontendmobile.activities.UserInfoProfileScreen
 import com.example.e20frontendmobile.activities.evento.ShowEvent
 import com.example.e20frontendmobile.activities.evento.createEvent
 import com.example.e20frontendmobile.activities.bottomNavigationScreen.StandardBottomNavigation
@@ -62,7 +63,6 @@ fun BottomNavigationScreen() {
 
 
         val eventViewModel: EventViewModel = viewModel()
-        val utenteViewModel: UserViewModel = viewModel()
         val loggedUserViewModel: LoggedUserViewModel = viewModel()
 
         val loggedUser by loggedUserViewModel.loggedUser.collectAsState()
@@ -111,7 +111,7 @@ fun BottomNavigationScreen() {
                                 arguments = listOf(navArgument("query") { type = NavType.StringType })
                             ) { backStackEntry ->
                                 val query = backStackEntry.arguments?.getString("query") ?: ""
-                                ShowDiscovery(navControllers[0], query, eventViewModel, utenteViewModel)
+                                ShowDiscovery(navControllers[0], query, eventViewModel, loggedUserViewModel)
                             }
                             composable("card"/*, arguments =
                                 listOf(navArgument("id") { type = NavType.StringType})*/) {
@@ -133,6 +133,12 @@ fun BottomNavigationScreen() {
 
                                 createEvent(eventViewModel.selectedEvent, navControllers[0])
                             }
+                            composable("userProfile") {
+                                UserInfoProfileScreen(loggedUserViewModel.selectedUserProfile!!)
+                            }
+                            composable("me") {
+                                MainAccessUserPage(navControllers[4], loggedUserViewModel)
+                            }
                         }
                     }
                     1 -> {
@@ -142,7 +148,7 @@ fun BottomNavigationScreen() {
                             startDestination = "discovery"
                         ) {
                             composable("discovery") {
-                                ShowDiscovery(navControllers[1], eventViewModel = eventViewModel, userViewModel = utenteViewModel)
+                                ShowDiscovery(navControllers[1], eventViewModel = eventViewModel, userViewModel = loggedUserViewModel)
                             }
                             composable("card"/*, arguments =
                                 listOf(navArgument("id") { type = NavType.StringType})*/) {
@@ -163,6 +169,12 @@ fun BottomNavigationScreen() {
                             composable ("edit") {
                                 createEvent(eventViewModel.selectedEvent, navControllers[1])
                             }
+                            composable("userProfile") {
+                                UserInfoProfileScreen(loggedUserViewModel.selectedUserProfile!!)
+                            }
+                            composable("me") {
+                                MainAccessUserPage(navControllers[4], loggedUserViewModel)
+                            }
                         }
                     }
                     2 -> {
@@ -182,7 +194,7 @@ fun BottomNavigationScreen() {
                     3 -> {
                         @OptIn(ExperimentalAnimationApi::class)
                         NavHost(
-                            navController = navControllers[4],
+                            navController = navControllers[3],
                             startDestination = "orders"
                         )
                         {
@@ -192,7 +204,7 @@ fun BottomNavigationScreen() {
                         }
                     } //TODO rimpiazzare con gli ordini
                     4 -> {
-                        MainAccessUserPage(navControllers[3], loggedUserViewModel)
+                        MainAccessUserPage(navControllers[4], loggedUserViewModel)
 //                        @OptIn(ExperimentalAnimationApi::class)
 //                        NavHost(
 //                            navController = navControllers[3],

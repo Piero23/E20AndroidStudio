@@ -35,6 +35,7 @@ import com.example.e20frontendmobile.activities.evento.eventCard
 import com.example.e20frontendmobile.activities.user.userCard
 import com.example.e20frontendmobile.composables.CustomizableSearchBar
 import com.example.e20frontendmobile.viewModels.EventViewModel
+import com.example.e20frontendmobile.viewModels.LoggedUserViewModel
 import com.example.e20frontendmobile.viewModels.UserViewModel
 
 @Composable
@@ -42,7 +43,7 @@ fun ShowDiscovery(
     navController: NavHostController,
     inputQuery: String = "",
     eventViewModel: EventViewModel,
-    userViewModel: UserViewModel
+    userViewModel: LoggedUserViewModel
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Eventi", "Profili")
@@ -120,7 +121,8 @@ fun ShowDiscovery(
                     Box(Modifier.padding(top = 25.dp)) {
                         userCard(
                             resultItem,
-                            navController
+                            navController,
+                            userViewModel
                         )
                     }
                 }

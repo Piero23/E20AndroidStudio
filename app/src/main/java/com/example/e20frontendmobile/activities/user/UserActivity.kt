@@ -761,18 +761,6 @@ fun UserInfoProfileScreen(
                 color = MaterialTheme.colorScheme.onPrimary
             )
 
-            Spacer(Modifier.height(spaceLarge))
-
-            // Seguaci & Seguiti Box View
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                TitledBox("Preferiti", "Temp", onClick = {  }, modifier = Modifier.weight(1f))
-            }
-
             Spacer(Modifier.height(spaceMedium))
 
             // User Info

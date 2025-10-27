@@ -80,6 +80,7 @@ class AuthStateStorage(private val context: Context) {
             else -> emptyList()
         }
 
+        println("MUCCA + $roles")
         return UserInfo(sub, roles)
     }
 

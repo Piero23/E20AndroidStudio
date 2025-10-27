@@ -323,7 +323,7 @@ fun ShowEvent(navController: NavHostController,
                                 tint = if (toggledBell) Color.Yellow else Color.Black
                             )
                         }
-                        if (AuthStateStorage(context).getUserInfo()?.roles!!.isEmpty()){
+                        if ("USER" in AuthStateStorage(context).getUserInfo()?.roles!!){
                             IconButton(onClick = {
                                 toggledHeart = !toggledHeart
                                 if (toggledHeart) {

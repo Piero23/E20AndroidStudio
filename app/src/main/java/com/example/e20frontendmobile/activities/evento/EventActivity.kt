@@ -323,8 +323,8 @@ fun ShowEvent(navController: NavHostController,
                                 tint = if (toggledBell) Color.Yellow else Color.Black
                             )
                         }
-                        IconButton(onClick = {
-                            if (AuthStateStorage(context).getUserInfo()?.roles!=null){
+                        if (AuthStateStorage(context).getUserInfo()?.roles!!.isEmpty()){
+                            IconButton(onClick = {
                                 toggledHeart = !toggledHeart
                                 if (toggledHeart) {
 
@@ -339,19 +339,16 @@ fun ShowEvent(navController: NavHostController,
                                     Toast.makeText(context, "Evento rimosso dai preferiti", Toast.LENGTH_SHORT).show()
 
                                 }
-                            }
-                            else{
-                                Toast.makeText(context, "Devi essere registrato per avere dei preferiti", Toast.LENGTH_LONG).show()
-                            }
-                        }) {
+                            }) {
 
-                            Icon(
-                                Icons.Filled.FavoriteBorder,
-                                contentDescription = "Salva",
-                                modifier = Modifier.size(50.dp),
-                                tint = if (toggledHeart) Color.Red else Color.Black
-                            )
+                                Icon(
+                                    Icons.Filled.FavoriteBorder,
+                                    contentDescription = "Salva",
+                                    modifier = Modifier.size(50.dp),
+                                    tint = if (toggledHeart) Color.Red else Color.Black
+                                )
 
+                            }
                         }
                     }
                 }

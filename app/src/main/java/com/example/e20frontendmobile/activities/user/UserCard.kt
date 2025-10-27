@@ -78,7 +78,7 @@ fun userCard(utente: Utente,
             .height(100.dp),
         onClick = {
             userViewModel.setDisplayableUser(utente)
-            if (AuthStateStorage(context).getUserInfo()?.roles!=null){
+            if (AuthStateStorage(context).getUserInfo()?.roles!!.isEmpty()){
                 if (utente.username==loggedUser?.username){
                     navController.navigate("me")
                 }
@@ -131,9 +131,9 @@ fun userCard(utente: Utente,
                 )
             }
 
-            if(utente.username!=loggedUser?.username){
-                IconButton(onClick = {
-                    if (AuthStateStorage(context).getUserInfo()?.roles!=null){
+            if (AuthStateStorage(context).getUserInfo()?.roles!!.isEmpty()){
+                if(utente.username!=loggedUser?.username){
+                    IconButton(onClick = {
                         toggledHeart = !toggledHeart
                         if (toggledHeart) {
 
@@ -146,20 +146,18 @@ fun userCard(utente: Utente,
                             Toast.makeText(context, "Utente rimosso dai seguiti", Toast.LENGTH_SHORT).show()
 
                         }
-                    }
-                    else{
-                        Toast.makeText(context, "Devi essere registrato per seguire degli utenti", Toast.LENGTH_LONG).show()
-                    }
-                }) {
-                    Icon(
-                        Icons.Filled.FavoriteBorder,
-                        contentDescription = "Salva",
-                        modifier = Modifier.size(50.dp),
-                        tint = if (toggledHeart) Color.Red else Color.Black
-                    )
+                    }) {
+                        Icon(
+                            Icons.Filled.FavoriteBorder,
+                            contentDescription = "Salva",
+                            modifier = Modifier.size(50.dp),
+                            tint = if (toggledHeart) Color.Red else Color.Black
+                        )
 
+                    }
                 }
             }
+
 
         }
     }

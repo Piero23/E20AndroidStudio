@@ -42,7 +42,18 @@ class CreateEventViewModel : ViewModel() {
     var dataSbagliata by mutableStateOf(false)
     var orarioSbagliato by mutableStateOf(false)
 
+    // Stato della location selezionata
+    var selectedLocationName by mutableStateOf("")
 
+    fun selectLocation(id: Long, nome: String?) {
+        location = id
+        selectedLocationName = nome ?: ""
+    }
+
+    fun clearSelectedLocation() {
+        location = -1
+        selectedLocationName = ""
+    }
 
     fun verify(){
         if (titolo == "") {

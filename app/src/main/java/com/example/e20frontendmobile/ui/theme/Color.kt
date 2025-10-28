@@ -38,7 +38,7 @@ val primaryDark = Color(0xFFB05B1E); val onPrimaryDark = Color(0xFF000000)
 val secondaryDark = Color(0xFFBB4826); val onSecondaryDark = Color(0xFF000000)
 val ternaryDark = Color(0xFFFBBA72); val onTernaryDark = Color(0xFF691E06)
 val errorDark = Color(0xFF911D1D); val onErrorDark = Color(0xFF000000)
-val backgroundPlainDark = Color(0xFF000000); val onBackgroundDark = Color(0xFFFFFFFF)
+val backgroundPlainDark = Color(0xFFFFFFFF); val onBackgroundDark = Color(0xFF000000)
 val backgroundPlainLightestDark = Color(0xFF4F4644)
 val backgroundPlainLightDark = Color(0xFF81594B)
 

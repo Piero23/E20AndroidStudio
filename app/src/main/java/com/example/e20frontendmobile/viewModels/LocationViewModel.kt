@@ -45,6 +45,8 @@ class LocationViewModel : ViewModel() {
 
     fun clearLocations(){
         locations = emptyList()
+        // svuoto i risultati della ricerca
+        locationsAdress = emptyList()
     }
 
 

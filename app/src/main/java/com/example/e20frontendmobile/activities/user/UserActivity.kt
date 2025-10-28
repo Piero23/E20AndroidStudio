@@ -64,7 +64,6 @@ import com.example.e20frontendmobile.composables.CustomTextField
 import com.example.e20frontendmobile.composables.IconButtonType1
 import com.example.e20frontendmobile.composables.IconTextButtonType1
 import com.example.e20frontendmobile.data.auth.AuthActivity
-import com.example.e20frontendmobile.model.UserProfile
 import com.example.e20frontendmobile.model.UserRegistration
 import com.example.e20frontendmobile.model.Utente
 import com.example.e20frontendmobile.toJavaLocalDate

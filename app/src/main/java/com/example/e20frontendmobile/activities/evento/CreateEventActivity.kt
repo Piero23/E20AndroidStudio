@@ -465,23 +465,44 @@ fun locationSection(
         LocationPickerPopup { showLocationPicker = false }
     }
     val coroutineScope = rememberCoroutineScope()
-    var locationName by remember { mutableStateOf("") }
+
+    // campo di ricerca separato
+    var locationSearchQuery by remember { mutableStateOf("") }
 
     Column {
         textFieldCreateEvent("Location", createEventViewModel.locationSbagliata)
+
+        // Campo che mostra la selezione corrente (read-only)
+        CustomTextField(
+            value = createEventViewModel.selectedLocationName,
+            onValueChange = { /* read-only */ },
+            placeholder = "Nessuna selezione",
+            singleLine = true,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            readOnly = true
+        )
 
         Row (
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             CustomTextField(
-                value = locationName,
+                value = locationSearchQuery,
                 onValueChange = {
-                    locationName = it
-                    locationViewModel.searchLocations(context, it)
-                    showSearch = true
-                    createEventViewModel.location = -1
+                    locationSearchQuery = it
+                    if (it.isNotBlank()) {
+                        locationViewModel.searchLocations(context, it)
+                        showSearch = true
+                        // reset temporaneo della selezione sul viewmodel se stai cercando di cambiare
+                        createEventViewModel.location = -1
+                    } else {
+                        // svuota risultati se query vuota
+                        locationViewModel.clearLocations()
+                        showSearch = false
+                    }
                 },
-                placeholder = "Location",
+                placeholder = "Cerca location",
                 singleLine = true,
                 modifier = Modifier.width(300.dp).weight(1f)
             )
@@ -495,7 +516,7 @@ fun locationSection(
             )
         }
 
-        if (locationName.isNotEmpty() && showSearch) {
+        if (locationSearchQuery.isNotEmpty() && showSearch) {
             Card(
                 modifier = Modifier
                     .width(300.dp)
@@ -515,15 +536,15 @@ fun locationSection(
                             if (address != null) {
                                 Text(
                                     text = """${option.nome}
-                                                    |${address?.road}
-                                                    |${address?.village}, ${address.postcode}""".trimMargin()
-                                        ?: "",
+                                            |${address?.road}
+                                            |${address?.village}, ${address.postcode}""".trimMargin(),
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable {
-                                            locationName = option.nome ?: ""
-                                            createEventViewModel.location = option.id!!
-                                            locationViewModel.clearLocations()
+                                            // aggiorna viewmodel di creazione e reset ricerca
+                                            createEventViewModel.selectLocation(option.id ?: -1L, option.nome)
+                                            locationSearchQuery = ""               // svuota campo ricerca
+                                            locationViewModel.clearLocations()     // nasconde suggerimenti
                                             showSearch = false
                                         }
                                         .padding(10.dp)
@@ -534,7 +555,30 @@ fun locationSection(
                             }
                         }
                     }
+                } else {
+                    // messaggio vuoto / loading
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        if (locationViewModel.loading) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                CircularProgressIndicator(modifier = Modifier.width(18.dp).height(18.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text("Ricerca in corso...", style = MaterialTheme.typography.bodySmall)
+                            }
+                        } else {
+                            Text("Nessun risultato", modifier = Modifier.padding(8.dp))
+                        }
+                    }
                 }
+            }
+        }
+
+        // bottone per rimuovere la selezione corrente
+        Spacer(modifier = Modifier.height(8.dp))
+        Row {
+            Button(onClick = {
+                createEventViewModel.clearSelectedLocation()
+            }) {
+                Text("Rimuovi selezione")
             }
         }
     }

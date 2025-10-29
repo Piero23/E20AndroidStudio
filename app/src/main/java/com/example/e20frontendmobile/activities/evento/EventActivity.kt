@@ -323,7 +323,7 @@ fun ShowEvent(navController: NavHostController,
                                 tint = if (toggledBell) Color.Yellow else Color.Black
                             )
                         }
-                        if ("USER" in AuthStateStorage(context).getUserInfo()?.roles!!){
+                        if (AuthStateStorage(context).getUserInfo()?.roles?.isEmpty() == false){
                             IconButton(onClick = {
                                 toggledHeart = !toggledHeart
                                 if (toggledHeart) {
@@ -400,7 +400,8 @@ fun ShowEvent(navController: NavHostController,
             // Ticket box
             ticketBox(eventViewModel.selectedEvent!!.prezzo.toString())
 
-            compraOra(navController)
+
+            compraOra(navController, context)
         }
 
         // Location
@@ -509,7 +510,7 @@ fun ticketBox(prezzo : String){
 }
 
 @Composable
-fun compraOra(navController : NavHostController){
+fun compraOra(navController : NavHostController, context: Context){
     // Compra ora
     Row(
         modifier = Modifier
@@ -518,7 +519,14 @@ fun compraOra(navController : NavHostController){
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        TextButton(onClick = { navController.navigate("checkout") }) {
+        TextButton(onClick = {
+            if (AuthStateStorage(context).getUserInfo()?.roles?.isEmpty() == false) {
+                navController.navigate("checkout")
+            }
+            else {
+                Toast.makeText(context, "Devi essere loggato per fare acquisti", Toast.LENGTH_SHORT).show()
+            }
+        }) {
             Text(
                 "Compra Ora",
                 style = MaterialTheme.typography.titleMedium,

@@ -78,7 +78,7 @@ fun userCard(utente: Utente,
             .height(100.dp),
         onClick = {
             userViewModel.setDisplayableUser(utente)
-            if ("USER" in AuthStateStorage(context).getUserInfo()?.roles!!){
+            if (AuthStateStorage(context).getUserInfo()?.roles?.isEmpty() == false){
                 if (utente.username==loggedUser?.username){
                     navController.navigate("me")
                 }
@@ -131,7 +131,7 @@ fun userCard(utente: Utente,
                 )
             }
 
-            if ("USER" in AuthStateStorage(context).getUserInfo()?.roles!!){
+            if (AuthStateStorage(context).getUserInfo()?.roles?.isEmpty() == false){
                 if(utente.username!=loggedUser?.username){
                     IconButton(onClick = {
                         toggledHeart = !toggledHeart
